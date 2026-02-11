@@ -57,6 +57,9 @@ const SYMBOL_ENTRIES = [
   // Bed 2
   { id: "banana", bed: "2" },
   { id: "papaya", bed: "2" },
+  { id: "sugarcane", bed: "2" },
+  { id: "turmeric", bed: "2" },
+  { id: "ginger", bed: "2" },
   // Bed 4
   { id: "vineVeg", bed: "4" },
   { id: "pavilionPole", bed: "4" },

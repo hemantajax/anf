@@ -391,6 +391,41 @@ export const PLANT_SYMBOLS: Record<string, PlantSymbolDef> = {
     strokeWidth: 0.8,
   },
 
+  // ── Bed 2: interior column crops ──
+  sugarcane: {
+    id: "sugarcane",
+    label: "Sugarcane (Ganna)",
+    shortLabel: "SC",
+    shape: "diamond",
+    size: "medium",
+    radius: 3.5,
+    fill: "#84cc16",       // lime green diamond
+    stroke: "#65a30d",
+    strokeWidth: 1,
+  },
+  turmeric: {
+    id: "turmeric",
+    label: "Turmeric (Haldi)",
+    shortLabel: "●",
+    shape: "dot",
+    size: "small",
+    radius: 2.5,
+    fill: "#f97316",       // orange dot (matches reference)
+    stroke: "#ea580c",
+    strokeWidth: 0.8,
+  },
+  ginger: {
+    id: "ginger",
+    label: "Ginger (Adrak)",
+    shortLabel: "●",
+    shape: "dot",
+    size: "small",
+    radius: 2.5,
+    fill: "#22c55e",       // green dot (matches reference)
+    stroke: "#16a34a",
+    strokeWidth: 0.8,
+  },
+
   // ── Other symbols ──
   pigeonPea: {
     id: "pigeonPea",
@@ -611,6 +646,45 @@ export function getBed2IntermediatePlacements(
   for (let y = halfStep; y < bedHeightFt; y += mainSpacingFt) {
     placements.push({ symbolId, yOffsetFt: y, xOffsetFt: leftX });
     placements.push({ symbolId, yOffsetFt: y, xOffsetFt: rightX });
+  }
+
+  return placements;
+}
+
+/**
+ * Bed 2 — Interior line crops between BA/PA edges.
+ *
+ *   9ft bed, 5 interior lines (1.5ft grid):
+ *     Line 1 (1.5ft):  Left edge  — BA/PA + Pigeon Pea  (handled elsewhere)
+ *     Line 2 (3ft):    Sugarcane @3ft
+ *     Line 3 (4.5ft):  Turmeric @1.5ft (center, every grid point)
+ *     Line 4 (6ft):    Ginger @1.5ft (every grid point)
+ *     Line 5 (7.5ft):  Right edge — PA/BA + Pigeon Pea  (handled elsewhere)
+ */
+export function getBed2InteriorPlacements(
+  bedWidthFt: number,
+  bedHeightFt: number,
+  gridSpacingFt = 1.5
+): TreePlacement[] {
+  const placements: TreePlacement[] = [];
+
+  const line2 = gridSpacingFt * 2;               // 3ft
+  const line3 = bedWidthFt / 2;                   // 4.5ft (center)
+  const line4 = bedWidthFt - gridSpacingFt * 2;   // 6ft
+
+  // ── Line 2 (3ft): Sugarcane every 3ft ──
+  for (let y = 0; y <= bedHeightFt; y += 3) {
+    placements.push({ symbolId: "sugarcane", yOffsetFt: y, xOffsetFt: line2 });
+  }
+
+  // ── Line 3 (4.5ft center): Turmeric every 1.5ft ──
+  for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
+    placements.push({ symbolId: "turmeric", yOffsetFt: y, xOffsetFt: line3 });
+  }
+
+  // ── Line 4 (6ft): Ginger every 1.5ft ──
+  for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
+    placements.push({ symbolId: "ginger", yOffsetFt: y, xOffsetFt: line4 });
   }
 
   return placements;

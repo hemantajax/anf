@@ -21,6 +21,7 @@ import {
   getBed13GroundCoverPlacements,
   getBed2EdgePlacements,
   getBed2IntermediatePlacements,
+  getBed2InteriorPlacements,
   getBed4Placements,
 } from "@/lib/orchard-utils";
 import type { PlantSymbolDef } from "@/lib/orchard-utils";
@@ -342,6 +343,14 @@ function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bedType]);
 
+  // ── Bed 2: interior crops (Sugarcane, Turmeric, Ginger) ──
+  const bed2Interior = useMemo(() => {
+    if (bedType === 2) {
+      return getBed2InteriorPlacements(bed.width, bed.height);
+    }
+    return [];
+  }, [bed.width, bed.height, bedType]);
+
   // ── Bed 4: vine veg ★ @3ft on all lines + pavilion poles ⌂ ──
   const bed4Placements = useMemo(() => {
     if (bedType === 4) {
@@ -390,6 +399,9 @@ function BedTreePlacements({
 
       {/* Pigeon Pea @3ft on Bed 2 edges */}
       {renderPlacements(bed2Intermediates, "b2im")}
+
+      {/* Interior crops Bed 2 (Sugarcane, Turmeric, Ginger) */}
+      {renderPlacements(bed2Interior, "b2in")}
 
       {/* Vine veg ★ + Pavilion poles ⌂ (Bed 4) */}
       {renderPlacements(bed4Placements, "b4")}

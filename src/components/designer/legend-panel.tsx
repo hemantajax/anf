@@ -32,10 +32,14 @@ const LEGEND_GROUPS: LegendGroup[] = [
     ],
   },
   {
-    title: "Bed 2 — Banana & Papaya",
+    title: "Bed 2 — Edges & Interior",
     entries: [
-      { id: "banana", placement: "edges @6ft" },
-      { id: "papaya", placement: "edges @6ft" },
+      { id: "banana", placement: "L1,L5 edges @6ft" },
+      { id: "papaya", placement: "L1,L5 edges @6ft" },
+      { id: "pigeonPea", placement: "L1,L5 @3ft" },
+      { id: "sugarcane", placement: "L2 (3ft) @3ft" },
+      { id: "turmeric", placement: "L3 center @1.5ft" },
+      { id: "ginger", placement: "L4 (6ft) @1.5ft" },
     ],
   },
   {
@@ -51,7 +55,7 @@ export function LegendPanel() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="absolute bottom-2 left-2 z-10 max-w-[520px]">
+    <div className="absolute bottom-2 left-2 z-10 max-w-[580px]">
       {/* Toggle bar */}
       <button
         className="flex items-center gap-1.5 px-3 py-1 rounded-t-md bg-slate-900/90 border border-b-0 border-slate-700/60 text-[11px] font-semibold text-slate-300 hover:text-white transition-colors backdrop-blur-sm"
