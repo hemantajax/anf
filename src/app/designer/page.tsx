@@ -1,27 +1,29 @@
 "use client";
 
-import { PenTool } from "lucide-react";
-import { PagePlaceholder } from "@/components/page-placeholder";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const DesignerLayout = dynamic(
+  () =>
+    import("@/components/designer/designer-layout").then(
+      (m) => m.DesignerLayout
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Skeleton className="h-8 w-48 mx-auto" />
+          <Skeleton className="h-[400px] w-[600px]" />
+          <p className="text-sm text-muted-foreground">
+            Loading Farm Designer...
+          </p>
+        </div>
+      </div>
+    ),
+  }
+);
 
 export default function DesignerPage() {
-  return (
-    <PagePlaceholder
-      icon={PenTool}
-      title="Farm Designer"
-      description="Visual canvas editor for designing your farm layout — draw roads, trenches, stamp blocks, and place plants."
-      phase="Phase 2"
-      features={[
-        "Konva.js Canvas",
-        "Grid Overlay",
-        "Zoom / Pan",
-        "Road Tool",
-        "Trench Tool",
-        "Block Stamp",
-        "Plant Placement",
-        "Snap to Grid",
-        "Layers Panel",
-        "Undo / Redo",
-      ]}
-    />
-  );
+  return <DesignerLayout />;
 }
