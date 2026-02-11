@@ -30,6 +30,7 @@ interface OrchardLayerProps {
   showBoundary: boolean;
   showBeds: boolean;
   showGrid: boolean;
+  symbolVisibility: Record<string, boolean>;
 }
 
 // ================================================================
@@ -293,8 +294,10 @@ function PlantSymbolRenderer({
 // ================================================================
 function BedTreePlacements({
   bed,
+  symbolVisibility,
 }: {
   bed: BedPosition;
+  symbolVisibility: Record<string, boolean>;
 }) {
   const bedType = (bed.index % 4) + 1; // 1, 2, 3, or 4
 
@@ -338,13 +341,15 @@ function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bedType]);
 
-  /** Render a list of placements */
+  /** Render a list of placements, skipping symbols toggled off */
   const renderPlacements = (
     list: { symbolId: string; yOffsetFt: number; xOffsetFt: number }[],
     prefix: string,
     showLabel = false
   ) =>
     list.map((t, i) => {
+      // Skip if this symbol type is toggled off
+      if (symbolVisibility[t.symbolId] === false) return null;
       const sym = PLANT_SYMBOLS[t.symbolId];
       if (!sym) return null;
       const px = (bed.x + t.xOffsetFt) * PX_PER_FT;
@@ -387,10 +392,12 @@ function BedRenderer({
   bed,
   gridSpacing,
   showGrid,
+  symbolVisibility,
 }: {
   bed: BedPosition;
   gridSpacing: number;
   showGrid: boolean;
+  symbolVisibility: Record<string, boolean>;
 }) {
   const x = bed.x * PX_PER_FT;
   const y = bed.y * PX_PER_FT;
@@ -540,7 +547,7 @@ function BedRenderer({
       {lineLabels}
 
       {/* Tree placements per bed type */}
-      <BedTreePlacements bed={bed} />
+      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} />
     </Group>
   );
 }
@@ -744,6 +751,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
   showBoundary,
   showBeds,
   showGrid,
+  symbolVisibility,
 }: OrchardLayerProps) {
   const { config, beds, paths } = layout;
 
@@ -773,6 +781,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
             bed={bed}
             gridSpacing={config.gridSpacingFt}
             showGrid={showGrid}
+            symbolVisibility={symbolVisibility}
           />
         ))}
 

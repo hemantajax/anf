@@ -34,6 +34,11 @@ interface DesignerState {
   layerVisibility: Record<LayerName, boolean>;
   toggleLayerVisibility: (layer: LayerName) => void;
 
+  // Symbol (plant type) visibility — keyed by PLANT_SYMBOLS id
+  symbolVisibility: Record<string, boolean>;
+  toggleSymbolVisibility: (symbolId: string) => void;
+  setAllSymbolsVisible: (visible: boolean) => void;
+
   // Drawing state (temp coords while drawing)
   isDrawing: boolean;
   setIsDrawing: (drawing: boolean) => void;
@@ -105,6 +110,35 @@ export const useDesignerStore = create<DesignerState>((set) => ({
         [layer]: !s.layerVisibility[layer],
       },
     })),
+
+  // Symbol (plant type) visibility — all ON by default
+  symbolVisibility: {
+    big: true,
+    medium: true,
+    small: true,
+    banana: true,
+    papaya: true,
+    pigeonPea: true,
+    vineVeg: true,
+    pavilionPole: true,
+    groundnut: true,
+    onionGarlic: true,
+  },
+  toggleSymbolVisibility: (symbolId) =>
+    set((s) => ({
+      symbolVisibility: {
+        ...s.symbolVisibility,
+        [symbolId]: !s.symbolVisibility[symbolId],
+      },
+    })),
+  setAllSymbolsVisible: (visible) =>
+    set((s) => {
+      const next: Record<string, boolean> = {};
+      for (const key of Object.keys(s.symbolVisibility)) {
+        next[key] = visible;
+      }
+      return { symbolVisibility: next };
+    }),
 
   // Drawing state
   isDrawing: false,

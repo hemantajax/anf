@@ -32,6 +32,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
   const showGrid = useDesignerStore((s) => s.showGrid);
   const gridDisplaySize = useDesignerStore((s) => s.gridDisplaySize);
   const layerVisibility = useDesignerStore((s) => s.layerVisibility);
+  const symbolVisibility = useDesignerStore((s) => s.symbolVisibility);
   const snap = useDesignerStore((s) => s.snap);
   const setSelectedElementId = useDesignerStore((s) => s.setSelectedElementId);
   const isDrawing = useDesignerStore((s) => s.isDrawing);
@@ -304,6 +305,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
           showBoundary={layerVisibility.boundary}
           showBeds={layerVisibility.beds}
           showGrid={showGrid && layerVisibility.grid}
+          symbolVisibility={symbolVisibility}
         />
       </Layer>
 
