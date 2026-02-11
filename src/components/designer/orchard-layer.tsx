@@ -858,70 +858,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
 
       {/* Ft markers along left */}
       {showBoundary && <FtMarkers layout={layout} />}
-
-      {/* Legend below the layout */}
-      {showBeds && <SymbolLegend layout={layout} />}
     </Group>
   );
 });
 
-// ================================================================
-// LEGEND — shows B / M / S symbol meanings below layout
-// ================================================================
-function SymbolLegend({ layout }: { layout: OrchardLayout }) {
-  const { config } = layout;
-  const y = config.heightFt * PX_PER_FT + 12;
-  const startX = config.boundaryWidthFt * PX_PER_FT;
-
-  const entries = [
-    // Center column (Bed 1 & 3)
-    { sym: PLANT_SYMBOLS.big, text: "Big Tree (Citrus/Mango) — center @6ft" },
-    { sym: PLANT_SYMBOLS.medium, text: "Medium Tree (Apple) — center @6ft" },
-    { sym: PLANT_SYMBOLS.small, text: "Small Tree (Pomegranate) — center @6ft" },
-    { sym: PLANT_SYMBOLS.pigeonPea, text: "Pigeon Pea — center @3ft" },
-    // Ground cover (Bed 1 & 3)
-    { sym: PLANT_SYMBOLS.marigold, text: "Marigold — edge lines @6ft" },
-    { sym: PLANT_SYMBOLS.cotton, text: "Cotton — edge lines @3ft" },
-    { sym: PLANT_SYMBOLS.groundnut, text: "Groundnut — inner lines @6ft" },
-    { sym: PLANT_SYMBOLS.onionGarlic, text: "Onion/Garlic — inner lines @3ft" },
-    { sym: PLANT_SYMBOLS.fruitVeg, text: "Fruit Vegetables — seasonal" },
-    { sym: PLANT_SYMBOLS.milletsPulses, text: "Millets + Pulses — seasonal" },
-    // Bed 2
-    { sym: PLANT_SYMBOLS.banana, text: "Banana — edges @6ft (Bed 2)" },
-    { sym: PLANT_SYMBOLS.papaya, text: "Dwarf Papaya — edges @6ft (Bed 2)" },
-    // Bed 4
-    { sym: PLANT_SYMBOLS.vineVeg, text: "Vine Vegetable — @3ft all lines (Bed 4)" },
-    { sym: PLANT_SYMBOLS.pavilionPole, text: "Pavilion Pole — @6ft (Bed 4)" },
-  ];
-
-  return (
-    <Group listening={false}>
-      <Text
-        x={startX}
-        y={y}
-        text="Legend — Center Column Trees"
-        fontSize={8}
-        fill="#94a3b8"
-        fontStyle="bold"
-        listening={false}
-      />
-      {entries.map((e, i) => (
-        <Group key={e.sym.id} listening={false}>
-          <PlantSymbolRenderer
-            x={startX + 6}
-            y={y + 14 + i * 14}
-            symbol={e.sym}
-          />
-          <Text
-            x={startX + 16}
-            y={y + 10 + i * 14}
-            text={`${e.sym.shortLabel}  ${e.text}`}
-            fontSize={7}
-            fill={e.sym.stroke}
-            listening={false}
-          />
-        </Group>
-      ))}
-    </Group>
-  );
-}

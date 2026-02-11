@@ -6,6 +6,7 @@ import { FarmCanvas } from "./farm-canvas";
 import { LayersPanel } from "./layers-panel";
 import { PropertiesPanel } from "./properties-panel";
 import { StatusBar } from "./status-bar";
+import { LegendPanel } from "./legend-panel";
 
 export function DesignerLayout() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -33,12 +34,13 @@ export function DesignerLayout() {
         {/* Toolbar */}
         <Toolbar />
 
-        {/* Canvas */}
-        <div ref={canvasContainerRef} className="flex-1 overflow-hidden">
+        {/* Canvas + Legend overlay */}
+        <div ref={canvasContainerRef} className="flex-1 overflow-hidden relative">
           <FarmCanvas
             containerWidth={dimensions.width}
             containerHeight={dimensions.height}
           />
+          <LegendPanel />
         </div>
 
         {/* Right panels */}
