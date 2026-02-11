@@ -18,6 +18,7 @@ import {
   PLANT_SYMBOLS,
   getCenterColumnTrees,
   getIntermediatePlacements,
+  getBed13GroundCoverPlacements,
   getBed2EdgePlacements,
   getBed2IntermediatePlacements,
   getBed4Placements,
@@ -325,6 +326,14 @@ function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bedType]);
 
+  // ── Bed 1 & 3: ground-cover crops on non-center lines ──
+  const groundCover = useMemo(() => {
+    if (bedType === 1 || bedType === 3) {
+      return getBed13GroundCoverPlacements(bed.width, bed.height);
+    }
+    return [];
+  }, [bed.width, bed.height, bedType]);
+
   // ── Bed 2: pigeon pea @3ft midpoints on BOTH edge columns ──
   const bed2Intermediates = useMemo(() => {
     if (bedType === 2) {
@@ -372,6 +381,9 @@ function BedTreePlacements({
 
       {/* Intermediate pigeon pea (Bed 1 & 3) */}
       {renderPlacements(intermediates, "im")}
+
+      {/* Ground-cover crops (Bed 1 & 3) */}
+      {renderPlacements(groundCover, "gc")}
 
       {/* Edge BA/PA (Bed 2) */}
       {renderPlacements(edgePlacements, "ep", true)}
@@ -862,14 +874,24 @@ function SymbolLegend({ layout }: { layout: OrchardLayout }) {
   const startX = config.boundaryWidthFt * PX_PER_FT;
 
   const entries = [
-    { sym: PLANT_SYMBOLS.big, text: "Big Tree (Citrus, Mango) — center @6ft (Bed 1 & 3)" },
-    { sym: PLANT_SYMBOLS.medium, text: "Medium Tree (Apple, Custard Apple) — center @6ft (Bed 1 & 3)" },
-    { sym: PLANT_SYMBOLS.small, text: "Small Tree (Pomegranate, Guava) — center @6ft (Bed 1 & 3)" },
-    { sym: PLANT_SYMBOLS.pigeonPea, text: "Pigeon Pea — @3ft midpoints (Bed 1, 2 & 3)" },
+    // Center column (Bed 1 & 3)
+    { sym: PLANT_SYMBOLS.big, text: "Big Tree (Citrus/Mango) — center @6ft" },
+    { sym: PLANT_SYMBOLS.medium, text: "Medium Tree (Apple) — center @6ft" },
+    { sym: PLANT_SYMBOLS.small, text: "Small Tree (Pomegranate) — center @6ft" },
+    { sym: PLANT_SYMBOLS.pigeonPea, text: "Pigeon Pea — center @3ft" },
+    // Ground cover (Bed 1 & 3)
+    { sym: PLANT_SYMBOLS.marigold, text: "Marigold — edge lines @6ft" },
+    { sym: PLANT_SYMBOLS.cotton, text: "Cotton — edge lines @3ft" },
+    { sym: PLANT_SYMBOLS.groundnut, text: "Groundnut — inner lines @6ft" },
+    { sym: PLANT_SYMBOLS.onionGarlic, text: "Onion/Garlic — inner lines @3ft" },
+    { sym: PLANT_SYMBOLS.fruitVeg, text: "Fruit Vegetables — seasonal" },
+    { sym: PLANT_SYMBOLS.milletsPulses, text: "Millets + Pulses — seasonal" },
+    // Bed 2
     { sym: PLANT_SYMBOLS.banana, text: "Banana — edges @6ft (Bed 2)" },
     { sym: PLANT_SYMBOLS.papaya, text: "Dwarf Papaya — edges @6ft (Bed 2)" },
-    { sym: PLANT_SYMBOLS.vineVeg, text: "Vine Vegetable (Gourd/Beans/Tomato) — @3ft all lines (Bed 4)" },
-    { sym: PLANT_SYMBOLS.pavilionPole, text: "Bamboo Pavilion Pole (10ft) — @6ft structural (Bed 4)" },
+    // Bed 4
+    { sym: PLANT_SYMBOLS.vineVeg, text: "Vine Vegetable — @3ft all lines (Bed 4)" },
+    { sym: PLANT_SYMBOLS.pavilionPole, text: "Pavilion Pole — @6ft (Bed 4)" },
   ];
 
   return (

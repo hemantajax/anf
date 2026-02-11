@@ -334,6 +334,63 @@ export const PLANT_SYMBOLS: Record<string, PlantSymbolDef> = {
     strokeWidth: 1.2,
   },
 
+  // ── Bed 1 & 3: ground-cover crops on non-center lines ──
+  marigold: {
+    id: "marigold",
+    label: "Marigold (Genda Phool)",
+    shortLabel: "≈",
+    shape: "dash",
+    size: "small",
+    radius: 2.5,
+    fill: "#facc15",       // golden yellow
+    stroke: "#eab308",
+    strokeWidth: 1,
+  },
+  cotton: {
+    id: "cotton",
+    label: "Cotton (Kapas)",
+    shortLabel: "△",
+    shape: "triangle",
+    size: "small",
+    radius: 2.5,
+    fill: "transparent",
+    stroke: "#a3e635",     // lime green outline
+    strokeWidth: 0.8,
+  },
+  fruitVeg: {
+    id: "fruitVeg",
+    label: "Fruit Vegetables (Phal Sabziyan)",
+    shortLabel: "✦",
+    shape: "star",
+    size: "small",
+    radius: 2.5,
+    fill: "#f97316",       // orange star
+    stroke: "#ea580c",
+    strokeWidth: 0.8,
+  },
+  milletsPulses: {
+    id: "milletsPulses",
+    label: "Millets + Pulses (Bajra/Dalhan)",
+    shortLabel: "⊞",
+    shape: "square",
+    size: "small",
+    radius: 2,
+    fill: "transparent",
+    stroke: "#c084fc",     // purple outline
+    strokeWidth: 0.8,
+  },
+  aromaticPaddy: {
+    id: "aromaticPaddy",
+    label: "Aromatic Paddy (Sugandhi Dhan)",
+    shortLabel: "⁂",
+    shape: "diamond",
+    size: "small",
+    radius: 2.5,
+    fill: "#fbbf24",       // amber diamond
+    stroke: "#d97706",
+    strokeWidth: 0.8,
+  },
+
   // ── Other symbols ──
   pigeonPea: {
     id: "pigeonPea",
@@ -427,6 +484,71 @@ export function getIntermediatePlacements(
       yOffsetFt: y,
       xOffsetFt: centerX,
     });
+  }
+
+  return placements;
+}
+
+/**
+ * Bed 1 & 3 — Every 1.5ft grid point is planted.
+ *
+ *   5 interior lines within 9ft bed (at 1.5ft spacing):
+ *
+ *   Line 3 — CENTER (4.5ft):
+ *     @6ft:  B / M / S trees           (handled by getCenterColumnTrees)
+ *     @3ft:  Pigeon Pea △              (handled by getIntermediatePlacements)
+ *     @1.5ft gaps: Marigold ≈          (this function)
+ *
+ *   Lines 2 & 4 — INNER (3ft & 6ft):
+ *     Every 1.5ft: Groundnut ●
+ *
+ *   Lines 1 & 5 — EDGE (1.5ft & 7.5ft):
+ *     Every 1.5ft: alternating Fruit Veg ✦ and Millets+Pulses ⊞
+ */
+export function getBed13GroundCoverPlacements(
+  bedWidthFt: number,
+  bedHeightFt: number,
+  gridSpacingFt = 1.5
+): TreePlacement[] {
+  const placements: TreePlacement[] = [];
+  const step = gridSpacingFt; // 1.5ft
+
+  const centerX = bedWidthFt / 2;               // 4.5
+  const edgeL = gridSpacingFt;                   // 1.5
+  const edgeR = bedWidthFt - gridSpacingFt;      // 7.5
+  const innerL = gridSpacingFt * 2;              // 3
+  const innerR = bedWidthFt - gridSpacingFt * 2; // 6
+
+  // Positions already occupied on center column: B/M/S @6ft, PigeonPea @3ft
+  const centerOccupied = new Set<number>();
+  for (let y = 0; y <= bedHeightFt; y += 6) centerOccupied.add(y);   // B/M/S
+  for (let y = 3; y < bedHeightFt; y += 6) centerOccupied.add(y);    // Pigeon Pea
+
+  // ── CENTER (4.5ft): Marigold in remaining 1.5ft gaps ──
+  for (let y = 0; y <= bedHeightFt; y += step) {
+    if (!centerOccupied.has(y)) {
+      placements.push({ symbolId: "marigold", yOffsetFt: y, xOffsetFt: centerX });
+    }
+  }
+
+  // ── INNER lines (3ft & 6ft): Groundnut at every 1.5ft ──
+  for (const col of [innerL, innerR]) {
+    for (let y = 0; y <= bedHeightFt; y += step) {
+      placements.push({ symbolId: "groundnut", yOffsetFt: y, xOffsetFt: col });
+    }
+  }
+
+  // ── EDGE lines (1.5ft & 7.5ft): alternate Fruit Veg ✦ / Millets ⊞ ──
+  for (const col of [edgeL, edgeR]) {
+    let toggle = false;
+    for (let y = 0; y <= bedHeightFt; y += step) {
+      placements.push({
+        symbolId: toggle ? "milletsPulses" : "fruitVeg",
+        yOffsetFt: y,
+        xOffsetFt: col,
+      });
+      toggle = !toggle;
+    }
   }
 
   return placements;

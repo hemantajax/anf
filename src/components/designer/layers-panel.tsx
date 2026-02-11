@@ -41,12 +41,23 @@ const LAYERS: LayerDef[] = [
 
 /** Ordered list of symbol entries for the toggle panel */
 const SYMBOL_ENTRIES = [
+  // Center column trees (Bed 1 & 3)
   { id: "big", bed: "1,3" },
   { id: "medium", bed: "1,3" },
   { id: "small", bed: "1,3" },
   { id: "pigeonPea", bed: "1,2,3" },
+  // Ground-cover crops (Bed 1 & 3)
+  { id: "marigold", bed: "1,3" },
+  { id: "cotton", bed: "1,3" },
+  { id: "groundnut", bed: "1,3" },
+  { id: "onionGarlic", bed: "1,3" },
+  { id: "fruitVeg", bed: "1,3" },
+  { id: "milletsPulses", bed: "1,3" },
+  { id: "aromaticPaddy", bed: "1,3" },
+  // Bed 2
   { id: "banana", bed: "2" },
   { id: "papaya", bed: "2" },
+  // Bed 4
   { id: "vineVeg", bed: "4" },
   { id: "pavilionPole", bed: "4" },
 ] as const;
