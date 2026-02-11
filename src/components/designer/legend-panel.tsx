@@ -53,7 +53,7 @@ const LEGEND_GROUPS: LegendGroup[] = [
 ];
 
 export function LegendPanel() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <div className="absolute bottom-2 left-2 z-10 max-w-[580px]">
