@@ -393,11 +393,13 @@ function BedRenderer({
   gridSpacing,
   showGrid,
   symbolVisibility,
+  baseBedLengthFt,
 }: {
   bed: BedPosition;
   gridSpacing: number;
   showGrid: boolean;
   symbolVisibility: Record<string, boolean>;
+  baseBedLengthFt: number;
 }) {
   const x = bed.x * PX_PER_FT;
   const y = bed.y * PX_PER_FT;
@@ -546,6 +548,26 @@ function BedRenderer({
       {/* Line number labels */}
       {lineLabels}
 
+      {/* Module row-divider lines at every baseBedLengthFt (e.g. 24ft) */}
+      {bed.height > baseBedLengthFt &&
+        Array.from(
+          { length: Math.floor(bed.height / baseBedLengthFt) - 1 },
+          (_, i) => {
+            const divY = y + (i + 1) * baseBedLengthFt * PX_PER_FT;
+            return (
+              <Line
+                key={`row-div-${bed.index}-${i}`}
+                points={[x, divY, x + w, divY]}
+                stroke={MODULE_DIM_COLOR}
+                strokeWidth={1}
+                dash={[6, 4]}
+                opacity={0.5}
+                listening={false}
+              />
+            );
+          }
+        )}
+
       {/* Tree placements per bed type */}
       <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} />
     </Group>
@@ -560,6 +582,7 @@ function PathRenderer({ path }: { path: PathPosition }) {
   const y = path.y * PX_PER_FT;
   const w = path.width * PX_PER_FT;
   const h = path.height * PX_PER_FT;
+  const isHorizontal = path.orientation === "horizontal";
 
   return (
     <Group listening={false}>
@@ -574,34 +597,55 @@ function PathRenderer({ path }: { path: PathPosition }) {
       />
 
       {/* Center dashed line */}
-      <Line
-        points={[x + w / 2, y + 4, x + w / 2, y + h - 4]}
-        stroke={PATH_STROKE}
-        strokeWidth={0.5}
-        dash={[4, 4]}
-        opacity={0.5}
-        listening={false}
-      />
+      {isHorizontal ? (
+        <Line
+          points={[x + 4, y + h / 2, x + w - 4, y + h / 2]}
+          stroke={PATH_STROKE} strokeWidth={0.5}
+          dash={[4, 4]} opacity={0.5} listening={false}
+        />
+      ) : (
+        <Line
+          points={[x + w / 2, y + 4, x + w / 2, y + h - 4]}
+          stroke={PATH_STROKE} strokeWidth={0.5}
+          dash={[4, 4]} opacity={0.5} listening={false}
+        />
+      )}
 
       {/* Trench label */}
-      <Text
-        x={x + w / 2 - 8}
-        y={y + 4}
-        text={`${path.width}ft`}
-        fontSize={7}
-        fill="#64748b"
-        listening={false}
-      />
-      <Text
-        x={x + 2}
-        y={y + h / 2 - 4}
-        text="Trench"
-        fontSize={6}
-        fill="#64748b"
-        opacity={0.5}
-        rotation={90}
-        listening={false}
-      />
+      {isHorizontal ? (
+        <>
+          <Text
+            x={x + w / 2 - 16}
+            y={y + h / 2 - 4}
+            text={`Trench ${path.height}ft`}
+            fontSize={7}
+            fill="#64748b"
+            opacity={0.6}
+            listening={false}
+          />
+        </>
+      ) : (
+        <>
+          <Text
+            x={x + w / 2 - 8}
+            y={y + 4}
+            text={`${path.width}ft`}
+            fontSize={7}
+            fill="#64748b"
+            listening={false}
+          />
+          <Text
+            x={x + 2}
+            y={y + h / 2 - 4}
+            text="Trench"
+            fontSize={6}
+            fill="#64748b"
+            opacity={0.5}
+            rotation={90}
+            listening={false}
+          />
+        </>
+      )}
     </Group>
   );
 }
@@ -627,8 +671,14 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
   const moduleStartPx = bed1 ? (bed1.x + bed1.width / 2) * PX_PER_FT : 0;
   const moduleEndPx = bed3 ? (bed3.x + bed3.width / 2) * PX_PER_FT : 0;
 
-  // Bed length (inner height)
-  const bedLengthFt = config.heightFt - 2 * config.boundaryWidthFt;
+  // Derive per-module bed length (continuous: totalInner / rowCount)
+  const totalInnerH = config.heightFt - 2 * config.boundaryWidthFt;
+  const bedLengthFt = totalInnerH / config.rowCount;
+
+  // All beds/paths are in a single row now (continuous)
+  const verticalPaths = paths.filter((p) => p.orientation === "vertical");
+
+  const rowLabel = config.rowCount > 1 ? ` × ${config.rowCount} rows` : "";
 
   return (
     <Group listening={false}>
@@ -647,18 +697,15 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
             fontStyle="bold"
             listening={false}
           />
-          {/* Small arrows at bed centers */}
           <Circle x={moduleStartPx} y={-28} radius={2} fill={MODULE_DIM_COLOR} listening={false} />
           <Circle x={moduleEndPx} y={-28} radius={2} fill={MODULE_DIM_COLOR} listening={false} />
         </Group>
       )}
 
-      {/* === TOP ROW 2: per-section dimensions === */}
-      {/* Left boundary */}
+      {/* === TOP ROW 2: per-section dimensions (first row only) === */}
       <Line points={[0, -6, bw, -6]} stroke={BOUNDARY_STROKE} strokeWidth={0.5} opacity={0.6} listening={false} />
       <Text x={bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={BOUNDARY_STROKE} listening={false} />
 
-      {/* Each bed dimension */}
       {beds.map((bed) => {
         const bx = bed.x * PX_PER_FT;
         const bw2 = bed.width * PX_PER_FT;
@@ -670,8 +717,7 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
         );
       })}
 
-      {/* Each trench dimension */}
-      {paths.map((path) => {
+      {verticalPaths.map((path) => {
         const px = path.x * PX_PER_FT;
         const pw = path.width * PX_PER_FT;
         return (
@@ -682,21 +728,29 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
         );
       })}
 
-      {/* Right boundary */}
       <Line points={[w - bw, -6, w, -6]} stroke={BOUNDARY_STROKE} strokeWidth={0.5} opacity={0.6} listening={false} />
       <Text x={w - bw + bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={BOUNDARY_STROKE} listening={false} />
 
-      {/* === LEFT: bed length dimension === */}
+      {/* === LEFT: total inner height dimension === */}
       <Line points={[-12, bw, -12, h - bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
       <Line points={[-16, bw, -8, bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
       <Line points={[-16, h - bw, -8, h - bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
-      <Text x={-30} y={(h / 2) + 12} text={`${bedLengthFt} ft`} fontSize={9} fill="#e2e8f0" fontStyle="bold" rotation={-90} listening={false} />
+      <Text
+        x={-30}
+        y={(h / 2) + 12}
+        text={`${Math.round(totalInnerH)} ft`}
+        fontSize={9}
+        fill="#e2e8f0"
+        fontStyle="bold"
+        rotation={-90}
+        listening={false}
+      />
 
       {/* === Title === */}
       <Text
-        x={w / 2 - 90}
+        x={w / 2 - 110}
         y={-52}
-        text={`Palekar Food Forest ${moduleFt}×${bedLengthFt} ft Module`}
+        text={`Palekar Food Forest ${moduleFt}×${Math.round(bedLengthFt)} ft Module${rowLabel}`}
         fontSize={11}
         fill="#e2e8f0"
         fontStyle="bold"
@@ -755,6 +809,10 @@ export const OrchardLayer = React.memo(function OrchardLayer({
 }: OrchardLayerProps) {
   const { config, beds, paths } = layout;
 
+  // Base bed-length per module row (total inner height / rowCount)
+  const innerHeight = config.heightFt - 2 * config.boundaryWidthFt;
+  const baseBedLengthFt = innerHeight / config.rowCount;
+
   return (
     <Group listening={false}>
       {/* Dimension annotations */}
@@ -782,6 +840,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
             gridSpacing={config.gridSpacingFt}
             showGrid={showGrid}
             symbolVisibility={symbolVisibility}
+            baseBedLengthFt={baseBedLengthFt}
           />
         ))}
 

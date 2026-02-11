@@ -196,15 +196,21 @@ export interface OrchardConfig {
   bedWidthFt: number;
   /** Path/gap width between beds in feet (e.g. 3) */
   pathWidthFt: number;
-  /** Number of beds per row (e.g. 4) */
+  /** Number of beds per row (e.g. 4) — horizontal */
   bedCount: number;
+  /** Number of rows (vertical repetitions, default 1) */
+  rowCount: number;
   /** Grid spacing for plant placement in feet (e.g. 1) */
   gridSpacingFt: number;
 }
 
 export interface BedPosition {
-  /** Bed index (0-based) */
+  /** Bed index (0-based, global across all rows) */
   index: number;
+  /** Row index (0-based) */
+  row: number;
+  /** Column index within the row (0-based) */
+  col: number;
   /** Bed label (e.g. "Bed 1") */
   label: string;
   /** X position in feet from left edge of orchard */
@@ -232,6 +238,8 @@ export interface PathPosition {
   width: number;
   /** Height in feet */
   height: number;
+  /** Orientation: vertical trench between columns, horizontal between rows */
+  orientation: "vertical" | "horizontal";
 }
 
 export interface OrchardLayout {

@@ -38,23 +38,27 @@ export function calcCanvasWidth(
 }
 
 // ---- Auto-compute total canvas height ----
+// Rows are CONTINUOUS — Big trees at module boundaries are shared.
+// Total bed height = bedLength × rowCount (no horizontal trench).
 export function calcCanvasHeight(
   bedLengthFt: number,
-  boundaryWidthFt: number
+  boundaryWidthFt: number,
+  rowCount = 1
 ): number {
-  return 2 * boundaryWidthFt + bedLengthFt;
+  return 2 * boundaryWidthFt + bedLengthFt * rowCount;
 }
 
 // ---- Default orchard config (full 4-bed cycle → 48×27 canvas) ----
 // Bed 1-3: 9ft wide, 5 interior lines (1.5ft grid)
 // Bed 4:   9ft wide, 8 lines (vine/pavilion bed — denser planting later)
 export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
-  widthFt: calcCanvasWidth(4, 9, 3, 1.5),   // 48
-  heightFt: calcCanvasHeight(24, 1.5),        // 27
+  widthFt: calcCanvasWidth(4, 9, 3, 1.5),       // 48
+  heightFt: calcCanvasHeight(24, 1.5, 1),          // 27
   boundaryWidthFt: 1.5,
   bedWidthFt: 9,
   pathWidthFt: 3,
   bedCount: 4,
+  rowCount: 1,
   gridSpacingFt: 1.5,
 };
 
@@ -93,6 +97,8 @@ export const PATH_STROKE = "#475569";
 export const MODULE_DIM_COLOR = "#facc15"; // gold
 
 // ---- Compute the full orchard layout from config ----
+// Rows are CONTINUOUS — beds extend vertically, Big trees are shared at
+// 24ft module boundaries. No horizontal trenches between rows.
 export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
   const {
     widthFt,
@@ -101,6 +107,7 @@ export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
     bedWidthFt,
     pathWidthFt,
     bedCount,
+    rowCount,
     gridSpacingFt,
   } = config;
 
@@ -109,42 +116,47 @@ export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
   const innerWidth = widthFt - 2 * boundaryWidthFt;
   const innerHeight = heightFt - 2 * boundaryWidthFt;
 
+  // Total bed height = base bed-length × rows (continuous)
+  const totalBedHeight = innerHeight; // = baseBedLength × rowCount
+
   const beds: BedPosition[] = [];
   const paths: PathPosition[] = [];
 
+  const lineCount = Math.floor(bedWidthFt / gridSpacingFt) + 1;
+  const lineOffsets: number[] = [];
+  for (let l = 0; l < lineCount; l++) {
+    lineOffsets.push(l * gridSpacingFt);
+  }
+
   let currentX = innerX;
+  let pathIdx = 0;
 
-  for (let i = 0; i < bedCount; i++) {
-    const lineCount = Math.floor(bedWidthFt / gridSpacingFt) + 1;
-    const lineOffsets: number[] = [];
-    for (let l = 0; l < lineCount; l++) {
-      lineOffsets.push(l * gridSpacingFt);
-    }
-
-    // Bed types cycle every 4: Bed 1, Bed 2, Bed 3, Bed 4, Bed 1, …
-    const bedTypeNum = (i % 4) + 1;
+  for (let col = 0; col < bedCount; col++) {
+    const bedTypeNum = (col % 4) + 1;
 
     beds.push({
-      index: i,
+      index: col,
+      row: 0,
+      col,
       label: `Bed ${bedTypeNum}`,
       x: currentX,
       y: innerY,
       width: bedWidthFt,
-      height: innerHeight,
+      height: totalBedHeight,
       lineCount,
-      lineOffsets,
+      lineOffsets: [...lineOffsets],
     });
-
     currentX += bedWidthFt;
 
-    // Trench between beds (not after the last)
-    if (i < bedCount - 1) {
+    // Vertical trench between columns (not after last)
+    if (col < bedCount - 1) {
       paths.push({
-        index: i,
+        index: pathIdx++,
         x: currentX,
         y: innerY,
         width: pathWidthFt,
-        height: innerHeight,
+        height: totalBedHeight,
+        orientation: "vertical",
       });
       currentX += pathWidthFt;
     }
@@ -190,9 +202,10 @@ export function validateOrchardConfig(config: OrchardConfig): {
       ? config.bedWidthFt + config.pathWidthFt + config.bedWidthFt
       : 0;
 
+  const rowLabel = config.rowCount > 1 ? ` × ${config.rowCount} rows (continuous)` : "";
   return {
     valid: true,
-    message: `${config.bedCount} beds × ${config.bedWidthFt}ft + ${config.bedCount - 1} trenches × ${config.pathWidthFt}ft${moduleFt ? ` | Module K = ${moduleFt}ft` : ""}`,
+    message: `${config.bedCount} beds × ${config.bedWidthFt}ft${rowLabel}${moduleFt ? ` | K = ${moduleFt}ft` : ""}`,
     requiredInnerWidth,
     availableInnerWidth: innerWidth,
   };
@@ -523,9 +536,10 @@ export function getBed4Placements(
   return placements;
 }
 
-/** Build a full config from a preset bed count */
+/** Build a full config from bed count + row count */
 export function configFromBedCount(
   bedCount: number,
+  rowCount = 1,
   bedWidthFt = 9,
   pathWidthFt = 3,
   boundaryWidthFt = 1.5,
@@ -534,11 +548,12 @@ export function configFromBedCount(
 ): OrchardConfig {
   return {
     widthFt: calcCanvasWidth(bedCount, bedWidthFt, pathWidthFt, boundaryWidthFt),
-    heightFt: calcCanvasHeight(bedLengthFt, boundaryWidthFt),
+    heightFt: calcCanvasHeight(bedLengthFt, boundaryWidthFt, rowCount),
     boundaryWidthFt,
     bedWidthFt,
     pathWidthFt,
     bedCount,
+    rowCount,
     gridSpacingFt,
   };
 }

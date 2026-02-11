@@ -32,7 +32,7 @@ export function StatusBar() {
         </Badge>
       </div>
       <div>
-        Layout: {orchardConfig.widthFt}×{orchardConfig.heightFt}ft
+        Layout: {orchardConfig.widthFt}×{orchardConfig.heightFt}ft ({orchardConfig.bedCount}c×{orchardConfig.rowCount}r)
       </div>
       <div>Zoom: {Math.round(viewport.scale * 100)}%</div>
       <div>Snap: {snap.enabled ? `${snap.gridSizeFt}ft` : "Off"}</div>

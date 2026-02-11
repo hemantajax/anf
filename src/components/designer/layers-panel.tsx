@@ -198,7 +198,9 @@ export function LayersPanel() {
           <div>
             Module K: {orchardConfig.bedCount >= 3 ? orchardConfig.bedWidthFt + orchardConfig.pathWidthFt + orchardConfig.bedWidthFt : "–"} ft
           </div>
-          <div>{orchardConfig.bedCount} beds × {orchardConfig.bedWidthFt}ft | Trench: {orchardConfig.pathWidthFt}ft</div>
+          <div>
+            {orchardConfig.bedCount}×{orchardConfig.rowCount} beds ({orchardConfig.bedCount * orchardConfig.rowCount} total) | Trench: {orchardConfig.pathWidthFt}ft
+          </div>
           <div>Grid: {orchardConfig.gridSpacingFt}ft | Elements: {elements.length}</div>
         </div>
       </div>

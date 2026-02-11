@@ -24,10 +24,13 @@ function OrchardSettings() {
   const setOrchardConfig = useFarmStore((s) => s.setOrchardConfig);
   const validation = validateOrchardConfig(orchardConfig);
 
+  // Derive base bed length per module (total inner / rowCount)
+  const innerH = orchardConfig.heightFt - 2 * orchardConfig.boundaryWidthFt;
+  const bedLengthFt = innerH / orchardConfig.rowCount;
+
   /** Update config and auto-recalculate canvas width/height */
   const updateConfig = (updates: Partial<OrchardConfig>) => {
     const next = { ...orchardConfig, ...updates };
-    // Auto-recalculate canvas dimensions from bed layout
     next.widthFt = calcCanvasWidth(
       next.bedCount,
       next.bedWidthFt,
@@ -35,14 +38,12 @@ function OrchardSettings() {
       next.boundaryWidthFt
     );
     next.heightFt = calcCanvasHeight(
-      orchardConfig.heightFt - 2 * orchardConfig.boundaryWidthFt, // keep bed length
-      next.boundaryWidthFt
+      bedLengthFt, // preserve per-module bed length
+      next.boundaryWidthFt,
+      next.rowCount
     );
     setOrchardConfig(next);
   };
-
-  const bedLengthFt =
-    orchardConfig.heightFt - 2 * orchardConfig.boundaryWidthFt;
 
   return (
     <div className="w-[220px] shrink-0 border-l bg-sidebar flex flex-col">
@@ -67,7 +68,9 @@ function OrchardSettings() {
                 size="sm"
                 className="text-[10px] h-6 px-2"
                 onClick={() =>
-                  setOrchardConfig(configFromBedCount(preset.bedCount))
+                  setOrchardConfig(
+                    configFromBedCount(preset.bedCount, orchardConfig.rowCount)
+                  )
                 }
               >
                 {preset.label}
@@ -81,10 +84,10 @@ function OrchardSettings() {
         {/* Bed config */}
         <div className="space-y-1.5">
           <Label className="text-xs">Bed Configuration</Label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <div>
               <span className="text-[10px] text-muted-foreground">
-                Bed Count
+                Cols
               </span>
               <Input
                 className="h-7 text-xs"
@@ -99,7 +102,22 @@ function OrchardSettings() {
             </div>
             <div>
               <span className="text-[10px] text-muted-foreground">
-                Bed Width (ft)
+                Rows
+              </span>
+              <Input
+                className="h-7 text-xs"
+                type="number"
+                min={1}
+                max={10}
+                value={orchardConfig.rowCount}
+                onChange={(e) =>
+                  updateConfig({ rowCount: Number(e.target.value) })
+                }
+              />
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">
+                Width (ft)
               </span>
               <Input
                 className="h-7 text-xs"
@@ -130,7 +148,11 @@ function OrchardSettings() {
                   const len = Number(e.target.value);
                   setOrchardConfig({
                     ...orchardConfig,
-                    heightFt: calcCanvasHeight(len, orchardConfig.boundaryWidthFt),
+                    heightFt: calcCanvasHeight(
+                      len,
+                      orchardConfig.boundaryWidthFt,
+                      orchardConfig.rowCount
+                    ),
                   });
                 }}
               />
@@ -198,8 +220,12 @@ function OrchardSettings() {
         {/* Computed dimensions */}
         <div className="text-[10px] text-muted-foreground space-y-0.5">
           <div>Canvas: {orchardConfig.widthFt} × {orchardConfig.heightFt} ft</div>
-          <div>Bed length: {bedLengthFt} ft</div>
-          <div>Grid per bed: {Math.round(orchardConfig.bedWidthFt / orchardConfig.gridSpacingFt)} cols × {Math.round(bedLengthFt / orchardConfig.gridSpacingFt)} rows</div>
+          <div>
+            {orchardConfig.bedCount} beds × {orchardConfig.rowCount} row{orchardConfig.rowCount > 1 ? "s" : ""} (continuous)
+          </div>
+          <div>
+            Module: {orchardConfig.bedWidthFt}ft × {Math.round(bedLengthFt)}ft | Total height: {Math.round(innerH)}ft
+          </div>
         </div>
 
         {/* Validation message */}
