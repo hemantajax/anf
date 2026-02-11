@@ -37,9 +37,10 @@ const LEGEND_GROUPS: LegendGroup[] = [
       { id: "banana", placement: "L1,L5 edges @6ft" },
       { id: "papaya", placement: "L1,L5 edges @6ft" },
       { id: "pigeonPea", placement: "L1,L5 @3ft" },
-      { id: "sugarcane", placement: "L2 (3ft) @3ft" },
-      { id: "turmeric", placement: "L3 center @1.5ft" },
-      { id: "ginger", placement: "L4 (6ft) @1.5ft" },
+      { id: "turmeric", placement: "L1 edge gaps @1.5ft" },
+      { id: "ginger", placement: "L5 edge gaps @1.5ft" },
+      { id: "groundnut", placement: "L2,L4 @1.5ft" },
+      { id: "milletsPulses", placement: "L3 center @1.5ft" },
     ],
   },
   {

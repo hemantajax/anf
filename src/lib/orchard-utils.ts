@@ -652,14 +652,16 @@ export function getBed2IntermediatePlacements(
 }
 
 /**
- * Bed 2 — Interior line crops between BA/PA edges.
+ * Bed 2 — Interior + edge-gap crops.
  *
  *   9ft bed, 5 interior lines (1.5ft grid):
- *     Line 1 (1.5ft):  Left edge  — BA/PA + Pigeon Pea  (handled elsewhere)
- *     Line 2 (3ft):    Sugarcane @3ft
- *     Line 3 (4.5ft):  Turmeric @1.5ft (center, every grid point)
- *     Line 4 (6ft):    Ginger @1.5ft (every grid point)
- *     Line 5 (7.5ft):  Right edge — PA/BA + Pigeon Pea  (handled elsewhere)
+ *     Line 1 (1.5ft):  Left edge  — BA/PA @6ft + PigeonPea @3ft (elsewhere)
+ *                       + Turmeric in remaining 1.5ft gaps
+ *     Line 2 (3ft):    Groundnut @1.5ft
+ *     Line 3 (4.5ft):  Millets @1.5ft  (center)
+ *     Line 4 (6ft):    Groundnut @1.5ft
+ *     Line 5 (7.5ft):  Right edge — PA/BA @6ft + PigeonPea @3ft (elsewhere)
+ *                       + Ginger in remaining 1.5ft gaps
  */
 export function getBed2InteriorPlacements(
   bedWidthFt: number,
@@ -668,23 +670,44 @@ export function getBed2InteriorPlacements(
 ): TreePlacement[] {
   const placements: TreePlacement[] = [];
 
-  const line2 = gridSpacingFt * 2;               // 3ft
+  const line1 = gridSpacingFt;                    // 1.5ft (left edge)
+  const line2 = gridSpacingFt * 2;                // 3ft
   const line3 = bedWidthFt / 2;                   // 4.5ft (center)
   const line4 = bedWidthFt - gridSpacingFt * 2;   // 6ft
+  const line5 = bedWidthFt - gridSpacingFt;        // 7.5ft (right edge)
 
-  // ── Line 2 (3ft): Sugarcane every 3ft ──
-  for (let y = 0; y <= bedHeightFt; y += 3) {
-    placements.push({ symbolId: "sugarcane", yOffsetFt: y, xOffsetFt: line2 });
+  // Positions already occupied on edge columns: BA/PA @6ft, PigeonPea @3ft
+  const edgeOccupied = new Set<number>();
+  for (let y = 0; y <= bedHeightFt; y += 6) edgeOccupied.add(y);  // BA/PA
+  for (let y = 3; y < bedHeightFt; y += 6) edgeOccupied.add(y);   // Pigeon Pea
+
+  // ── Line 1 (1.5ft left edge): Turmeric in 1.5ft gaps ──
+  for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
+    if (!edgeOccupied.has(y)) {
+      placements.push({ symbolId: "turmeric", yOffsetFt: y, xOffsetFt: line1 });
+    }
   }
 
-  // ── Line 3 (4.5ft center): Turmeric every 1.5ft ──
+  // ── Line 2 (3ft): Groundnut every 1.5ft ──
   for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
-    placements.push({ symbolId: "turmeric", yOffsetFt: y, xOffsetFt: line3 });
+    placements.push({ symbolId: "groundnut", yOffsetFt: y, xOffsetFt: line2 });
   }
 
-  // ── Line 4 (6ft): Ginger every 1.5ft ──
+  // ── Line 3 (4.5ft center): Millets every 1.5ft ──
   for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
-    placements.push({ symbolId: "ginger", yOffsetFt: y, xOffsetFt: line4 });
+    placements.push({ symbolId: "milletsPulses", yOffsetFt: y, xOffsetFt: line3 });
+  }
+
+  // ── Line 4 (6ft): Groundnut every 1.5ft ──
+  for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
+    placements.push({ symbolId: "groundnut", yOffsetFt: y, xOffsetFt: line4 });
+  }
+
+  // ── Line 5 (7.5ft right edge): Ginger in 1.5ft gaps ──
+  for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
+    if (!edgeOccupied.has(y)) {
+      placements.push({ symbolId: "ginger", yOffsetFt: y, xOffsetFt: line5 });
+    }
   }
 
   return placements;

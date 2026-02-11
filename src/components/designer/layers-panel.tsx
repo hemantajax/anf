@@ -49,15 +49,14 @@ const SYMBOL_ENTRIES = [
   // Ground-cover crops (Bed 1 & 3)
   { id: "marigold", bed: "1,3" },
   { id: "cotton", bed: "1,3" },
-  { id: "groundnut", bed: "1,3" },
+  { id: "groundnut", bed: "1,2,3" },
   { id: "onionGarlic", bed: "1,3" },
   { id: "fruitVeg", bed: "1,3" },
-  { id: "milletsPulses", bed: "1,3" },
+  { id: "milletsPulses", bed: "1,2,3" },
   { id: "aromaticPaddy", bed: "1,3" },
   // Bed 2
   { id: "banana", bed: "2" },
   { id: "papaya", bed: "2" },
-  { id: "sugarcane", bed: "2" },
   { id: "turmeric", bed: "2" },
   { id: "ginger", bed: "2" },
   // Bed 4
