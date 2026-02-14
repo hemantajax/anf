@@ -8,6 +8,7 @@ import {
   Settings,
   Calculator,
   IndianRupee,
+  Map,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +25,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/",
     icon: LayoutDashboard,
     description: "Overview & quick stats",
+  },
+  {
+    title: "Master Plan",
+    href: "/masterplan",
+    icon: Map,
+    description: "12-acre architectural layout",
   },
   {
     title: "Farm Designer",
