@@ -126,21 +126,26 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 98, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "infra", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
   { id: "inf-beehive", label: "Bee Keeping", x: 280, y: 365, w: 20, h: 18, color: "#FFE082", stroke: "#FFA000", type: "infra", details: "20×18 ft — 4-5 bee hive boxes near flower panels for pollination" },
 
-  // ─── SW Hub — Residential + Processing (peak elevation) ───
-  { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 38, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×38 ft (2,090 sq ft) — 2BHK residence at peak elevation, panoramic views" },
-  { id: "inf-store", label: "Store / Godown", x: 90, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage, near farmhouse at SW peak" },
-  { id: "inf-watchtower", label: "Watch Tower", x: 132, y: 585, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — Elevated 20ft tower at highest point, full farm visibility" },
-  { id: "inf-kitchen-garden", label: "Kitchen Garden", x: 28, y: 630, w: 55, h: 42, color: "#A5D6A7", stroke: "#388E3C", type: "infra", details: "55×42 ft — Seasonal vegetables, herbs, medicinal plants near farmhouse" },
-  { id: "inf-processing", label: "Processing Unit", x: 90, y: 630, w: 30, h: 22, color: "#FFECB3", stroke: "#FF8F00", type: "infra", details: "30×22 ft — Pickle, jam, juice, pulp making, near store" },
-  { id: "inf-drying", label: "Drying Yard", x: 127, y: 630, w: 28, h: 22, color: "#FFF9C4", stroke: "#F9A825", type: "infra", details: "28×22 ft — Solar drying for turmeric, ginger, chilli, open to sun" },
-  { id: "inf-tank", label: "Water Tank", x: 28, y: 680, w: 22, h: 22, color: "#4FC3F7", stroke: "#0288D1", type: "infra", details: "22×22 ft — 50,000L tank at peak for gravity-fed irrigation to entire farm" },
-  { id: "inf-solar", label: "Solar Panels", x: 70, y: 680, w: 35, h: 25, color: "#42A5F5", stroke: "#1565C0", type: "infra", details: "35×25 ft — 5KW solar array near tank, powers both bore well pumps" },
+  // ─── SW Hub — Residential + Processing (peak elevation, SW corner) ───
+  // Layout: stacked rows at SW corner, each row can expand EAST (→) into Zone C (~230ft)
+  // Expansion north (↑) into open orchard above (~180ft available)
+  // Row 1 — Residential (y=585)
+  { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 40, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×40 ft — 2BHK at SW peak, 5KW rooftop solar. Expand east →" },
+  { id: "inf-store", label: "Store / Godown", x: 95, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage. Expand east →" },
+  { id: "inf-watchtower", label: "Watch Tower", x: 95, y: 620, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — 20ft tower at peak, full farm visibility" },
+  // Row 2 — Kitchen Garden (y=640, 15ft gap)
+  { id: "inf-kitchen-garden", label: "Kitchen Garden", x: 28, y: 640, w: 70, h: 45, color: "#A5D6A7", stroke: "#388E3C", type: "infra", details: "70×45 ft — Vegetables, herbs, medicinal plants. Expand east → / north ↑" },
+  // Row 3 — Processing (y=700, 15ft gap)
+  { id: "inf-processing", label: "Processing Unit", x: 28, y: 700, w: 40, h: 28, color: "#FFECB3", stroke: "#FF8F00", type: "infra", details: "40×28 ft — Pickle, jam, juice, pulp. Expand east → / north ↑" },
+  { id: "inf-drying", label: "Drying Yard", x: 80, y: 700, w: 35, h: 28, color: "#FFF9C4", stroke: "#F9A825", type: "infra", details: "35×28 ft — Solar drying platform. Expand east →" },
+  // Row 4 — Water (y=740, at very bottom of SW corner)
+  { id: "inf-tank", label: "Water Tank", x: 28, y: 740, w: 22, h: 22, color: "#4FC3F7", stroke: "#0288D1", type: "infra", details: "22×22 ft — 50,000L tank at peak, gravity-fed irrigation" },
 ];
 
 // ── Water Features ──
 export const WATER_FEATURES: LayoutItem[] = [
   { id: "water-pond", label: "Farm Pond", x: 540, y: 690, w: 85, h: 65, color: "#4FC3F7", stroke: "#0277BD", type: "water", details: "85×65 ft — Rainwater harvesting, fish culture, SE corner near nala" },
-  { id: "water-bore-domestic", label: "Domestic Bore", x: 53, y: 682, w: 10, h: 10, color: "#29B6F6", stroke: "#01579B", type: "water", details: "10×10 ft — Domestic bore well near farmhouse (SW peak) for kitchen, drinking, bathroom" },
+  { id: "water-bore-domestic", label: "Domestic Bore", x: 55, y: 745, w: 10, h: 10, color: "#29B6F6", stroke: "#01579B", type: "water", details: "10×10 ft — Domestic bore near water tank (SW peak) for kitchen, drinking" },
   { id: "water-bore-irrigation", label: "Irrigation Bore", x: 340, y: 404, w: 14, h: 14, color: "#1E88E5", stroke: "#01579B", type: "water", details: "14×14 ft — Main irrigation bore + pump house at central intersection (mid-slope), pumps UP to SW tank + gravity-feeds E-ward trenches" },
   { id: "water-percolation", label: "Percolation Pit", x: 600, y: 440, w: 28, h: 28, color: "#81D4FA", stroke: "#0288D1", type: "water", details: "28×28 ft — Groundwater recharge pit, near east nala" },
 ];
@@ -370,7 +375,7 @@ export interface AddonRecommendation {
 
 export const ADDON_RECOMMENDATIONS: AddonRecommendation[] = [
   { name: "Polyhouse / Greenhouse", size: "40×28 ft", location: "Near nursery, Zone A", benefit: "Seedling nursery, off-season high-value crops", priority: "Medium", estimatedCost: "₹2-3 Lakh" },
-  { name: "Solar Panel Array", size: "35×25 ft", location: "Near bore well / water tank", benefit: "5KW power for pump, lighting — saves ₹30K/yr electricity", priority: "High", estimatedCost: "₹2.5-3.5 Lakh" },
+  { name: "Rooftop Solar (5KW)", size: "On farmhouse roof", location: "Farmhouse rooftop (SW peak)", benefit: "Powers bore pumps, lighting — saves ₹30K/yr electricity, no ground space needed", priority: "High", estimatedCost: "₹2.5-3.5 Lakh" },
   { name: "Rainwater Harvesting", size: "Network", location: "All roads channel → farm pond", benefit: "12 lakh liters/yr collection, reduces bore well dependency", priority: "High", estimatedCost: "₹50,000-1 Lakh" },
   { name: "Drip Irrigation System", size: "Full farm", location: "All zones", benefit: "50-60% water savings, precise fertigation", priority: "High", estimatedCost: "₹3-5 Lakh" },
   { name: "Biogas Plant", size: "18×18 ft", location: "Near cattle shed", benefit: "Cooking gas + slurry for fertilizer from cow dung", priority: "Medium", estimatedCost: "₹40,000-60,000" },
@@ -385,7 +390,7 @@ export interface InfraRecommendation {
 }
 
 export const INFRA_RECOMMENDATIONS: InfraRecommendation[] = [
-  { name: "Farmhouse", recommendedSize: "55×38 ft (2,090 sq ft)", purpose: "Residence with veranda, attached kitchen, 2BHK minimum for farm family", construction: "RCC/Brick, raised 2ft plinth, rainwater harvesting from roof" },
+  { name: "Farmhouse", recommendedSize: "55×38 ft (2,090 sq ft)", purpose: "Residence with veranda, attached kitchen, 2BHK minimum for farm family", construction: "RCC/Brick, raised 2ft plinth, rainwater harvesting from roof, 5KW rooftop solar panels powering bore pumps & lighting" },
   { name: "Store / Godown", recommendedSize: "35×28 ft (980 sq ft)", purpose: "Fertilizer, seed, tool & harvest storage with ventilation", construction: "Sheet roofing, concrete floor, rat-proof, ventilated" },
   { name: "Cattle Shed", recommendedSize: "35×28 ft (980 sq ft)", purpose: "2-3 desi cows for Jeevamrut, milk, cow dung, urine", construction: "Open-sided with roof, sloped floor for drainage" },
   { name: "Kitchen Garden", recommendedSize: "60×48 ft (2,880 sq ft)", purpose: "Daily vegetables, herbs, medicinal plants for household + sale", construction: "Raised beds, drip irrigation, seasonal rotation" },
