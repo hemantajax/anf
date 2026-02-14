@@ -65,39 +65,94 @@ export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
   treeSpacingFt: 6,
 };
 
-// ---- Visual style matching the hand-drawn reference images ----
+// ---- Canvas color palette (dark / light theme) ----
 
-// Bed fill colors (alternating per bed for distinction)
-export const BED_FILLS = [
-  "rgba(250, 245, 235, 0.08)", // Bed 1 – very faint warm
-  "rgba(235, 245, 250, 0.08)", // Bed 2 – very faint cool
-  "rgba(250, 245, 235, 0.08)", // Bed 3
-  "rgba(245, 250, 235, 0.08)", // Bed 4
-];
+export interface CanvasColors {
+  stageBg: string;        // Stage CSS background
+  canvasFill: string;     // inner canvas Rect fill
+  bedFills: string[];     // alternating bed fill colors
+  bedBorder: string;      // pink/magenta bed border
+  bedAccent: string;      // accent lines on bed edges
+  gridLine: string;       // green grid lines
+  gridDot: string;        // blue intersection dots
+  boundaryFill: string;   // live-fence fill
+  boundaryStroke: string; // live-fence stroke
+  boundaryHatch: string;  // brown diagonal hatching
+  pathFill: string;       // trench fill
+  pathStroke: string;     // trench stroke
+  moduleDim: string;      // "K" dimension color (gold)
+  textPrimary: string;    // main text (titles, labels)
+  textSecondary: string;  // secondary text (dimensions)
+  textMuted: string;      // muted text (trench labels)
+  symbolDot: string;      // inner dot on big-tree circles
+}
 
-// Pink/magenta border around each bed (matches reference)
-export const BED_BORDER_COLOR = "#ec4899";
+const DARK_COLORS: CanvasColors = {
+  stageBg: "#0f172a",
+  canvasFill: "#0c1a0c",
+  bedFills: [
+    "rgba(250, 245, 235, 0.08)",
+    "rgba(235, 245, 250, 0.08)",
+    "rgba(250, 245, 235, 0.08)",
+    "rgba(245, 250, 235, 0.08)",
+  ],
+  bedBorder: "#ec4899",
+  bedAccent: "#f43f5e",
+  gridLine: "#22c55e",
+  gridDot: "#3b82f6",
+  boundaryFill: "#1a472e",
+  boundaryStroke: "#16a34a",
+  boundaryHatch: "#8B4513",
+  pathFill: "rgba(30, 30, 40, 0.5)",
+  pathStroke: "#475569",
+  moduleDim: "#facc15",
+  textPrimary: "#e2e8f0",
+  textSecondary: "#94a3b8",
+  textMuted: "#64748b",
+  symbolDot: "#fff",
+};
 
-// Green grid lines within beds (matches reference)
-export const GRID_LINE_COLOR = "#22c55e";
+const LIGHT_COLORS: CanvasColors = {
+  stageBg: "#f1f5f0",
+  canvasFill: "#f8faf5",
+  bedFills: [
+    "rgba(245, 235, 220, 0.35)",
+    "rgba(220, 235, 245, 0.35)",
+    "rgba(245, 235, 220, 0.35)",
+    "rgba(235, 245, 225, 0.35)",
+  ],
+  bedBorder: "#db2777",
+  bedAccent: "#e11d48",
+  gridLine: "#16a34a",
+  gridDot: "#2563eb",
+  boundaryFill: "#bbf7d0",
+  boundaryStroke: "#15803d",
+  boundaryHatch: "#92400e",
+  pathFill: "rgba(200, 200, 210, 0.45)",
+  pathStroke: "#94a3b8",
+  moduleDim: "#a16207",
+  textPrimary: "#1e293b",
+  textSecondary: "#475569",
+  textMuted: "#94a3b8",
+  symbolDot: "#1e293b",
+};
 
-// Blue dots at intersections (matches reference)
-export const GRID_DOT_COLOR = "#3b82f6";
+export function getCanvasColors(theme: "dark" | "light"): CanvasColors {
+  return theme === "light" ? LIGHT_COLORS : DARK_COLORS;
+}
 
-// Red/pink horizontal accent lines on bed border
-export const BED_ACCENT_COLOR = "#f43f5e";
-
-// Boundary (live fence) hatching
-export const BOUNDARY_FILL = "#1a472e";
-export const BOUNDARY_STROKE = "#16a34a";
-export const BOUNDARY_HATCH_COLOR = "#8B4513"; // brown diagonal lines
-
-// Trench/path
-export const PATH_FILL = "rgba(30, 30, 40, 0.5)";
-export const PATH_STROKE = "#475569";
-
-// ---- 24 ft module color (used for "K" dimension) ----
-export const MODULE_DIM_COLOR = "#facc15"; // gold
+// Legacy constants — still exported for any code outside the canvas that references them
+export const BED_FILLS = DARK_COLORS.bedFills;
+export const BED_BORDER_COLOR = DARK_COLORS.bedBorder;
+export const GRID_LINE_COLOR = DARK_COLORS.gridLine;
+export const GRID_DOT_COLOR = DARK_COLORS.gridDot;
+export const BED_ACCENT_COLOR = DARK_COLORS.bedAccent;
+export const BOUNDARY_FILL = DARK_COLORS.boundaryFill;
+export const BOUNDARY_STROKE = DARK_COLORS.boundaryStroke;
+export const BOUNDARY_HATCH_COLOR = DARK_COLORS.boundaryHatch;
+export const PATH_FILL = DARK_COLORS.pathFill;
+export const PATH_STROKE = DARK_COLORS.pathStroke;
+export const MODULE_DIM_COLOR = DARK_COLORS.moduleDim;
 
 // ---- Compute the full orchard layout from config ----
 // Rows are CONTINUOUS — beds extend vertically, Big trees are shared at

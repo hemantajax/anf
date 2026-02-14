@@ -1,20 +1,9 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, createContext, useContext } from "react";
 import { Rect, Circle, Line, Text, Group, RegularPolygon, Shape } from "react-konva";
 import { PX_PER_FT } from "@/lib/designer-utils";
 import {
-  BED_FILLS,
-  BED_BORDER_COLOR,
-  BED_ACCENT_COLOR,
-  GRID_LINE_COLOR,
-  GRID_DOT_COLOR,
-  BOUNDARY_FILL,
-  BOUNDARY_STROKE,
-  BOUNDARY_HATCH_COLOR,
-  PATH_FILL,
-  PATH_STROKE,
-  MODULE_DIM_COLOR,
   PLANT_SYMBOLS,
   getCenterColumnTrees,
   getIntermediatePlacements,
@@ -23,9 +12,14 @@ import {
   getBed2IntermediatePlacements,
   getBed2InteriorPlacements,
   getBed4Placements,
+  getCanvasColors,
 } from "@/lib/orchard-utils";
-import type { PlantSymbolDef } from "@/lib/orchard-utils";
+import type { PlantSymbolDef, CanvasColors } from "@/lib/orchard-utils";
 import type { OrchardLayout, BedPosition, PathPosition } from "@/types/farm";
+
+// Canvas color context — avoids prop-drilling through every sub-component
+const ColorCtx = createContext<CanvasColors>(getCanvasColors("dark"));
+const useColors = () => useContext(ColorCtx);
 
 interface OrchardLayerProps {
   layout: OrchardLayout;
@@ -33,6 +27,7 @@ interface OrchardLayerProps {
   showBeds: boolean;
   showGrid: boolean;
   symbolVisibility: Record<string, boolean>;
+  colors: CanvasColors;
 }
 
 // ================================================================
@@ -47,16 +42,15 @@ function BoundaryRenderer({
   heightFt: number;
   boundaryWidthFt: number;
 }) {
+  const c = useColors();
   const w = widthFt * PX_PER_FT;
   const h = heightFt * PX_PER_FT;
   const bw = boundaryWidthFt * PX_PER_FT;
 
-  // Draw ALL hatch + accent lines in a single canvas draw call (was 400+ <Line> components)
+  // Draw ALL hatch + accent lines in a single canvas draw call
   const drawBoundary = useCallback(
     (ctx: any, shape: any) => {
-      const step = 8; // px between hatch lines (was 5 — less dense = faster)
-
-      // Helper: diagonal hatch inside a rectangle
+      const step = 8;
       const hatchRect = (rx: number, ry: number, rw: number, rh: number) => {
         const maxD = rw + rh;
         for (let d = 0; d < maxD; d += step) {
@@ -65,18 +59,16 @@ function BoundaryRenderer({
         }
       };
 
-      // Hatch lines
       ctx.beginPath();
-      hatchRect(0, 0, w, bw);         // top
-      hatchRect(0, h - bw, w, bw);    // bottom
-      hatchRect(0, bw, bw, h - 2 * bw); // left
-      hatchRect(w - bw, bw, bw, h - 2 * bw); // right
-      ctx.strokeStyle = BOUNDARY_HATCH_COLOR;
+      hatchRect(0, 0, w, bw);
+      hatchRect(0, h - bw, w, bw);
+      hatchRect(0, bw, bw, h - 2 * bw);
+      hatchRect(w - bw, bw, bw, h - 2 * bw);
+      ctx.strokeStyle = c.boundaryHatch;
       ctx.lineWidth = 0.6;
       ctx.globalAlpha = 0.5;
       ctx.stroke();
 
-      // Accent lines (left + right strips)
       const accentStep = 6;
       ctx.beginPath();
       for (let ay = bw; ay < h - bw; ay += accentStep) {
@@ -85,7 +77,7 @@ function BoundaryRenderer({
         ctx.moveTo(w - bw, ay);
         ctx.lineTo(w, ay);
       }
-      ctx.strokeStyle = BED_ACCENT_COLOR;
+      ctx.strokeStyle = c.bedAccent;
       ctx.lineWidth = 0.4;
       ctx.globalAlpha = 0.4;
       ctx.stroke();
@@ -93,45 +85,22 @@ function BoundaryRenderer({
       ctx.globalAlpha = 1;
       ctx.fillStrokeShape(shape);
     },
-    [w, h, bw]
+    [w, h, bw, c]
   );
 
   return (
     <Group listening={false}>
-      {/* Four boundary fill strips */}
-      <Rect x={0} y={0} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
-      <Rect x={0} y={h - bw} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
-      <Rect x={0} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
-      <Rect x={w - bw} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={0} y={0} width={w} height={bw} fill={c.boundaryFill} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={0} y={h - bw} width={w} height={bw} fill={c.boundaryFill} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={0} y={bw} width={bw} height={h - 2 * bw} fill={c.boundaryFill} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={w - bw} y={bw} width={bw} height={h - 2 * bw} fill={c.boundaryFill} opacity={0.8} listening={false} perfectDrawEnabled={false} />
 
-      {/* Hatch + accent — single canvas draw call */}
       <Shape sceneFunc={drawBoundary} listening={false} perfectDrawEnabled={false} />
 
-      {/* Outer border */}
-      <Rect
-        x={0} y={0} width={w} height={h}
-        stroke={BOUNDARY_STROKE} strokeWidth={2}
-        fill="transparent" listening={false} perfectDrawEnabled={false}
-      />
+      <Rect x={0} y={0} width={w} height={h} stroke={c.boundaryStroke} strokeWidth={2} fill="transparent" listening={false} perfectDrawEnabled={false} />
+      <Rect x={bw} y={bw} width={w - 2 * bw} height={h - 2 * bw} stroke={c.boundaryStroke} strokeWidth={1} fill="transparent" opacity={0.6} listening={false} perfectDrawEnabled={false} />
 
-      {/* Inner border */}
-      <Rect
-        x={bw} y={bw}
-        width={w - 2 * bw} height={h - 2 * bw}
-        stroke={BOUNDARY_STROKE} strokeWidth={1}
-        fill="transparent" opacity={0.6} listening={false} perfectDrawEnabled={false}
-      />
-
-      {/* Label */}
-      <Text
-        x={w / 2 - 30}
-        y={bw * 0.2}
-        text="Live Fence"
-        fontSize={Math.max(7, bw * 0.5)}
-        fill={BOUNDARY_STROKE}
-        fontStyle="bold"
-        listening={false}
-      />
+      <Text x={w / 2 - 30} y={bw * 0.2} text="Live Fence" fontSize={Math.max(7, bw * 0.5)} fill={c.boundaryStroke} fontStyle="bold" listening={false} />
     </Group>
   );
 }
@@ -145,18 +114,19 @@ const PlantSymbolRenderer = React.memo(function PlantSymbolRenderer({
   y,
   symbol,
   showLabel,
+  dotFill,
 }: {
   x: number;
   y: number;
   symbol: PlantSymbolDef;
   showLabel?: boolean;
+  dotFill?: string;
 }) {
   const { shape, radius, fill, stroke, strokeWidth, shortLabel } = symbol;
   const r = radius;
 
   return (
     <Group x={x} y={y} listening={false}>
-      {/* Shape */}
       {shape === "circle" && (
         <>
           <Circle
@@ -167,8 +137,7 @@ const PlantSymbolRenderer = React.memo(function PlantSymbolRenderer({
             opacity={0.9}
             perfectDrawEnabled={false}
           />
-          {/* Inner dot for Big trees */}
-          <Circle radius={1.2} fill="#fff" opacity={0.8} perfectDrawEnabled={false} />
+          <Circle radius={1.2} fill={dotFill || "#fff"} opacity={0.8} perfectDrawEnabled={false} />
         </>
       )}
 
@@ -278,8 +247,9 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
   bedTypeCycle: number[];
   treeSpacingFt: number;
 }) {
+  const colors = useColors();
   const bedType = bedTypeCycle[bed.index % bedTypeCycle.length];
-  const ts = treeSpacingFt; // shorthand: 6 for 24×24, 9 for 36×36
+  const ts = treeSpacingFt;
 
   // ── Bed 2: Banana & Papaya on edges ──
   const edgePlacements = useMemo(() => {
@@ -344,7 +314,6 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
     showLabel = false
   ) =>
     list.map((t, i) => {
-      // Skip if this symbol type is toggled off
       if (symbolVisibility[t.symbolId] === false) return null;
       const sym = PLANT_SYMBOLS[t.symbolId];
       if (!sym) return null;
@@ -357,6 +326,7 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
           y={py}
           symbol={sym}
           showLabel={showLabel}
+          dotFill={colors.symbolDot}
         />
       );
     });
@@ -407,33 +377,32 @@ const BedRenderer = React.memo(function BedRenderer({
   bedTypeCycle: number[];
   treeSpacingFt: number;
 }) {
+  const cl = useColors();
   const x = bed.x * PX_PER_FT;
   const y = bed.y * PX_PER_FT;
   const w = bed.width * PX_PER_FT;
   const h = bed.height * PX_PER_FT;
   const stepPx = gridSpacing * PX_PER_FT;
-  const colorIdx = bed.index % BED_FILLS.length;
+  const colorIdx = bed.index % cl.bedFills.length;
 
-  // Grid: ALL lines + dots drawn in a single canvas call (was ~143 React components per bed)
+  // Grid: ALL lines + dots drawn in a single canvas call
   const drawGrid = useCallback(
     (ctx: any, shape: any) => {
       if (!showGrid) return;
       const vCols = Math.round(bed.width / gridSpacing);
       const hRows = Math.round(bed.height / gridSpacing);
 
-      // Vertical green lines
       ctx.beginPath();
       for (let c = 0; c <= vCols; c++) {
         const lx = x + c * stepPx;
         ctx.moveTo(lx, y);
         ctx.lineTo(lx, y + h);
       }
-      ctx.strokeStyle = GRID_LINE_COLOR;
+      ctx.strokeStyle = cl.gridLine;
       ctx.lineWidth = 0.7;
       ctx.globalAlpha = 0.45;
       ctx.stroke();
 
-      // Horizontal green lines
       ctx.beginPath();
       for (let r = 0; r <= hRows; r++) {
         const ly = y + r * stepPx;
@@ -444,8 +413,7 @@ const BedRenderer = React.memo(function BedRenderer({
       ctx.globalAlpha = 0.3;
       ctx.stroke();
 
-      // Blue dots at intersections
-      ctx.fillStyle = GRID_DOT_COLOR;
+      ctx.fillStyle = cl.gridDot;
       ctx.globalAlpha = 0.7;
       for (let c = 0; c <= vCols; c++) {
         for (let r = 0; r <= hRows; r++) {
@@ -458,14 +426,13 @@ const BedRenderer = React.memo(function BedRenderer({
       ctx.globalAlpha = 1;
       ctx.fillStrokeShape(shape);
     },
-    [bed.width, bed.height, gridSpacing, showGrid, x, y, w, h, stepPx]
+    [bed.width, bed.height, gridSpacing, showGrid, x, y, w, h, stepPx, cl]
   );
 
-  // Line number labels above the bed (interior lines only)
+  // Line number labels
   const lineLabels = useMemo(() => {
     const labels: React.ReactNode[] = [];
     const vCols = Math.round(bed.width / gridSpacing);
-    // Interior lines: skip first (0) and last (vCols)
     for (let c = 1; c < vCols; c++) {
       labels.push(
         <Text
@@ -474,99 +441,40 @@ const BedRenderer = React.memo(function BedRenderer({
           y={y - 10}
           text={`${c}`}
           fontSize={7}
-          fill={GRID_LINE_COLOR}
+          fill={cl.gridLine}
           opacity={0.7}
           listening={false}
         />
       );
     }
     return labels;
-  }, [bed, gridSpacing, x, y, stepPx]);
+  }, [bed, gridSpacing, x, y, stepPx, cl.gridLine]);
 
   return (
     <Group listening={false}>
-      {/* Bed fill */}
-      <Rect
-        x={x} y={y} width={w} height={h}
-        fill={BED_FILLS[colorIdx]}
-        listening={false}
-        perfectDrawEnabled={false}
-      />
+      <Rect x={x} y={y} width={w} height={h} fill={cl.bedFills[colorIdx]} listening={false} perfectDrawEnabled={false} />
+      <Rect x={x} y={y} width={w} height={h} stroke={cl.bedBorder} strokeWidth={1.5} fill="transparent" listening={false} perfectDrawEnabled={false} />
 
-      {/* Pink/magenta border (matches reference) */}
-      <Rect
-        x={x} y={y} width={w} height={h}
-        stroke={BED_BORDER_COLOR}
-        strokeWidth={1.5}
-        fill="transparent"
-        listening={false}
-        perfectDrawEnabled={false}
-      />
+      <Line points={[x, y, x + w, y]} stroke={cl.bedAccent} strokeWidth={1} opacity={0.6} listening={false} />
+      <Line points={[x, y + h, x + w, y + h]} stroke={cl.bedAccent} strokeWidth={1} opacity={0.6} listening={false} />
 
-      {/* Pink accent horizontal lines at top and bottom of bed */}
-      <Line
-        points={[x, y, x + w, y]}
-        stroke={BED_ACCENT_COLOR}
-        strokeWidth={1}
-        opacity={0.6}
-        listening={false}
-      />
-      <Line
-        points={[x, y + h, x + w, y + h]}
-        stroke={BED_ACCENT_COLOR}
-        strokeWidth={1}
-        opacity={0.6}
-        listening={false}
-      />
+      <Text x={x + w / 2 - 14} y={y + 4} text={bed.label} fontSize={10} fill={cl.textPrimary} fontStyle="bold" listening={false} />
+      <Text x={x + w / 2 - 8} y={y + 16} text={`${bed.width}ft`} fontSize={7} fill={cl.textSecondary} listening={false} />
 
-      {/* Bed label (top center) */}
-      <Text
-        x={x + w / 2 - 14}
-        y={y + 4}
-        text={bed.label}
-        fontSize={10}
-        fill="#f8fafc"
-        fontStyle="bold"
-        listening={false}
-      />
-
-      {/* Bed width dimension */}
-      <Text
-        x={x + w / 2 - 8}
-        y={y + 16}
-        text={`${bed.width}ft`}
-        fontSize={7}
-        fill="#94a3b8"
-        listening={false}
-      />
-
-      {/* Grid (green lines + blue dots) — single canvas draw */}
       {showGrid && <Shape sceneFunc={drawGrid} listening={false} perfectDrawEnabled={false} />}
-
-      {/* Line number labels */}
       {lineLabels}
 
-      {/* Module row-divider lines at every baseBedLengthFt (e.g. 24ft) */}
       {bed.height > baseBedLengthFt &&
         Array.from(
           { length: Math.floor(bed.height / baseBedLengthFt) - 1 },
           (_, i) => {
             const divY = y + (i + 1) * baseBedLengthFt * PX_PER_FT;
             return (
-              <Line
-                key={`row-div-${bed.index}-${i}`}
-                points={[x, divY, x + w, divY]}
-                stroke={MODULE_DIM_COLOR}
-                strokeWidth={1}
-                dash={[6, 4]}
-                opacity={0.5}
-                listening={false}
-              />
+              <Line key={`row-div-${bed.index}-${i}`} points={[x, divY, x + w, divY]} stroke={cl.moduleDim} strokeWidth={1} dash={[6, 4]} opacity={0.5} listening={false} />
             );
           }
         )}
 
-      {/* Tree placements per bed type */}
       <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} treeSpacingFt={treeSpacingFt} />
     </Group>
   );
@@ -576,6 +484,7 @@ const BedRenderer = React.memo(function BedRenderer({
 // TRENCH / PATH between beds
 // ================================================================
 function PathRenderer({ path }: { path: PathPosition }) {
+  const cl = useColors();
   const x = path.x * PX_PER_FT;
   const y = path.y * PX_PER_FT;
   const w = path.width * PX_PER_FT;
@@ -584,64 +493,21 @@ function PathRenderer({ path }: { path: PathPosition }) {
 
   return (
     <Group listening={false}>
-      {/* Trench fill */}
-      <Rect x={x} y={y} width={w} height={h} fill={PATH_FILL} listening={false} perfectDrawEnabled={false} />
+      <Rect x={x} y={y} width={w} height={h} fill={cl.pathFill} listening={false} perfectDrawEnabled={false} />
+      <Rect x={x} y={y} width={w} height={h} stroke={cl.pathStroke} strokeWidth={0.5} fill="transparent" opacity={0.4} listening={false} perfectDrawEnabled={false} />
 
-      {/* Trench border */}
-      <Rect
-        x={x} y={y} width={w} height={h}
-        stroke={PATH_STROKE} strokeWidth={0.5}
-        fill="transparent" opacity={0.4} listening={false} perfectDrawEnabled={false}
-      />
-
-      {/* Center dashed line */}
       {isHorizontal ? (
-        <Line
-          points={[x + 4, y + h / 2, x + w - 4, y + h / 2]}
-          stroke={PATH_STROKE} strokeWidth={0.5}
-          dash={[4, 4]} opacity={0.5} listening={false}
-        />
+        <Line points={[x + 4, y + h / 2, x + w - 4, y + h / 2]} stroke={cl.pathStroke} strokeWidth={0.5} dash={[4, 4]} opacity={0.5} listening={false} />
       ) : (
-        <Line
-          points={[x + w / 2, y + 4, x + w / 2, y + h - 4]}
-          stroke={PATH_STROKE} strokeWidth={0.5}
-          dash={[4, 4]} opacity={0.5} listening={false}
-        />
+        <Line points={[x + w / 2, y + 4, x + w / 2, y + h - 4]} stroke={cl.pathStroke} strokeWidth={0.5} dash={[4, 4]} opacity={0.5} listening={false} />
       )}
 
-      {/* Trench label */}
       {isHorizontal ? (
-        <>
-          <Text
-            x={x + w / 2 - 16}
-            y={y + h / 2 - 4}
-            text={`Trench ${path.height}ft`}
-            fontSize={7}
-            fill="#64748b"
-            opacity={0.6}
-            listening={false}
-          />
-        </>
+        <Text x={x + w / 2 - 16} y={y + h / 2 - 4} text={`Trench ${path.height}ft`} fontSize={7} fill={cl.textMuted} opacity={0.6} listening={false} />
       ) : (
         <>
-          <Text
-            x={x + w / 2 - 8}
-            y={y + 4}
-            text={`${path.width}ft`}
-            fontSize={7}
-            fill="#64748b"
-            listening={false}
-          />
-          <Text
-            x={x + 2}
-            y={y + h / 2 - 4}
-            text="Trench"
-            fontSize={6}
-            fill="#64748b"
-            opacity={0.5}
-            rotation={90}
-            listening={false}
-          />
+          <Text x={x + w / 2 - 8} y={y + 4} text={`${path.width}ft`} fontSize={7} fill={cl.textMuted} listening={false} />
+          <Text x={x + 2} y={y + h / 2 - 4} text="Trench" fontSize={6} fill={cl.textMuted} opacity={0.5} rotation={90} listening={false} />
         </>
       )}
     </Group>
@@ -652,15 +518,13 @@ function PathRenderer({ path }: { path: PathPosition }) {
 // DIMENSION ANNOTATIONS — measurements around the orchard
 // ================================================================
 function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
+  const cl = useColors();
   const { config, beds, paths } = layout;
   const w = config.widthFt * PX_PER_FT;
   const h = config.heightFt * PX_PER_FT;
   const bw = config.boundaryWidthFt * PX_PER_FT;
 
-  const dimColor = "#94a3b8";
-
-  // Calculate K module — center of first bed → center of bed at kBedSpan
-  const kSpan = config.kBedSpan; // 3 for 24×24, 4 for 36×36
+  const kSpan = config.kBedSpan;
   const bedFirst = beds[0];
   const bedLast = beds.length >= kSpan ? beds[kSpan - 1] : null;
   const moduleFt =
@@ -670,48 +534,34 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
   const moduleStartPx = bedFirst ? (bedFirst.x + bedFirst.width / 2) * PX_PER_FT : 0;
   const moduleEndPx = bedLast ? (bedLast.x + bedLast.width / 2) * PX_PER_FT : 0;
 
-  // Derive per-module bed length (continuous: totalInner / rowCount)
   const totalInnerH = config.heightFt - 2 * config.boundaryWidthFt;
   const bedLengthFt = totalInnerH / config.rowCount;
-
-  // All beds/paths are in a single row now (continuous)
   const verticalPaths = paths.filter((p) => p.orientation === "vertical");
-
   const rowLabel = config.rowCount > 1 ? ` × ${config.rowCount} rows` : "";
 
   return (
     <Group listening={false}>
-      {/* === TOP ROW 1: "K" module dimension (gold, prominent) === */}
       {moduleFt > 0 && (
         <Group listening={false}>
-          <Line points={[moduleStartPx, -28, moduleEndPx, -28]} stroke={MODULE_DIM_COLOR} strokeWidth={1} listening={false} />
-          <Line points={[moduleStartPx, -32, moduleStartPx, -24]} stroke={MODULE_DIM_COLOR} strokeWidth={1} listening={false} />
-          <Line points={[moduleEndPx, -32, moduleEndPx, -24]} stroke={MODULE_DIM_COLOR} strokeWidth={1} listening={false} />
-          <Text
-            x={(moduleStartPx + moduleEndPx) / 2 - 20}
-            y={-40}
-            text={`K = ${moduleFt} ft`}
-            fontSize={9}
-            fill={MODULE_DIM_COLOR}
-            fontStyle="bold"
-            listening={false}
-          />
-          <Circle x={moduleStartPx} y={-28} radius={2} fill={MODULE_DIM_COLOR} listening={false} />
-          <Circle x={moduleEndPx} y={-28} radius={2} fill={MODULE_DIM_COLOR} listening={false} />
+          <Line points={[moduleStartPx, -28, moduleEndPx, -28]} stroke={cl.moduleDim} strokeWidth={1} listening={false} />
+          <Line points={[moduleStartPx, -32, moduleStartPx, -24]} stroke={cl.moduleDim} strokeWidth={1} listening={false} />
+          <Line points={[moduleEndPx, -32, moduleEndPx, -24]} stroke={cl.moduleDim} strokeWidth={1} listening={false} />
+          <Text x={(moduleStartPx + moduleEndPx) / 2 - 20} y={-40} text={`K = ${moduleFt} ft`} fontSize={9} fill={cl.moduleDim} fontStyle="bold" listening={false} />
+          <Circle x={moduleStartPx} y={-28} radius={2} fill={cl.moduleDim} listening={false} />
+          <Circle x={moduleEndPx} y={-28} radius={2} fill={cl.moduleDim} listening={false} />
         </Group>
       )}
 
-      {/* === TOP ROW 2: per-section dimensions (first row only) === */}
-      <Line points={[0, -6, bw, -6]} stroke={BOUNDARY_STROKE} strokeWidth={0.5} opacity={0.6} listening={false} />
-      <Text x={bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={BOUNDARY_STROKE} listening={false} />
+      <Line points={[0, -6, bw, -6]} stroke={cl.boundaryStroke} strokeWidth={0.5} opacity={0.6} listening={false} />
+      <Text x={bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={cl.boundaryStroke} listening={false} />
 
       {beds.map((bed) => {
         const bx = bed.x * PX_PER_FT;
         const bw2 = bed.width * PX_PER_FT;
         return (
           <Group key={`dim-bed-${bed.index}`} listening={false}>
-            <Line points={[bx, -6, bx + bw2, -6]} stroke={BED_BORDER_COLOR} strokeWidth={0.5} opacity={0.6} listening={false} />
-            <Text x={bx + bw2 / 2 - 4} y={-14} text={`${bed.width}'`} fontSize={6} fill={BED_BORDER_COLOR} listening={false} />
+            <Line points={[bx, -6, bx + bw2, -6]} stroke={cl.bedBorder} strokeWidth={0.5} opacity={0.6} listening={false} />
+            <Text x={bx + bw2 / 2 - 4} y={-14} text={`${bed.width}'`} fontSize={6} fill={cl.bedBorder} listening={false} />
           </Group>
         );
       })}
@@ -721,40 +571,21 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
         const pw = path.width * PX_PER_FT;
         return (
           <Group key={`dim-path-${path.index}`} listening={false}>
-            <Line points={[px, -6, px + pw, -6]} stroke={PATH_STROKE} strokeWidth={0.5} opacity={0.6} listening={false} />
-            <Text x={px + pw / 2 - 3} y={-14} text={`${path.width}'`} fontSize={6} fill={PATH_STROKE} listening={false} />
+            <Line points={[px, -6, px + pw, -6]} stroke={cl.pathStroke} strokeWidth={0.5} opacity={0.6} listening={false} />
+            <Text x={px + pw / 2 - 3} y={-14} text={`${path.width}'`} fontSize={6} fill={cl.pathStroke} listening={false} />
           </Group>
         );
       })}
 
-      <Line points={[w - bw, -6, w, -6]} stroke={BOUNDARY_STROKE} strokeWidth={0.5} opacity={0.6} listening={false} />
-      <Text x={w - bw + bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={BOUNDARY_STROKE} listening={false} />
+      <Line points={[w - bw, -6, w, -6]} stroke={cl.boundaryStroke} strokeWidth={0.5} opacity={0.6} listening={false} />
+      <Text x={w - bw + bw / 2 - 4} y={-14} text={`${config.boundaryWidthFt}'`} fontSize={6} fill={cl.boundaryStroke} listening={false} />
 
-      {/* === LEFT: total inner height dimension === */}
-      <Line points={[-12, bw, -12, h - bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
-      <Line points={[-16, bw, -8, bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
-      <Line points={[-16, h - bw, -8, h - bw]} stroke={dimColor} strokeWidth={0.5} opacity={0.5} listening={false} />
-      <Text
-        x={-30}
-        y={(h / 2) + 12}
-        text={`${Math.round(totalInnerH)} ft`}
-        fontSize={9}
-        fill="#e2e8f0"
-        fontStyle="bold"
-        rotation={-90}
-        listening={false}
-      />
+      <Line points={[-12, bw, -12, h - bw]} stroke={cl.textSecondary} strokeWidth={0.5} opacity={0.5} listening={false} />
+      <Line points={[-16, bw, -8, bw]} stroke={cl.textSecondary} strokeWidth={0.5} opacity={0.5} listening={false} />
+      <Line points={[-16, h - bw, -8, h - bw]} stroke={cl.textSecondary} strokeWidth={0.5} opacity={0.5} listening={false} />
+      <Text x={-30} y={(h / 2) + 12} text={`${Math.round(totalInnerH)} ft`} fontSize={9} fill={cl.textPrimary} fontStyle="bold" rotation={-90} listening={false} />
 
-      {/* === Title === */}
-      <Text
-        x={w / 2 - 110}
-        y={-52}
-        text={`Palekar Food Forest ${moduleFt}×${Math.round(bedLengthFt)} ft Module${rowLabel}`}
-        fontSize={11}
-        fill="#e2e8f0"
-        fontStyle="bold"
-        listening={false}
-      />
+      <Text x={w / 2 - 110} y={-52} text={`Palekar Food Forest ${moduleFt}×${Math.round(bedLengthFt)} ft Module${rowLabel}`} fontSize={11} fill={cl.textPrimary} fontStyle="bold" listening={false} />
     </Group>
   );
 }
@@ -763,32 +594,18 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
 // FT MARKERS along left boundary
 // ================================================================
 function FtMarkers({ layout }: { layout: OrchardLayout }) {
+  const cl = useColors();
   const { innerBounds, config } = layout;
   const gridSpacing = config.gridSpacingFt;
   const markers: React.ReactNode[] = [];
 
-  // Show markers every 3ft (every 2 grid cells)
   const markerStep = gridSpacing * 2;
   for (let ft = 0; ft <= innerBounds.height; ft += markerStep) {
     const py = innerBounds.y * PX_PER_FT + ft * PX_PER_FT;
     markers.push(
       <Group key={`ftm-${ft}`} listening={false}>
-        <Line
-          points={[0, py, innerBounds.x * PX_PER_FT, py]}
-          stroke={BOUNDARY_STROKE}
-          strokeWidth={0.3}
-          opacity={0.3}
-          listening={false}
-        />
-        <Text
-          x={2}
-          y={py - 3}
-          text={`${ft}'`}
-          fontSize={6}
-          fill={BOUNDARY_STROKE}
-          opacity={0.7}
-          listening={false}
-        />
+        <Line points={[0, py, innerBounds.x * PX_PER_FT, py]} stroke={cl.boundaryStroke} strokeWidth={0.3} opacity={0.3} listening={false} />
+        <Text x={2} y={py - 3} text={`${ft}'`} fontSize={6} fill={cl.boundaryStroke} opacity={0.7} listening={false} />
       </Group>
     );
   }
@@ -805,49 +622,46 @@ export const OrchardLayer = React.memo(function OrchardLayer({
   showBeds,
   showGrid,
   symbolVisibility,
+  colors,
 }: OrchardLayerProps) {
   const { config, beds, paths } = layout;
 
-  // Base bed-length per module row (total inner height / rowCount)
   const innerHeight = config.heightFt - 2 * config.boundaryWidthFt;
   const baseBedLengthFt = innerHeight / config.rowCount;
 
   return (
-    <Group listening={false}>
-      {/* Dimension annotations */}
-      <DimensionAnnotations layout={layout} />
+    <ColorCtx.Provider value={colors}>
+      <Group listening={false}>
+        <DimensionAnnotations layout={layout} />
 
-      {/* Boundary (live fence with hatching) */}
-      {showBoundary && (
-        <BoundaryRenderer
-          widthFt={config.widthFt}
-          heightFt={config.heightFt}
-          boundaryWidthFt={config.boundaryWidthFt}
-        />
-      )}
-
-      {/* Trenches between beds */}
-      {showBeds &&
-        paths.map((p) => <PathRenderer key={`path-${p.index}`} path={p} />)}
-
-      {/* Beds with grid */}
-      {showBeds &&
-        beds.map((bed) => (
-          <BedRenderer
-            key={`bed-${bed.index}`}
-            bed={bed}
-            gridSpacing={config.gridSpacingFt}
-            showGrid={showGrid}
-            symbolVisibility={symbolVisibility}
-            baseBedLengthFt={baseBedLengthFt}
-            bedTypeCycle={config.bedTypeCycle}
-            treeSpacingFt={config.treeSpacingFt}
+        {showBoundary && (
+          <BoundaryRenderer
+            widthFt={config.widthFt}
+            heightFt={config.heightFt}
+            boundaryWidthFt={config.boundaryWidthFt}
           />
-        ))}
+        )}
 
-      {/* Ft markers along left */}
-      {showBoundary && <FtMarkers layout={layout} />}
-    </Group>
+        {showBeds &&
+          paths.map((p) => <PathRenderer key={`path-${p.index}`} path={p} />)}
+
+        {showBeds &&
+          beds.map((bed) => (
+            <BedRenderer
+              key={`bed-${bed.index}`}
+              bed={bed}
+              gridSpacing={config.gridSpacingFt}
+              showGrid={showGrid}
+              symbolVisibility={symbolVisibility}
+              baseBedLengthFt={baseBedLengthFt}
+              bedTypeCycle={config.bedTypeCycle}
+              treeSpacingFt={config.treeSpacingFt}
+            />
+          ))}
+
+        {showBoundary && <FtMarkers layout={layout} />}
+      </Group>
+    </ColorCtx.Provider>
   );
 });
 

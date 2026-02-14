@@ -3,6 +3,7 @@
 import React, { useRef, useCallback, useEffect, useMemo } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
+import { useTheme } from "next-themes";
 import { useDesignerStore } from "@/stores/designer-store";
 import { useFarmStore } from "@/stores/farm-store";
 import { OrchardLayer } from "./orchard-layer";
@@ -16,6 +17,7 @@ import {
   createTrenchConfig,
   createFlowerBedConfig,
 } from "@/lib/designer-utils";
+import { getCanvasColors } from "@/lib/orchard-utils";
 
 interface FarmCanvasProps {
   containerWidth: number;
@@ -50,6 +52,13 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
 
   const canvasWidthPx = canvasWidthFt * PX_PER_FT;
   const canvasHeightPx = canvasHeightFt * PX_PER_FT;
+
+  // Resolve canvas color palette from next-themes
+  const { resolvedTheme } = useTheme();
+  const colors = useMemo(
+    () => getCanvasColors(resolvedTheme === "light" ? "light" : "dark"),
+    [resolvedTheme]
+  );
 
   // Keep a ref to viewport so handleWheel doesn't need viewport in its deps
   const viewportRef = useRef(viewport);
@@ -300,7 +309,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
           });
         }
       }}
-      style={{ cursor, background: "#0f172a" }}
+      style={{ cursor, background: colors.stageBg }}
     >
       {/* Background */}
       <Layer listening={false}>
@@ -309,7 +318,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
           y={0}
           width={canvasWidthPx}
           height={canvasHeightPx}
-          fill="#0c1a0c"
+          fill={colors.canvasFill}
           cornerRadius={2}
           perfectDrawEnabled={false}
         />
@@ -323,6 +332,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
           showBeds={layerVisibility.beds}
           showGrid={showGrid && layerVisibility.grid}
           symbolVisibility={symbolVisibility}
+          colors={colors}
         />
       </Layer>
 
