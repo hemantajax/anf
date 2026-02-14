@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect, useMemo } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import { useDesignerStore } from "@/stores/designer-store";
@@ -25,7 +25,7 @@ interface FarmCanvasProps {
 export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps) {
   const stageRef = useRef<Konva.Stage>(null);
 
-  // Designer store
+  // Designer store — split into viewport vs non-viewport to minimize re-renders
   const viewport = useDesignerStore((s) => s.viewport);
   const setViewport = useDesignerStore((s) => s.setViewport);
   const activeTool = useDesignerStore((s) => s.activeTool);
@@ -51,6 +51,13 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
   const canvasWidthPx = canvasWidthFt * PX_PER_FT;
   const canvasHeightPx = canvasHeightFt * PX_PER_FT;
 
+  // Keep a ref to viewport so handleWheel doesn't need viewport in its deps
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
+
+  // RAF throttle ref for wheel events
+  const wheelRafRef = useRef<number | null>(null);
+
   const isDrawTool =
     activeTool === "road" ||
     activeTool === "trench" ||
@@ -73,35 +80,43 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
     return { x, y };
   }, [snap]);
 
-  // ---- Zoom with scroll wheel ----
+  // ---- Zoom with scroll wheel (RAF-throttled, decoupled from viewport state) ----
   const handleWheel = useCallback(
     (e: Konva.KonvaEventObject<WheelEvent>) => {
       e.evt.preventDefault();
-      const stage = stageRef.current;
-      if (!stage) return;
 
-      const oldScale = viewport.scale;
-      const pointer = stage.getPointerPosition();
-      if (!pointer) return;
+      // Skip if a RAF is already pending (throttle to ~60fps)
+      if (wheelRafRef.current !== null) return;
 
-      const scaleBy = 1.08;
-      const direction = e.evt.deltaY > 0 ? -1 : 1;
-      const newScale =
-        direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-      const clampedScale = Math.min(Math.max(newScale, 0.1), 30);
+      wheelRafRef.current = requestAnimationFrame(() => {
+        wheelRafRef.current = null;
+        const stage = stageRef.current;
+        if (!stage) return;
 
-      const mousePointTo = {
-        x: (pointer.x - viewport.x) / oldScale,
-        y: (pointer.y - viewport.y) / oldScale,
-      };
+        const vp = viewportRef.current; // read from ref, not state
+        const oldScale = vp.scale;
+        const pointer = stage.getPointerPosition();
+        if (!pointer) return;
 
-      setViewport({
-        scale: clampedScale,
-        x: pointer.x - mousePointTo.x * clampedScale,
-        y: pointer.y - mousePointTo.y * clampedScale,
+        const scaleBy = 1.08;
+        const direction = e.evt.deltaY > 0 ? -1 : 1;
+        const newScale =
+          direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+        const clampedScale = Math.min(Math.max(newScale, 0.1), 30);
+
+        const mousePointTo = {
+          x: (pointer.x - vp.x) / oldScale,
+          y: (pointer.y - vp.y) / oldScale,
+        };
+
+        setViewport({
+          scale: clampedScale,
+          x: pointer.x - mousePointTo.x * clampedScale,
+          y: pointer.y - mousePointTo.y * clampedScale,
+        });
       });
     },
-    [viewport, setViewport]
+    [setViewport] // no longer depends on viewport — reads from ref
   );
 
   // ---- Mouse down: start drawing ----
@@ -250,9 +265,10 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // ---- Filter visible elements by layer ----
-  const visibleElements = elements.filter(
-    (el) => el.visible && layerVisibility[el.layer]
+  // ---- Filter visible elements by layer (memoized) ----
+  const visibleElements = useMemo(
+    () => elements.filter((el) => el.visible && layerVisibility[el.layer]),
+    [elements, layerVisibility]
   );
 
   // Determine cursor based on tool
@@ -278,7 +294,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
       onDragEnd={(e) => {
         if (e.target === stageRef.current) {
           setViewport({
-            ...viewport,
+            ...viewportRef.current,
             x: e.target.x(),
             y: e.target.y(),
           });
@@ -295,6 +311,7 @@ export function FarmCanvas({ containerWidth, containerHeight }: FarmCanvasProps)
           height={canvasHeightPx}
           fill="#0c1a0c"
           cornerRadius={2}
+          perfectDrawEnabled={false}
         />
       </Layer>
 

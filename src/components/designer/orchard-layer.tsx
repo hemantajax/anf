@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { Rect, Circle, Line, Text, Group, RegularPolygon } from "react-konva";
+import React, { useMemo, useCallback } from "react";
+import { Rect, Circle, Line, Text, Group, RegularPolygon, Shape } from "react-konva";
 import { PX_PER_FT } from "@/lib/designer-utils";
 import {
   BED_FILLS,
@@ -51,102 +51,67 @@ function BoundaryRenderer({
   const h = heightFt * PX_PER_FT;
   const bw = boundaryWidthFt * PX_PER_FT;
 
-  // Diagonal hatch lines across all 4 boundary strips
-  const hatchLines = useMemo(() => {
-    const lines: React.ReactNode[] = [];
-    const step = 5; // px between hatch lines
+  // Draw ALL hatch + accent lines in a single canvas draw call (was 400+ <Line> components)
+  const drawBoundary = useCallback(
+    (ctx: any, shape: any) => {
+      const step = 8; // px between hatch lines (was 5 — less dense = faster)
 
-    // Helper: draw diagonal lines inside a rectangular strip
-    const hatchRect = (
-      rx: number,
-      ry: number,
-      rw: number,
-      rh: number,
-      prefix: string
-    ) => {
-      const maxD = rw + rh;
-      for (let d = 0; d < maxD; d += step) {
-        const x1 = rx + Math.max(0, d - rh);
-        const y1 = ry + Math.min(rh, d);
-        const x2 = rx + Math.min(rw, d);
-        const y2 = ry + Math.max(0, d - rw);
-        lines.push(
-          <Line
-            key={`${prefix}-${d}`}
-            points={[x1, y1, x2, y2]}
-            stroke={BOUNDARY_HATCH_COLOR}
-            strokeWidth={0.6}
-            opacity={0.5}
-            listening={false}
-          />
-        );
+      // Helper: diagonal hatch inside a rectangle
+      const hatchRect = (rx: number, ry: number, rw: number, rh: number) => {
+        const maxD = rw + rh;
+        for (let d = 0; d < maxD; d += step) {
+          ctx.moveTo(rx + Math.max(0, d - rh), ry + Math.min(rh, d));
+          ctx.lineTo(rx + Math.min(rw, d), ry + Math.max(0, d - rw));
+        }
+      };
+
+      // Hatch lines
+      ctx.beginPath();
+      hatchRect(0, 0, w, bw);         // top
+      hatchRect(0, h - bw, w, bw);    // bottom
+      hatchRect(0, bw, bw, h - 2 * bw); // left
+      hatchRect(w - bw, bw, bw, h - 2 * bw); // right
+      ctx.strokeStyle = BOUNDARY_HATCH_COLOR;
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.5;
+      ctx.stroke();
+
+      // Accent lines (left + right strips)
+      const accentStep = 6;
+      ctx.beginPath();
+      for (let ay = bw; ay < h - bw; ay += accentStep) {
+        ctx.moveTo(0, ay);
+        ctx.lineTo(bw, ay);
+        ctx.moveTo(w - bw, ay);
+        ctx.lineTo(w, ay);
       }
-    };
+      ctx.strokeStyle = BED_ACCENT_COLOR;
+      ctx.lineWidth = 0.4;
+      ctx.globalAlpha = 0.4;
+      ctx.stroke();
 
-    // Top strip
-    hatchRect(0, 0, w, bw, "ht");
-    // Bottom strip
-    hatchRect(0, h - bw, w, bw, "hb");
-    // Left strip
-    hatchRect(0, bw, bw, h - 2 * bw, "hl");
-    // Right strip
-    hatchRect(w - bw, bw, bw, h - 2 * bw, "hr");
-
-    return lines;
-  }, [w, h, bw]);
-
-  // Small red horizontal accent lines along boundary (like the reference image)
-  const accentLines = useMemo(() => {
-    const lines: React.ReactNode[] = [];
-    const step = 6;
-    // Left strip red accent
-    for (let y = bw; y < h - bw; y += step) {
-      lines.push(
-        <Line
-          key={`al-${y}`}
-          points={[0, y, bw, y]}
-          stroke={BED_ACCENT_COLOR}
-          strokeWidth={0.4}
-          opacity={0.4}
-          listening={false}
-        />
-      );
-    }
-    // Right strip red accent
-    for (let y = bw; y < h - bw; y += step) {
-      lines.push(
-        <Line
-          key={`ar-${y}`}
-          points={[w - bw, y, w, y]}
-          stroke={BED_ACCENT_COLOR}
-          strokeWidth={0.4}
-          opacity={0.4}
-          listening={false}
-        />
-      );
-    }
-    return lines;
-  }, [w, h, bw]);
+      ctx.globalAlpha = 1;
+      ctx.fillStrokeShape(shape);
+    },
+    [w, h, bw]
+  );
 
   return (
     <Group listening={false}>
       {/* Four boundary fill strips */}
-      <Rect x={0} y={0} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} />
-      <Rect x={0} y={h - bw} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} />
-      <Rect x={0} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} />
-      <Rect x={w - bw} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} />
+      <Rect x={0} y={0} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={0} y={h - bw} width={w} height={bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={0} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
+      <Rect x={w - bw} y={bw} width={bw} height={h - 2 * bw} fill={BOUNDARY_FILL} opacity={0.8} listening={false} perfectDrawEnabled={false} />
 
-      {/* Diagonal hatching */}
-      {hatchLines}
-
-      {/* Red accent lines */}
-      {accentLines}
+      {/* Hatch + accent — single canvas draw call */}
+      <Shape sceneFunc={drawBoundary} listening={false} perfectDrawEnabled={false} />
 
       {/* Outer border */}
       <Rect
         x={0} y={0} width={w} height={h}
         stroke={BOUNDARY_STROKE} strokeWidth={2}
-        fill="transparent" listening={false}
+        fill="transparent" listening={false} perfectDrawEnabled={false}
       />
 
       {/* Inner border */}
@@ -154,7 +119,7 @@ function BoundaryRenderer({
         x={bw} y={bw}
         width={w - 2 * bw} height={h - 2 * bw}
         stroke={BOUNDARY_STROKE} strokeWidth={1}
-        fill="transparent" opacity={0.6} listening={false}
+        fill="transparent" opacity={0.6} listening={false} perfectDrawEnabled={false}
       />
 
       {/* Label */}
@@ -173,8 +138,9 @@ function BoundaryRenderer({
 
 // ================================================================
 // PLANT SYMBOL — renders a single tree/plant symbol on the canvas
+// Memoized to prevent re-renders when parent re-renders with same props
 // ================================================================
-function PlantSymbolRenderer({
+const PlantSymbolRenderer = React.memo(function PlantSymbolRenderer({
   x,
   y,
   symbol,
@@ -199,9 +165,10 @@ function PlantSymbolRenderer({
             stroke={stroke}
             strokeWidth={strokeWidth}
             opacity={0.9}
+            perfectDrawEnabled={false}
           />
           {/* Inner dot for Big trees */}
-          <Circle radius={1.2} fill="#fff" opacity={0.8} />
+          <Circle radius={1.2} fill="#fff" opacity={0.8} perfectDrawEnabled={false} />
         </>
       )}
 
@@ -215,6 +182,7 @@ function PlantSymbolRenderer({
           stroke={stroke}
           strokeWidth={strokeWidth}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -226,6 +194,7 @@ function PlantSymbolRenderer({
           stroke={stroke}
           strokeWidth={strokeWidth}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -237,6 +206,7 @@ function PlantSymbolRenderer({
           stroke={stroke}
           strokeWidth={strokeWidth}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -249,6 +219,7 @@ function PlantSymbolRenderer({
           strokeWidth={strokeWidth}
           rotation={45}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -259,6 +230,7 @@ function PlantSymbolRenderer({
           stroke={stroke}
           strokeWidth={strokeWidth}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -268,6 +240,7 @@ function PlantSymbolRenderer({
           stroke={stroke}
           strokeWidth={strokeWidth + 0.5}
           opacity={0.9}
+          perfectDrawEnabled={false}
         />
       )}
 
@@ -286,7 +259,7 @@ function PlantSymbolRenderer({
       )}
     </Group>
   );
-}
+});
 
 // ================================================================
 // BED TREE PLACEMENTS — per bed-type pattern
@@ -294,7 +267,7 @@ function PlantSymbolRenderer({
 //   Bed 2:     edge BA/PA alternating @6ft + pigeon pea @3ft edges
 //   Bed 4:     vine vegetable ★ @3ft on ALL lines + pavilion poles ⌂
 // ================================================================
-function BedTreePlacements({
+const BedTreePlacements = React.memo(function BedTreePlacements({
   bed,
   symbolVisibility,
   bedTypeCycle,
@@ -412,12 +385,12 @@ function BedTreePlacements({
       {renderPlacements(bed4Placements, "b4")}
     </Group>
   );
-}
+});
 
 // ================================================================
 // BED — 9ft wide bed with 1.5ft grid, pink border, green lines, blue dots
 // ================================================================
-function BedRenderer({
+const BedRenderer = React.memo(function BedRenderer({
   bed,
   gridSpacing,
   showGrid,
@@ -441,62 +414,52 @@ function BedRenderer({
   const stepPx = gridSpacing * PX_PER_FT;
   const colorIdx = bed.index % BED_FILLS.length;
 
-  // Grid: vertical lines (green), horizontal lines (green), blue dots
-  const gridElements = useMemo(() => {
-    if (!showGrid) return null;
-    const elems: React.ReactNode[] = [];
+  // Grid: ALL lines + dots drawn in a single canvas call (was ~143 React components per bed)
+  const drawGrid = useCallback(
+    (ctx: any, shape: any) => {
+      if (!showGrid) return;
+      const vCols = Math.round(bed.width / gridSpacing);
+      const hRows = Math.round(bed.height / gridSpacing);
 
-    // Vertical green lines (the "Lines" in the reference)
-    const vCols = Math.round(bed.width / gridSpacing);
-    for (let c = 0; c <= vCols; c++) {
-      const lx = x + c * stepPx;
-      elems.push(
-        <Line
-          key={`v-${bed.index}-${c}`}
-          points={[lx, y, lx, y + h]}
-          stroke={GRID_LINE_COLOR}
-          strokeWidth={0.7}
-          opacity={0.45}
-          listening={false}
-        />
-      );
-    }
-
-    // Horizontal green lines
-    const hRows = Math.round(bed.height / gridSpacing);
-    for (let r = 0; r <= hRows; r++) {
-      const ly = y + r * stepPx;
-      elems.push(
-        <Line
-          key={`h-${bed.index}-${r}`}
-          points={[x, ly, x + w, ly]}
-          stroke={GRID_LINE_COLOR}
-          strokeWidth={0.5}
-          opacity={0.3}
-          listening={false}
-        />
-      );
-    }
-
-    // Blue dots at every intersection
-    for (let c = 0; c <= vCols; c++) {
-      for (let r = 0; r <= hRows; r++) {
-        elems.push(
-          <Circle
-            key={`d-${bed.index}-${c}-${r}`}
-            x={x + c * stepPx}
-            y={y + r * stepPx}
-            radius={2}
-            fill={GRID_DOT_COLOR}
-            opacity={0.7}
-            listening={false}
-          />
-        );
+      // Vertical green lines
+      ctx.beginPath();
+      for (let c = 0; c <= vCols; c++) {
+        const lx = x + c * stepPx;
+        ctx.moveTo(lx, y);
+        ctx.lineTo(lx, y + h);
       }
-    }
+      ctx.strokeStyle = GRID_LINE_COLOR;
+      ctx.lineWidth = 0.7;
+      ctx.globalAlpha = 0.45;
+      ctx.stroke();
 
-    return elems;
-  }, [bed, gridSpacing, showGrid, x, y, w, h, stepPx]);
+      // Horizontal green lines
+      ctx.beginPath();
+      for (let r = 0; r <= hRows; r++) {
+        const ly = y + r * stepPx;
+        ctx.moveTo(x, ly);
+        ctx.lineTo(x + w, ly);
+      }
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.3;
+      ctx.stroke();
+
+      // Blue dots at intersections
+      ctx.fillStyle = GRID_DOT_COLOR;
+      ctx.globalAlpha = 0.7;
+      for (let c = 0; c <= vCols; c++) {
+        for (let r = 0; r <= hRows; r++) {
+          ctx.beginPath();
+          ctx.arc(x + c * stepPx, y + r * stepPx, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.fillStrokeShape(shape);
+    },
+    [bed.width, bed.height, gridSpacing, showGrid, x, y, w, h, stepPx]
+  );
 
   // Line number labels above the bed (interior lines only)
   const lineLabels = useMemo(() => {
@@ -527,6 +490,7 @@ function BedRenderer({
         x={x} y={y} width={w} height={h}
         fill={BED_FILLS[colorIdx]}
         listening={false}
+        perfectDrawEnabled={false}
       />
 
       {/* Pink/magenta border (matches reference) */}
@@ -536,6 +500,7 @@ function BedRenderer({
         strokeWidth={1.5}
         fill="transparent"
         listening={false}
+        perfectDrawEnabled={false}
       />
 
       {/* Pink accent horizontal lines at top and bottom of bed */}
@@ -575,8 +540,8 @@ function BedRenderer({
         listening={false}
       />
 
-      {/* Grid (green lines + blue dots) */}
-      {gridElements}
+      {/* Grid (green lines + blue dots) — single canvas draw */}
+      {showGrid && <Shape sceneFunc={drawGrid} listening={false} perfectDrawEnabled={false} />}
 
       {/* Line number labels */}
       {lineLabels}
@@ -605,7 +570,7 @@ function BedRenderer({
       <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} treeSpacingFt={treeSpacingFt} />
     </Group>
   );
-}
+});
 
 // ================================================================
 // TRENCH / PATH between beds
@@ -620,13 +585,13 @@ function PathRenderer({ path }: { path: PathPosition }) {
   return (
     <Group listening={false}>
       {/* Trench fill */}
-      <Rect x={x} y={y} width={w} height={h} fill={PATH_FILL} listening={false} />
+      <Rect x={x} y={y} width={w} height={h} fill={PATH_FILL} listening={false} perfectDrawEnabled={false} />
 
       {/* Trench border */}
       <Rect
         x={x} y={y} width={w} height={h}
         stroke={PATH_STROKE} strokeWidth={0.5}
-        fill="transparent" opacity={0.4} listening={false}
+        fill="transparent" opacity={0.4} listening={false} perfectDrawEnabled={false}
       />
 
       {/* Center dashed line */}
