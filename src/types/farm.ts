@@ -1,3 +1,6 @@
+// ---- Size Category ----
+export type SizeCategory = "big" | "medium" | "small" | "bush";
+
 // ---- Plant Category ----
 export type PlantCategory =
   | "big"
@@ -5,18 +8,39 @@ export type PlantCategory =
   | "small"
   | "banana"
   | "papaya"
-  | "guava";
+  | "guava"
+  | "bush";
 
 // ---- Plant Type ----
 export interface PlantType {
   id: string;
+  code: string;
   name: string;
+  scientificName: string;
+  symbol: string;
+  sizeCategory: SizeCategory;
   category: PlantCategory;
   color: string;
-  icon: string;
+  icon?: string;
   spacingFt: number;
   canopyRadiusFt: number;
   incomePerPlantPerYear?: number;
+  varieties?: string[];
+}
+
+// ---- Vegetable Type ----
+export interface VegetableType {
+  id: string;
+  code: string;
+  name: string;
+  scientificName: string;
+  symbol: string;
+  sizeCategory: SizeCategory;
+  seasonality: "kharif" | "rabi" | "zaid";
+  color: string;
+  spacingFt: number;
+  rowSpacingFt: number;
+  varieties?: string[];
 }
 
 // ---- Drawing Tool ----
