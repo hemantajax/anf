@@ -7,6 +7,7 @@ import {
   BarChart3,
   Settings,
   Calculator,
+  IndianRupee,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/density",
     icon: Calculator,
     description: "Plants per block, acre & farm",
+  },
+  {
+    title: "Income Projection",
+    href: "/income",
+    icon: IndianRupee,
+    description: "10-year earning estimates",
   },
   {
     title: "Plant Library",

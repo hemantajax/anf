@@ -321,24 +321,16 @@ export function DensityCalculator() {
                   <Label className="text-xs text-muted-foreground whitespace-nowrap">
                     Middle bed:
                   </Label>
-                  <TabsList className="h-7">
-                    <TabsTrigger
-                      value="__bed2__"
-                      className="text-xs px-2 py-0.5 h-6 data-[state=active]:bg-background"
-                      data-state={middleBed === "bed2" ? "active" : "inactive"}
-                      onClick={() => setMiddleBed("bed2")}
-                    >
-                      BA / PA
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="__bed4__"
-                      className="text-xs px-2 py-0.5 h-6 data-[state=active]:bg-background"
-                      data-state={middleBed === "bed4" ? "active" : "inactive"}
-                      onClick={() => setMiddleBed("bed4")}
-                    >
-                      Vine / Veg
-                    </TabsTrigger>
-                  </TabsList>
+                  <Tabs value={middleBed} onValueChange={(v) => setMiddleBed(v as MiddleBedType)}>
+                    <TabsList className="h-7">
+                      <TabsTrigger value="bed2" className="text-xs px-2 py-0.5 h-6">
+                        BA / PA
+                      </TabsTrigger>
+                      <TabsTrigger value="bed4" className="text-xs px-2 py-0.5 h-6">
+                        Vine / Veg
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
               )}
             </div>
