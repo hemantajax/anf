@@ -43,6 +43,7 @@ import {
   INFRA_RECOMMENDATIONS,
   GATE,
   SLOPE_INFO,
+  GATES,
   getCoconutPositions,
   computeAreaBreakdown,
   type LayoutItem,
@@ -294,6 +295,33 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
           <circle key={i} cx={t.x} cy={t.y} r="1.8" fill="#8B6914" opacity="0.55" />
         ))}
 
+        {/* ── Gate / Entrance Markers ── */}
+        {GATES.map((g) => {
+          const sz = 2.5;
+          let x1: number, y1: number, x2: number, y2: number, tx: number, ty: number;
+          if (g.direction === "east") {
+            x1 = g.x; y1 = g.y; x2 = g.x; y2 = g.y + g.h;
+            tx = g.x + sz + 1; ty = g.y + g.h / 2;
+          } else if (g.direction === "west") {
+            x1 = g.x + g.w; y1 = g.y; x2 = g.x + g.w; y2 = g.y + g.h;
+            tx = g.x - 1; ty = g.y + g.h / 2;
+          } else if (g.direction === "south") {
+            x1 = g.x; y1 = g.y; x2 = g.x + g.w; y2 = g.y;
+            tx = g.x + g.w / 2; ty = g.y + sz + 2;
+          } else {
+            x1 = g.x; y1 = g.y + g.h; x2 = g.x + g.w; y2 = g.y + g.h;
+            tx = g.x + g.w / 2; ty = g.y - 1;
+          }
+          return (
+            <g key={g.id}>
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
+              <text x={tx} y={ty} textAnchor="middle" fontSize="4" fill="#E65100" dominantBaseline="central">
+                {g.direction === "east" ? "▸" : g.direction === "west" ? "◂" : g.direction === "south" ? "▾" : "▴"}
+              </text>
+            </g>
+          );
+        })}
+
         {/* ── Gate Marker ── */}
         <g>
           <rect x={GATE.x - 1} y={GATE.y - 4} width="16" height="8" fill="#F57C00" rx="1" opacity="0.9" />
@@ -416,6 +444,7 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
             { color: "#8B6914", label: "Coconut Trees" },
             { color: "#4FC3F7", label: "Water Features" },
             { color: "#FFCC80", label: "Infrastructure" },
+            { color: "#E65100", label: "Gates / Entrances" },
           ].map((item, i) => (
             <g key={i} transform={`translate(${(i % 3) * 75}, ${Math.floor(i / 3) * 11 + 8})`}>
               <rect x="0" y="-4" width="6" height="6" fill={item.color} rx="1" stroke="#999" strokeWidth="0.3" />

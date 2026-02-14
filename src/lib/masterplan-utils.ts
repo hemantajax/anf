@@ -117,11 +117,11 @@ export const ZONES: (LayoutItem & {
 export const INFRASTRUCTURE: LayoutItem[] = [
   // ─── NW Hub — Farm Operations (near gate) ───
   { id: "inf-guard", label: "Guard / Entry", x: 28, y: 25, w: 12, h: 10, color: "#78909C", stroke: "#546E7A", type: "infra", details: "10×12 ft — Entry checkpoint at NW gate, visitor register" },
-  { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Open parking for 3-4 vehicles, tractor, near gate" },
-  { id: "inf-shed", label: "Cattle / Tool Shed", x: 28, y: 62, w: 38, h: 28, color: "#BCAAA4", stroke: "#6D4C41", type: "infra", details: "38×28 ft — 2-3 cow capacity + tool storage, near fields" },
+  { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Open parking, 3-4 vehicles + tractor. Entry: SOUTH. 3 Rain Tree / Neem for full shade canopy." },
+  { id: "inf-shed", label: "Cattle / Tool Shed", x: 28, y: 62, w: 38, h: 28, color: "#BCAAA4", stroke: "#6D4C41", type: "infra", details: "38×28 ft — 2-3 cow capacity + tool storage. Gate: EAST (cattle into zone). Neem shade trees." },
   { id: "inf-compost", label: "Composting", x: 73, y: 62, w: 28, h: 28, color: "#8D6E63", stroke: "#4E342E", type: "infra", details: "28×28 ft — Jeevamrut, Panchagavya prep + compost pits" },
   { id: "inf-biogas", label: "Biogas", x: 108, y: 62, w: 18, h: 18, color: "#FFD54F", stroke: "#F9A825", type: "infra", details: "18×18 ft — 2 cubic meter biogas plant, cow dung from cattle shed" },
-  { id: "inf-nursery", label: "Nursery", x: 28, y: 98, w: 42, h: 28, color: "#81C784", stroke: "#2E7D32", type: "infra", details: "42×28 ft — Seedling nursery, grafting area, near fields" },
+  { id: "inf-nursery", label: "Nursery", x: 28, y: 98, w: 42, h: 28, color: "#81C784", stroke: "#2E7D32", type: "infra", details: "42×28 ft — Seedling nursery, grafting area. Gate: EAST. Gulmohar + Semal for filtered light." },
   { id: "inf-vermi", label: "Vermicompost", x: 78, y: 98, w: 25, h: 20, color: "#A1887F", stroke: "#5D4037", type: "infra", details: "25×20 ft — 4-bed vermicompost unit, near cattle shed" },
   { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 98, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "infra", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
   { id: "inf-beehive", label: "Bee Keeping", x: 280, y: 365, w: 20, h: 18, color: "#FFE082", stroke: "#FFA000", type: "infra", details: "20×18 ft — 4-5 bee hive boxes near flower panels for pollination" },
@@ -130,13 +130,13 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   // Layout: stacked rows at SW corner, each row can expand EAST (→) into Zone C (~230ft)
   // Expansion north (↑) into open orchard above (~180ft available)
   // Row 1 — Residential (y=585)
-  { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 40, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×40 ft — 2BHK at SW peak, 5KW rooftop solar. Expand east →" },
-  { id: "inf-store", label: "Store / Godown", x: 95, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage. Expand east →" },
+  { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 40, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×40 ft — 2BHK at SW peak, 5KW rooftop solar. Main gate: EAST (morning sun, orchard view). Secondary: WEST (road access). Mango + Tamarind shade." },
+  { id: "inf-store", label: "Store / Godown", x: 95, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage. Loading gate: EAST. Neem shade for pest repellent." },
   { id: "inf-watchtower", label: "Watch Tower", x: 95, y: 620, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — 20ft tower at peak, full farm visibility" },
   // Row 2 — Kitchen Garden (y=640, 15ft gap)
   { id: "inf-kitchen-garden", label: "Kitchen Garden", x: 28, y: 640, w: 70, h: 45, color: "#A5D6A7", stroke: "#388E3C", type: "infra", details: "70×45 ft — Vegetables, herbs, medicinal plants. Expand east → / north ↑" },
   // Row 3 — Processing (y=700, 15ft gap)
-  { id: "inf-processing", label: "Processing Unit", x: 28, y: 700, w: 40, h: 28, color: "#FFECB3", stroke: "#FF8F00", type: "infra", details: "40×28 ft — Pickle, jam, juice, pulp. Expand east → / north ↑" },
+  { id: "inf-processing", label: "Processing Unit", x: 28, y: 700, w: 40, h: 28, color: "#FFECB3", stroke: "#FF8F00", type: "infra", details: "40×28 ft — Pickle, jam, juice, pulp. Gate: EAST. Neem shade. Expand east → / north ↑" },
   { id: "inf-drying", label: "Drying Yard", x: 80, y: 700, w: 35, h: 28, color: "#FFF9C4", stroke: "#F9A825", type: "infra", details: "35×28 ft — Solar drying platform. Expand east →" },
   // Row 4 — Water (y=740, at very bottom of SW corner)
   { id: "inf-tank", label: "Water Tank", x: 28, y: 740, w: 22, h: 22, color: "#4FC3F7", stroke: "#0288D1", type: "infra", details: "22×22 ft — 50,000L tank at peak, gravity-fed irrigation" },
@@ -153,6 +153,93 @@ export const WATER_FEATURES: LayoutItem[] = [
 // ── Suggested Add-ons (optional extras) ──
 export const ADDONS: LayoutItem[] = [
   { id: "addon-polyhouse", label: "Polyhouse", x: 143, y: 98, w: 40, h: 28, color: "#E0E0E0", stroke: "#757575", type: "addon", details: "40×28 ft — High-value crop nursery, off-season vegetables, near NW nursery" },
+];
+
+// ── Shade / Utility Trees Around Infrastructure ──
+export interface InfraTree {
+  id: string;
+  x: number;
+  y: number;
+  species: string;
+  purpose: string;
+  nearInfra: string; // infrastructure id
+}
+
+export const INFRA_TREES: InfraTree[] = [
+  // ─── NW Hub — perimeter shade ring (cluster: x=28-135, y=25-126) ───
+  // South perimeter (y=138, below all buildings)
+  { id: "st-nw-s1", x: 45, y: 138, species: "Gulmohar", purpose: "Filtered light, south of nursery", nearInfra: "inf-nursery" },
+  { id: "st-nw-s2", x: 75, y: 138, species: "Neem", purpose: "South perimeter shade", nearInfra: "inf-nursery" },
+  { id: "st-nw-s3", x: 110, y: 138, species: "Semal", purpose: "South perimeter shade", nearInfra: "inf-mushroom" },
+  // East perimeter (x=145, east of all buildings)
+  { id: "st-nw-e1", x: 145, y: 40, species: "Rain Tree", purpose: "Parking east canopy shade", nearInfra: "inf-parking" },
+  { id: "st-nw-e2", x: 145, y: 76, species: "Neem", purpose: "Insect repellent east of shed area", nearInfra: "inf-shed" },
+  { id: "st-nw-e3", x: 145, y: 110, species: "Pongamia", purpose: "Dense shade east of mushroom", nearInfra: "inf-mushroom" },
+  // North-east corner (shade for parking)
+  { id: "st-nw-ne", x: 100, y: 20, species: "Rain Tree", purpose: "Heavy canopy shade for parking", nearInfra: "inf-parking" },
+
+  // ─── SW Hub — perimeter shade ring (cluster: x=28-115, y=585-762) ───
+  // North perimeter (y=575, above farmhouse row)
+  { id: "st-sw-n1", x: 45, y: 575, species: "Mango", purpose: "Shade + fruit, blocks summer heat", nearInfra: "inf-house" },
+  { id: "st-sw-n2", x: 80, y: 575, species: "Tamarind", purpose: "Large canopy shade for farmhouse", nearInfra: "inf-house" },
+  { id: "st-sw-n3", x: 115, y: 575, species: "Neem", purpose: "Pest repellent for store", nearInfra: "inf-store" },
+  // East perimeter (x=125, east of all buildings)
+  { id: "st-sw-e1", x: 125, y: 610, species: "Neem", purpose: "East shade for store", nearInfra: "inf-store" },
+  { id: "st-sw-e2", x: 105, y: 660, species: "Drumstick", purpose: "Functional shade for kitchen garden", nearInfra: "inf-kitchen-garden" },
+  { id: "st-sw-e3", x: 125, y: 714, species: "Neem", purpose: "Shade for processing workers", nearInfra: "inf-processing" },
+  // South perimeter (below processing, near tank)
+  { id: "st-sw-s1", x: 75, y: 735, species: "Curry Leaf", purpose: "Kitchen herbs near processing", nearInfra: "inf-processing" },
+  { id: "st-sw-s2", x: 60, y: 768, species: "Pongamia", purpose: "Shade near tank (not overhead)", nearInfra: "inf-tank" },
+
+  // ─── Farm Pond — west bank stabilization ───
+  { id: "st-pond-1", x: 532, y: 695, species: "Bamboo", purpose: "Bank stabilization", nearInfra: "water-pond" },
+  { id: "st-pond-2", x: 532, y: 725, species: "Bamboo", purpose: "Bank stabilization", nearInfra: "water-pond" },
+  { id: "st-pond-3", x: 532, y: 750, species: "Indian Willow", purpose: "Filtered shade on pond", nearInfra: "water-pond" },
+];
+
+// ── Gate / Entrance Orientation ──
+export interface GateMarker {
+  id: string;
+  infraId: string;
+  label: string;
+  direction: "north" | "south" | "east" | "west";
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export const GATES: GateMarker[] = [
+  // NW Hub
+  { id: "gate-parking", infraId: "inf-parking", label: "Parking Entry", direction: "south", x: 66, y: 53, w: 8, h: 2 },
+  { id: "gate-shed", infraId: "inf-shed", label: "Cattle Gate", direction: "east", x: 66, y: 73, w: 2, h: 6 },
+  { id: "gate-nursery", infraId: "inf-nursery", label: "Nursery Gate", direction: "east", x: 70, y: 109, w: 2, h: 6 },
+  // SW Hub — east-facing per user request
+  { id: "gate-house", infraId: "inf-house", label: "Farmhouse Main", direction: "east", x: 83, y: 601, w: 2, h: 8 },
+  { id: "gate-store", infraId: "inf-store", label: "Store Loading", direction: "east", x: 130, y: 596, w: 2, h: 8 },
+  { id: "gate-processing", infraId: "inf-processing", label: "Processing Gate", direction: "east", x: 68, y: 711, w: 2, h: 6 },
+];
+
+// ── Access Paths (connecting structures to roads) ──
+export interface AccessPath {
+  id: string;
+  label: string;
+  points: [number, number][]; // [x,y] waypoints
+  type: "direct" | "path";
+}
+
+export const ACCESS_PATHS: AccessPath[] = [
+  // NW Hub — main access corridor from W Road into hub
+  { id: "path-nw-entry", label: "NW Hub Access (from W Road)", points: [[22, 76], [140, 76]], type: "path" },
+  { id: "path-nw-cross", label: "NW Hub N-S Corridor", points: [[50, 22], [50, 130]], type: "path" },
+  // SW Hub — compound spine N-S + W Road entry
+  { id: "path-sw-spine", label: "SW Compound Spine", points: [[26, 580], [26, 765]], type: "path" },
+  { id: "path-sw-entry", label: "SW Hub Entry (from W Road)", points: [[22, 605], [28, 605]], type: "direct" },
+  // Gate access lines (short connectors from gate to nearest corridor)
+  { id: "path-gate-house", label: "Farmhouse Gate → East", points: [[85, 605], [130, 605]], type: "path" },
+  { id: "path-gate-store", label: "Store Gate → East", points: [[132, 600], [155, 600]], type: "path" },
+  { id: "path-gate-processing", label: "Processing Gate → East", points: [[70, 714], [130, 714]], type: "path" },
+  { id: "path-gate-shed", label: "Cattle Gate → East", points: [[68, 76], [140, 76]], type: "path" },
 ];
 
 // ── Live Fence Specification ──
