@@ -72,23 +72,73 @@ function StatCard({
   );
 }
 
+// ---- Custom tooltip (avoids recharts forcing bar colors on text) ----
+interface ChartTooltipProps {
+  active?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload?: any[];
+  label?: string;
+  mode?: "stacked" | "area";
+}
+
+function ChartTooltip({ active, payload, label, mode = "stacked" }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-lg text-xs z-50">
+      <p className="font-semibold mb-1.5">{label}</p>
+      <div className="space-y-1">
+        {payload
+          .filter((entry) => (entry.value ?? 0) > 0)
+          .map((entry, i) => {
+            const profile = PLANT_INCOME_PROFILES.find(
+              (p) => p.id === entry.dataKey
+            );
+            const displayName =
+              mode === "area"
+                ? entry.dataKey === "income"
+                  ? "Annual Income"
+                  : "Cumulative"
+                : profile?.label ?? entry.dataKey;
+            const displayValue =
+              mode === "area"
+                ? `₹${(entry.value ?? 0).toFixed(1)} Lakh`
+                : `₹${((entry.value ?? 0) * 1000).toLocaleString("en-IN")}`;
+
+            return (
+              <div key={i} className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="size-2 rounded-full shrink-0"
+                    style={{ backgroundColor: entry.color }}
+                  />
+                  <span className="text-muted-foreground">{displayName}</span>
+                </div>
+                <span className="font-mono font-medium tabular-nums">
+                  {displayValue}
+                </span>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+}
+
 // ---- Stacked bar chart (year-wise by category) ----
 function IncomeBarChart({ projection }: { projection: IncomeProjection }) {
-  // Build recharts data: each year as a row, categories as keys
   const chartData = useMemo(() => {
     return projection.years.map((yr) => {
       const row: Record<string, number | string> = { year: `Yr ${yr.year}` };
       for (const cat of yr.categories) {
-        row[cat.profileId] = Math.round(cat.income / 1000); // in thousands
+        row[cat.profileId] = Math.round(cat.income / 1000);
       }
       return row;
     });
   }, [projection]);
 
   const activeProfiles = useMemo(() => {
-    const ids = new Set(
-      projection.categoryTotals.map((c) => c.id)
-    );
+    const ids = new Set(projection.categoryTotals.map((c) => c.id));
     return PLANT_INCOME_PROFILES.filter((p) => ids.has(p.id));
   }, [projection]);
 
@@ -113,19 +163,8 @@ function IncomeBarChart({ projection }: { projection: IncomeProjection }) {
             tickFormatter={(v) => `₹${v}K`}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-              color: "hsl(var(--card-foreground))",
-              fontSize: 12,
-            }}
-            formatter={(value: number | undefined, name: string | undefined) => {
-              const v = value ?? 0;
-              const n = name ?? "";
-              const profile = PLANT_INCOME_PROFILES.find((p) => p.id === n);
-              return [`₹${(v * 1000).toLocaleString("en-IN")}`, profile?.label ?? n];
-            }}
+            content={<ChartTooltip mode="stacked" />}
+            cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
           />
           <Legend
             wrapperStyle={{ fontSize: 11 }}
@@ -179,19 +218,7 @@ function CumulativeChart({ projection }: { projection: IncomeProjection }) {
             tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
             tickFormatter={(v) => `₹${v}L`}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-              color: "hsl(var(--card-foreground))",
-              fontSize: 12,
-            }}
-            formatter={(value: number | undefined, name: string | undefined) => [
-              `₹${(value ?? 0).toFixed(1)} Lakh`,
-              (name ?? "") === "income" ? "Annual Income" : "Cumulative",
-            ]}
-          />
+          <Tooltip content={<ChartTooltip mode="area" />} />
           <Legend
             wrapperStyle={{ fontSize: 11 }}
             formatter={(value) =>
@@ -232,7 +259,7 @@ function ProjectionTable({ projection }: { projection: IncomeProjection }) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b text-left">
-            <th className="py-2 pr-3 font-medium text-muted-foreground sticky left-0 bg-card z-10">
+            <th className="py-2 pr-3 font-medium text-muted-foreground sticky left-0 bg-card z-10 whitespace-nowrap">
               Year
             </th>
             {activeProfiles.map((p) => (
@@ -261,7 +288,7 @@ function ProjectionTable({ projection }: { projection: IncomeProjection }) {
         <tbody>
           {projection.years.map((yr) => (
             <tr key={yr.year} className="border-b border-border/50">
-              <td className="py-2 pr-3 font-medium sticky left-0 bg-card z-10">
+              <td className="py-2 pr-3 font-medium sticky left-0 bg-card z-10 whitespace-nowrap">
                 Year {yr.year}
               </td>
               {activeProfiles.map((profile) => {
@@ -290,7 +317,7 @@ function ProjectionTable({ projection }: { projection: IncomeProjection }) {
           ))}
           {/* Totals row */}
           <tr className="font-semibold border-t-2">
-            <td className="py-2 pr-3 sticky left-0 bg-card z-10">
+            <td className="py-2 pr-3 sticky left-0 bg-card z-10 whitespace-nowrap">
               10-Year Total
             </td>
             {activeProfiles.map((profile) => {
