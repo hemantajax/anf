@@ -123,3 +123,54 @@ export const ZONE_SUMMARY = [
     description: "Mango, Jackfruit, Avocado, Drumstick, nursery",
   },
 ];
+
+// ---- Full Zone defaults (used by zone-store) ----
+import type { Zone } from "@/types/farm";
+
+export const BLOCK_TEMPLATE_OPTIONS = [
+  { id: "standard-orchard", name: "Standard Orchard", size: "36×36 ft" },
+  { id: "compact-orchard", name: "Compact Orchard", size: "24×24 ft" },
+  { id: "banana-block", name: "Banana Block", size: "36×36 ft" },
+  { id: "premium-block", name: "Premium Block", size: "36×36 ft" },
+] as const;
+
+export const ZONE_COLOR_PRESETS = [
+  { value: "#10b981", label: "Emerald" },
+  { value: "#3b82f6", label: "Blue" },
+  { value: "#f59e0b", label: "Amber" },
+  { value: "#ef4444", label: "Red" },
+  { value: "#8b5cf6", label: "Violet" },
+  { value: "#ec4899", label: "Pink" },
+  { value: "#14b8a6", label: "Teal" },
+  { value: "#f97316", label: "Orange" },
+] as const;
+
+export const DEFAULT_ZONES: Zone[] = [
+  {
+    id: "zone-a",
+    name: "Zone A",
+    color: "#10b981",
+    acres: 4,
+    strategy: "High Cash Flow — Banana + Guava dominant, heavy drip & fertigation",
+    blockTemplateId: "banana-block",
+    bounds: { x: 0, y: 0, width: 400, height: 300 },
+  },
+  {
+    id: "zone-b",
+    name: "Zone B",
+    color: "#3b82f6",
+    acres: 4,
+    strategy: "Balanced Orchard — Full B/M/S mix, medium input, stable output",
+    blockTemplateId: "standard-orchard",
+    bounds: { x: 400, y: 0, width: 400, height: 300 },
+  },
+  {
+    id: "zone-c",
+    name: "Zone C",
+    color: "#f59e0b",
+    acres: 2,
+    strategy: "Asset & Premium — Mango, Jackfruit, Avocado, Drumstick, nursery",
+    blockTemplateId: "premium-block",
+    bounds: { x: 0, y: 300, width: 400, height: 200 },
+  },
+];
