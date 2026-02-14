@@ -15,7 +15,9 @@ import {
   configFromBedCount,
   calcCanvasWidth,
   calcCanvasHeight,
+  MODEL_DEFAULTS,
 } from "@/lib/orchard-utils";
+import type { PalekarModel } from "@/lib/orchard-utils";
 import type { OrchardConfig } from "@/types/farm";
 
 // ---- Orchard settings panel (shown when nothing selected) ----
@@ -27,6 +29,9 @@ function OrchardSettings() {
   // Derive base bed length per module (total inner / rowCount)
   const innerH = orchardConfig.heightFt - 2 * orchardConfig.boundaryWidthFt;
   const bedLengthFt = innerH / orchardConfig.rowCount;
+
+  // Derive current model from kBedSpan
+  const currentModel: PalekarModel = orchardConfig.kBedSpan === 4 ? "36x36" : "24x24";
 
   /** Update config and auto-recalculate canvas width/height */
   const updateConfig = (updates: Partial<OrchardConfig>) => {
@@ -45,6 +50,14 @@ function OrchardSettings() {
     setOrchardConfig(next);
   };
 
+  /** Switch model type (24×24 ↔ 36×36) */
+  const switchModel = (model: PalekarModel) => {
+    const md = MODEL_DEFAULTS[model];
+    setOrchardConfig(
+      configFromBedCount(orchardConfig.bedCount, orchardConfig.rowCount, model)
+    );
+  };
+
   return (
     <div className="w-[220px] shrink-0 border-l bg-sidebar flex flex-col">
       <div className="px-3 py-2 border-b">
@@ -53,15 +66,41 @@ function OrchardSettings() {
         </h3>
       </div>
       <div className="flex-1 overflow-auto p-3 space-y-4">
-        {/* Presets by bed count */}
+        {/* Model selector */}
+        <div className="space-y-1.5">
+          <Label className="text-xs">Palekar Model</Label>
+          <div className="flex gap-1">
+            {(["24x24", "36x36"] as PalekarModel[]).map((m) => (
+              <Button
+                key={m}
+                variant={currentModel === m ? "default" : "outline"}
+                size="sm"
+                className="text-[11px] h-7 px-3 flex-1"
+                onClick={() => switchModel(m)}
+              >
+                {m === "24x24" ? "24×24 ft" : "36×36 ft"}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {currentModel === "24x24"
+              ? "K=24ft · Cycle: 1,2,3,4 · B@24ft"
+              : "K=36ft · Cycle: 1,2,4,3 · B@36ft"}
+          </p>
+        </div>
+
+        <Separator />
+
+        {/* Presets filtered by current model */}
         <div className="space-y-1.5">
           <Label className="text-xs">Layout Preset</Label>
           <div className="flex flex-wrap gap-1">
-            {ORCHARD_PRESETS.map((preset) => (
+            {ORCHARD_PRESETS.filter((p) => p.model === currentModel).map((preset) => (
               <Button
                 key={preset.label}
                 variant={
-                  orchardConfig.bedCount === preset.bedCount
+                  orchardConfig.bedCount === preset.bedCount &&
+                  currentModel === preset.model
                     ? "default"
                     : "outline"
                 }
@@ -69,7 +108,7 @@ function OrchardSettings() {
                 className="text-[10px] h-6 px-2"
                 onClick={() =>
                   setOrchardConfig(
-                    configFromBedCount(preset.bedCount, orchardConfig.rowCount)
+                    configFromBedCount(preset.bedCount, orchardConfig.rowCount, preset.model)
                   )
                 }
               >

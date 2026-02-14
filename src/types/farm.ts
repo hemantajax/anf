@@ -202,6 +202,12 @@ export interface OrchardConfig {
   rowCount: number;
   /** Grid spacing for plant placement in feet (e.g. 1) */
   gridSpacingFt: number;
+  /** Bed type cycle — maps column position to bed type number.
+   *  24×24: [1,2,3,4]  |  36×36: [1,2,4,3] */
+  bedTypeCycle: number[];
+  /** Number of beds the K module spans (center-to-center).
+   *  24×24: 3 (Bed1→Bed3)  |  36×36: 4 (Bed1→Bed4) */
+  kBedSpan: number;
 }
 
 export interface BedPosition {

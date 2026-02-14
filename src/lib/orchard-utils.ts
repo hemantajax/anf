@@ -60,6 +60,8 @@ export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
   bedCount: 4,
   rowCount: 1,
   gridSpacingFt: 1.5,
+  bedTypeCycle: [1, 2, 3, 4],
+  kBedSpan: 3,
 };
 
 // ---- Visual style matching the hand-drawn reference images ----
@@ -131,8 +133,10 @@ export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
   let currentX = innerX;
   let pathIdx = 0;
 
+  const cycle = config.bedTypeCycle;
+
   for (let col = 0; col < bedCount; col++) {
-    const bedTypeNum = (col % 4) + 1;
+    const bedTypeNum = cycle[col % cycle.length];
 
     beds.push({
       index: col,
@@ -196,10 +200,11 @@ export function validateOrchardConfig(config: OrchardConfig): {
     };
   }
 
-  // Compute the 24ft module span (center of first bed → center of 3rd bed)
+  // Compute the K module span using kBedSpan
+  const kSpan = config.kBedSpan; // 3 for 24×24, 4 for 36×36
   const moduleFt =
-    config.bedCount >= 3
-      ? config.bedWidthFt + config.pathWidthFt + config.bedWidthFt
+    config.bedCount >= kSpan
+      ? (kSpan - 1) * (config.bedWidthFt + config.pathWidthFt)
       : 0;
 
   const rowLabel = config.rowCount > 1 ? ` × ${config.rowCount} rows (continuous)` : "";
@@ -212,18 +217,36 @@ export function validateOrchardConfig(config: OrchardConfig): {
 }
 
 // ---- Preset orchard sizes ----
-// Width auto-calculated; height = 2×boundary + bed-length (24ft standard)
-const BED_LENGTH = 24;
+// Width auto-calculated; height = 2×boundary + bed-length
 
-export const ORCHARD_PRESETS: {
+/** Model type identifier */
+export type PalekarModel = "24x24" | "36x36";
+
+/** Per-model defaults */
+export const MODEL_DEFAULTS: Record<
+  PalekarModel,
+  { bedLength: number; bedTypeCycle: number[]; kBedSpan: number }
+> = {
+  "24x24": { bedLength: 24, bedTypeCycle: [1, 2, 3, 4], kBedSpan: 3 },
+  "36x36": { bedLength: 36, bedTypeCycle: [1, 2, 4, 3], kBedSpan: 4 },
+};
+
+export interface OrchardPreset {
   label: string;
   bedCount: number;
+  model: PalekarModel;
   description: string;
-}[] = [
-  { label: "3 Beds (K Module)", bedCount: 3, description: "24ft module" },
-  { label: "4 Beds (1 Cycle)", bedCount: 4, description: "Full Bed 1-4 cycle" },
-  { label: "8 Beds (2 Cycles)", bedCount: 8, description: "2× full cycles" },
-  { label: "12 Beds (3 Cycles)", bedCount: 12, description: "3× full cycles" },
+}
+
+export const ORCHARD_PRESETS: OrchardPreset[] = [
+  // 24×24 presets
+  { label: "3 Beds (K=24)", bedCount: 3, model: "24x24", description: "24ft module" },
+  { label: "4 Beds (1 Cycle)", bedCount: 4, model: "24x24", description: "Full 1-4 cycle" },
+  { label: "8 Beds (2 Cycles)", bedCount: 8, model: "24x24", description: "2× cycles" },
+  // 36×36 presets
+  { label: "4 Beds (K=36)", bedCount: 4, model: "36x36", description: "36ft module" },
+  { label: "8 Beds (2× 36)", bedCount: 8, model: "36x36", description: "2× 36ft modules" },
+  { label: "12 Beds (3× 36)", bedCount: 12, model: "36x36", description: "3× 36ft modules" },
 ];
 
 // ================================================================
@@ -755,24 +778,27 @@ export function getBed4Placements(
   return placements;
 }
 
-/** Build a full config from bed count + row count */
+/** Build a full config from bed count + model type */
 export function configFromBedCount(
   bedCount: number,
   rowCount = 1,
+  model: PalekarModel = "24x24",
   bedWidthFt = 9,
   pathWidthFt = 3,
   boundaryWidthFt = 1.5,
   gridSpacingFt = 1.5,
-  bedLengthFt = BED_LENGTH
 ): OrchardConfig {
+  const md = MODEL_DEFAULTS[model];
   return {
     widthFt: calcCanvasWidth(bedCount, bedWidthFt, pathWidthFt, boundaryWidthFt),
-    heightFt: calcCanvasHeight(bedLengthFt, boundaryWidthFt, rowCount),
+    heightFt: calcCanvasHeight(md.bedLength, boundaryWidthFt, rowCount),
     boundaryWidthFt,
     bedWidthFt,
     pathWidthFt,
     bedCount,
     rowCount,
     gridSpacingFt,
+    bedTypeCycle: md.bedTypeCycle,
+    kBedSpan: md.kBedSpan,
   };
 }

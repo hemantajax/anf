@@ -209,7 +209,7 @@ export function LayersPanel() {
             Canvas: {orchardConfig.widthFt} × {orchardConfig.heightFt} ft
           </div>
           <div>
-            Module K: {orchardConfig.bedCount >= 3 ? orchardConfig.bedWidthFt + orchardConfig.pathWidthFt + orchardConfig.bedWidthFt : "–"} ft
+            Module K: {orchardConfig.bedCount >= orchardConfig.kBedSpan ? (orchardConfig.kBedSpan - 1) * (orchardConfig.bedWidthFt + orchardConfig.pathWidthFt) : "–"} ft
           </div>
           <div>
             {orchardConfig.bedCount}×{orchardConfig.rowCount} beds ({orchardConfig.bedCount * orchardConfig.rowCount} total) | Trench: {orchardConfig.pathWidthFt}ft

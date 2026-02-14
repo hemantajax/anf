@@ -297,11 +297,13 @@ function PlantSymbolRenderer({
 function BedTreePlacements({
   bed,
   symbolVisibility,
+  bedTypeCycle,
 }: {
   bed: BedPosition;
   symbolVisibility: Record<string, boolean>;
+  bedTypeCycle: number[];
 }) {
-  const bedType = (bed.index % 4) + 1; // 1, 2, 3, or 4
+  const bedType = bedTypeCycle[bed.index % bedTypeCycle.length];
 
   // ── Bed 2: Banana & Papaya on edges, no center column ──
   const edgePlacements = useMemo(() => {
@@ -418,12 +420,14 @@ function BedRenderer({
   showGrid,
   symbolVisibility,
   baseBedLengthFt,
+  bedTypeCycle,
 }: {
   bed: BedPosition;
   gridSpacing: number;
   showGrid: boolean;
   symbolVisibility: Record<string, boolean>;
   baseBedLengthFt: number;
+  bedTypeCycle: number[];
 }) {
   const x = bed.x * PX_PER_FT;
   const y = bed.y * PX_PER_FT;
@@ -593,7 +597,7 @@ function BedRenderer({
         )}
 
       {/* Tree placements per bed type */}
-      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} />
+      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} />
     </Group>
   );
 }
@@ -685,15 +689,16 @@ function DimensionAnnotations({ layout }: { layout: OrchardLayout }) {
 
   const dimColor = "#94a3b8";
 
-  // Calculate 24ft module (K) — center of Bed 1 → center of Bed 3
-  const bed1 = beds[0];
-  const bed3 = beds.length >= 3 ? beds[2] : null;
+  // Calculate K module — center of first bed → center of bed at kBedSpan
+  const kSpan = config.kBedSpan; // 3 for 24×24, 4 for 36×36
+  const bedFirst = beds[0];
+  const bedLast = beds.length >= kSpan ? beds[kSpan - 1] : null;
   const moduleFt =
-    bed1 && bed3
-      ? bed3.x + bed3.width / 2 - (bed1.x + bed1.width / 2)
+    bedFirst && bedLast
+      ? bedLast.x + bedLast.width / 2 - (bedFirst.x + bedFirst.width / 2)
       : 0;
-  const moduleStartPx = bed1 ? (bed1.x + bed1.width / 2) * PX_PER_FT : 0;
-  const moduleEndPx = bed3 ? (bed3.x + bed3.width / 2) * PX_PER_FT : 0;
+  const moduleStartPx = bedFirst ? (bedFirst.x + bedFirst.width / 2) * PX_PER_FT : 0;
+  const moduleEndPx = bedLast ? (bedLast.x + bedLast.width / 2) * PX_PER_FT : 0;
 
   // Derive per-module bed length (continuous: totalInner / rowCount)
   const totalInnerH = config.heightFt - 2 * config.boundaryWidthFt;
@@ -865,6 +870,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
             showGrid={showGrid}
             symbolVisibility={symbolVisibility}
             baseBedLengthFt={baseBedLengthFt}
+            bedTypeCycle={config.bedTypeCycle}
           />
         ))}
 
