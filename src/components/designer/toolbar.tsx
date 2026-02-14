@@ -18,7 +18,10 @@ import {
   Redo2,
   Grid2X2,
   Magnet,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -63,6 +66,9 @@ export function Toolbar() {
 
   const undo = useFarmStore((s) => s.undo);
   const redo = useFarmStore((s) => s.redo);
+
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   return (
     <div className="flex flex-col gap-1 p-2 border-r bg-sidebar w-[52px] shrink-0 items-center">
@@ -185,6 +191,26 @@ export function Toolbar() {
         <TooltipContent side="right" className="text-xs">
           Redo{" "}
           <kbd className="ml-1 text-[10px] opacity-60">Ctrl+Shift+Z</kbd>
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Spacer to push theme toggle to bottom */}
+      <div className="flex-1" />
+
+      {/* Theme toggle */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="text-xs">
+          {isDark ? "Light Mode" : "Dark Mode"}
         </TooltipContent>
       </Tooltip>
     </div>
