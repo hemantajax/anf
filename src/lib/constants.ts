@@ -6,6 +6,7 @@ import {
   MapPin,
   BarChart3,
   Settings,
+  Calculator,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +35,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/templates",
     icon: Grid3X3,
     description: "Design reusable block layouts",
+  },
+  {
+    title: "Plant Density",
+    href: "/density",
+    icon: Calculator,
+    description: "Plants per block, acre & farm",
   },
   {
     title: "Plant Library",
