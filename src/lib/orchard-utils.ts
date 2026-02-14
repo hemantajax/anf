@@ -439,12 +439,12 @@ export const PLANT_SYMBOLS: Record<string, PlantSymbolDef> = {
   fruitVeg: {
     id: "fruitVeg",
     label: "Fruit Vegetables (Phal Sabziyan)",
-    shortLabel: "✦",
-    shape: "star",
+    shortLabel: "FV",
+    shape: "diamond",
     size: "small",
-    radius: 2.5,
-    fill: "#f97316",       // orange star
-    stroke: "#ea580c",
+    radius: 3,
+    fill: "#facc15",       // yellow diamond — distinct from orange turmeric
+    stroke: "#a16207",
     strokeWidth: 0.8,
   },
   milletsPulses: {
