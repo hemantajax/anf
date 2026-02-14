@@ -257,47 +257,66 @@ export const FLOWER_SPECIES = [
 export function getCoconutPositions(): { x: number; y: number; roadId: string }[] {
   const positions: { x: number; y: number; roadId: string }[] = [];
   const spacing = 25;
+  const half = spacing / 2; // diagonal offset for stagger
 
-  // West Main Road (15ft wide, x=7 to 22, y=7 to 785)
-  const wCenter = 14.5;
+  // ── West Main Road (15ft, x=7→22) ──
+  // Buffer side: x=6 (1ft into buffer from road edge x=7)
+  // Flower side: x=23.5 (center of 3ft flower panel x=22→25)
   for (let y = 20; y <= 780; y += spacing) {
-    positions.push({ x: wCenter - 5, y, roadId: "road-w" });
-    positions.push({ x: wCenter + 5, y, roadId: "road-w" });
+    positions.push({ x: 6, y, roadId: "road-w" });
+  }
+  for (let y = 20 + half; y <= 780; y += spacing) {
+    positions.push({ x: 23.5, y, roadId: "road-w" });
   }
 
-  // North Road (12ft, x=22 to 641, y=7 to 19)
-  const nCenter = 13;
+  // ── North Road (12ft, y=7→19) ──
+  // Buffer side: y=6 (1ft into buffer)
+  // Flower side: y=20.5 (center of flower panel y=19→22)
   for (let x = 35; x <= 635; x += spacing) {
-    positions.push({ x, y: nCenter - 4, roadId: "road-n" });
-    positions.push({ x, y: nCenter + 4, roadId: "road-n" });
+    positions.push({ x, y: 6, roadId: "road-n" });
+  }
+  for (let x = 35 + half; x <= 635; x += spacing) {
+    positions.push({ x, y: 20.5, roadId: "road-n" });
   }
 
-  // East Road (12ft, x=641 to 653, y=7 to 785)
-  const eCenter = 647;
+  // ── East Road (12ft, x=641→653) ──
+  // Flower side: x=639.5 (center of flower panel x=638→641)
+  // Buffer side: x=654 (1ft into buffer from road edge x=653)
   for (let y = 20; y <= 780; y += spacing) {
-    positions.push({ x: eCenter - 4, y, roadId: "road-e" });
-    positions.push({ x: eCenter + 4, y, roadId: "road-e" });
+    positions.push({ x: 639.5, y, roadId: "road-e" });
+  }
+  for (let y = 20 + half; y <= 780; y += spacing) {
+    positions.push({ x: 654, y, roadId: "road-e" });
   }
 
-  // South Road (12ft, x=22 to 641, y=773 to 785)
-  const sCenter = 779;
+  // ── South Road (12ft, y=773→785) ──
+  // Flower side: y=771.5 (center of flower panel y=770→773)
+  // Buffer side: y=786 (1ft into buffer)
   for (let x = 35; x <= 635; x += spacing) {
-    positions.push({ x, y: sCenter - 4, roadId: "road-s" });
-    positions.push({ x, y: sCenter + 4, roadId: "road-s" });
+    positions.push({ x, y: 771.5, roadId: "road-s" });
+  }
+  for (let x = 35 + half; x <= 635; x += spacing) {
+    positions.push({ x, y: 786, roadId: "road-s" });
   }
 
-  // Central N-S Road (12ft, x=326 to 338, y=19 to 773 — connects to peripheral roads)
-  const nsCenter = 332;
+  // ── Central N-S Road (12ft, x=326→338) ──
+  // West side: x=324.5 (1.5ft into zone from road edge)
+  // East side: x=339.5 (1.5ft into zone from road edge)
   for (let y = 30; y <= 770; y += spacing) {
-    positions.push({ x: nsCenter - 4, y, roadId: "road-ns" });
-    positions.push({ x: nsCenter + 4, y, roadId: "road-ns" });
+    positions.push({ x: 324.5, y, roadId: "road-ns" });
+  }
+  for (let y = 30 + half; y <= 770; y += spacing) {
+    positions.push({ x: 339.5, y, roadId: "road-ns" });
   }
 
-  // Central E-W Road (12ft, x=22 to 641, y=390 to 402 — connects to peripheral roads)
-  const ewCenter = 396;
+  // ── Central E-W Road (12ft, y=390→402) ──
+  // North side: y=388.5 (1.5ft into zone from road edge)
+  // South side: y=403.5 (1.5ft into zone from road edge)
   for (let x = 35; x <= 636; x += spacing) {
-    positions.push({ x, y: ewCenter - 4, roadId: "road-ew" });
-    positions.push({ x, y: ewCenter + 4, roadId: "road-ew" });
+    positions.push({ x, y: 388.5, roadId: "road-ew" });
+  }
+  for (let x = 35 + half; x <= 636; x += spacing) {
+    positions.push({ x, y: 403.5, roadId: "road-ew" });
   }
 
   return positions;

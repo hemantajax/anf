@@ -76,7 +76,7 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
   return (
     <div className="relative w-full overflow-auto border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
       <svg
-        viewBox="-50 -50 760 892"
+        viewBox="-50 -65 760 907"
         className="w-full h-auto max-h-[85vh]"
         style={{ minHeight: 500 }}
         preserveAspectRatio="xMidYMid meet"
@@ -313,12 +313,17 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
         </g>
 
         {/* ── North Arrow / Compass ── */}
-        <g transform="translate(-30, 50)">
-          <circle cx="0" cy="0" r="14" fill="white" stroke="#333" strokeWidth="0.8" />
-          <polygon points="0,-11 3,2 -3,2" fill="#E53935" />
-          <polygon points="0,11 3,-2 -3,-2" fill="#333" />
-          <text x="0" y="-4" textAnchor="middle" fontSize="5" fontWeight="bold" fill="white">N</text>
-          <text x="0" y="8" textAnchor="middle" fontSize="4" fill="white">S</text>
+        <g transform="translate(625, -38)">
+          <circle cx="0" cy="0" r="12" fill="white" stroke="#455A64" strokeWidth="0.8" />
+          {/* North arrow (red) */}
+          <polygon points="0,-8 2.5,1 -2.5,1" fill="#D32F2F" />
+          {/* South arrow (dark) */}
+          <polygon points="0,8 2.5,-1 -2.5,-1" fill="#78909C" />
+          {/* Center dot */}
+          <circle cx="0" cy="0" r="1.2" fill="#455A64" />
+          {/* Labels */}
+          <text x="0" y="-14" textAnchor="middle" fontSize="5" fontWeight="700" fill="#D32F2F">N</text>
+          <text x="0" y="18" textAnchor="middle" fontSize="4" fontWeight="600" fill="#78909C">S</text>
         </g>
 
         {/* ── Dimension Labels (outside the farm) ── */}
