@@ -298,62 +298,65 @@ function BedTreePlacements({
   bed,
   symbolVisibility,
   bedTypeCycle,
+  treeSpacingFt,
 }: {
   bed: BedPosition;
   symbolVisibility: Record<string, boolean>;
   bedTypeCycle: number[];
+  treeSpacingFt: number;
 }) {
   const bedType = bedTypeCycle[bed.index % bedTypeCycle.length];
+  const ts = treeSpacingFt; // shorthand: 6 for 24×24, 9 for 36×36
 
-  // ── Bed 2: Banana & Papaya on edges, no center column ──
+  // ── Bed 2: Banana & Papaya on edges ──
   const edgePlacements = useMemo(() => {
     if (bedType === 2) {
-      return getBed2EdgePlacements(bed.width, bed.height);
+      return getBed2EdgePlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 1 & 3: center column B/M/S @6ft ──
+  // ── Bed 1 & 3: center column B/M/S ──
   const centerTrees = useMemo(() => {
     if (bedType === 1 || bedType === 3) {
-      return getCenterColumnTrees(bed.width, bed.height);
+      return getCenterColumnTrees(bed.width, bed.height, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 1 & 3: pigeon pea @3ft midpoints (center column) ──
+  // ── Bed 1 & 3: pigeon pea midpoints (center column) ──
   const intermediates = useMemo(() => {
     if (bedType === 1 || bedType === 3) {
-      return getIntermediatePlacements(bed.width, bed.height);
+      return getIntermediatePlacements(bed.width, bed.height, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
   // ── Bed 1 & 3: ground-cover crops on non-center lines ──
   const groundCover = useMemo(() => {
     if (bedType === 1 || bedType === 3) {
-      return getBed13GroundCoverPlacements(bed.width, bed.height);
+      return getBed13GroundCoverPlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 2: pigeon pea @3ft midpoints on BOTH edge columns ──
+  // ── Bed 2: pigeon pea midpoints on BOTH edge columns ──
   const bed2Intermediates = useMemo(() => {
     if (bedType === 2) {
-      return getBed2IntermediatePlacements(bed.width, bed.height);
+      return getBed2IntermediatePlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 2: interior crops (Sugarcane, Turmeric, Ginger) ──
+  // ── Bed 2: interior crops (Turmeric, Ginger, Groundnut, Millets) ──
   const bed2Interior = useMemo(() => {
     if (bedType === 2) {
-      return getBed2InteriorPlacements(bed.width, bed.height);
+      return getBed2InteriorPlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 4: vine veg ★ @3ft on all lines + pavilion poles ⌂ ──
+  // ── Bed 4: vine veg ★ + pavilion poles ⌂ ──
   const bed4Placements = useMemo(() => {
     if (bedType === 4) {
       return getBed4Placements(bed.width, bed.height);
@@ -421,6 +424,7 @@ function BedRenderer({
   symbolVisibility,
   baseBedLengthFt,
   bedTypeCycle,
+  treeSpacingFt,
 }: {
   bed: BedPosition;
   gridSpacing: number;
@@ -428,6 +432,7 @@ function BedRenderer({
   symbolVisibility: Record<string, boolean>;
   baseBedLengthFt: number;
   bedTypeCycle: number[];
+  treeSpacingFt: number;
 }) {
   const x = bed.x * PX_PER_FT;
   const y = bed.y * PX_PER_FT;
@@ -597,7 +602,7 @@ function BedRenderer({
         )}
 
       {/* Tree placements per bed type */}
-      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} />
+      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} treeSpacingFt={treeSpacingFt} />
     </Group>
   );
 }
@@ -871,6 +876,7 @@ export const OrchardLayer = React.memo(function OrchardLayer({
             symbolVisibility={symbolVisibility}
             baseBedLengthFt={baseBedLengthFt}
             bedTypeCycle={config.bedTypeCycle}
+            treeSpacingFt={config.treeSpacingFt}
           />
         ))}
 

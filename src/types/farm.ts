@@ -208,6 +208,9 @@ export interface OrchardConfig {
   /** Number of beds the K module spans (center-to-center).
    *  24×24: 3 (Bed1→Bed3)  |  36×36: 4 (Bed1→Bed4) */
   kBedSpan: number;
+  /** Spacing between B/M/S center-column trees in feet.
+   *  24×24: 6ft  |  36×36: 9ft */
+  treeSpacingFt: number;
 }
 
 export interface BedPosition {

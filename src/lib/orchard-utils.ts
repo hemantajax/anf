@@ -62,6 +62,7 @@ export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
   gridSpacingFt: 1.5,
   bedTypeCycle: [1, 2, 3, 4],
   kBedSpan: 3,
+  treeSpacingFt: 6,
 };
 
 // ---- Visual style matching the hand-drawn reference images ----
@@ -225,10 +226,10 @@ export type PalekarModel = "24x24" | "36x36";
 /** Per-model defaults */
 export const MODEL_DEFAULTS: Record<
   PalekarModel,
-  { bedLength: number; bedTypeCycle: number[]; kBedSpan: number }
+  { bedLength: number; bedTypeCycle: number[]; kBedSpan: number; treeSpacingFt: number }
 > = {
-  "24x24": { bedLength: 24, bedTypeCycle: [1, 2, 3, 4], kBedSpan: 3 },
-  "36x36": { bedLength: 36, bedTypeCycle: [1, 2, 4, 3], kBedSpan: 4 },
+  "24x24": { bedLength: 24, bedTypeCycle: [1, 2, 3, 4], kBedSpan: 3, treeSpacingFt: 6 },
+  "36x36": { bedLength: 36, bedTypeCycle: [1, 2, 4, 3], kBedSpan: 4, treeSpacingFt: 9 },
 };
 
 export interface OrchardPreset {
@@ -566,10 +567,12 @@ export function getIntermediatePlacements(
 export function getBed13GroundCoverPlacements(
   bedWidthFt: number,
   bedHeightFt: number,
-  gridSpacingFt = 1.5
+  gridSpacingFt = 1.5,
+  treeSpacingFt = 6
 ): TreePlacement[] {
   const placements: TreePlacement[] = [];
   const step = gridSpacingFt; // 1.5ft
+  const halfTree = treeSpacingFt / 2; // pigeon pea midpoint
 
   const centerX = bedWidthFt / 2;               // 4.5
   const edgeL = gridSpacingFt;                   // 1.5
@@ -577,10 +580,10 @@ export function getBed13GroundCoverPlacements(
   const innerL = gridSpacingFt * 2;              // 3
   const innerR = bedWidthFt - gridSpacingFt * 2; // 6
 
-  // Positions already occupied on center column: B/M/S @6ft, PigeonPea @3ft
+  // Positions already occupied on center column: B/M/S @treeSpacing, PigeonPea @halfTree
   const centerOccupied = new Set<number>();
-  for (let y = 0; y <= bedHeightFt; y += 6) centerOccupied.add(y);   // B/M/S
-  for (let y = 3; y < bedHeightFt; y += 6) centerOccupied.add(y);    // Pigeon Pea
+  for (let y = 0; y <= bedHeightFt; y += treeSpacingFt) centerOccupied.add(y);   // B/M/S
+  for (let y = halfTree; y < bedHeightFt; y += treeSpacingFt) centerOccupied.add(y); // Pigeon Pea
 
   // ── CENTER (4.5ft): Marigold in remaining 1.5ft gaps ──
   for (let y = 0; y <= bedHeightFt; y += step) {
@@ -689,9 +692,11 @@ export function getBed2IntermediatePlacements(
 export function getBed2InteriorPlacements(
   bedWidthFt: number,
   bedHeightFt: number,
-  gridSpacingFt = 1.5
+  gridSpacingFt = 1.5,
+  treeSpacingFt = 6
 ): TreePlacement[] {
   const placements: TreePlacement[] = [];
+  const halfTree = treeSpacingFt / 2;
 
   const line1 = gridSpacingFt;                    // 1.5ft (left edge)
   const line2 = gridSpacingFt * 2;                // 3ft
@@ -699,10 +704,10 @@ export function getBed2InteriorPlacements(
   const line4 = bedWidthFt - gridSpacingFt * 2;   // 6ft
   const line5 = bedWidthFt - gridSpacingFt;        // 7.5ft (right edge)
 
-  // Positions already occupied on edge columns: BA/PA @6ft, PigeonPea @3ft
+  // Positions already occupied on edge columns: BA/PA @treeSpacing, PigeonPea @halfTree
   const edgeOccupied = new Set<number>();
-  for (let y = 0; y <= bedHeightFt; y += 6) edgeOccupied.add(y);  // BA/PA
-  for (let y = 3; y < bedHeightFt; y += 6) edgeOccupied.add(y);   // Pigeon Pea
+  for (let y = 0; y <= bedHeightFt; y += treeSpacingFt) edgeOccupied.add(y);  // BA/PA
+  for (let y = halfTree; y < bedHeightFt; y += treeSpacingFt) edgeOccupied.add(y); // Pigeon Pea
 
   // ── Line 1 (1.5ft left edge): Turmeric in 1.5ft gaps ──
   for (let y = 0; y <= bedHeightFt; y += gridSpacingFt) {
@@ -800,5 +805,6 @@ export function configFromBedCount(
     gridSpacingFt,
     bedTypeCycle: md.bedTypeCycle,
     kBedSpan: md.kBedSpan,
+    treeSpacingFt: md.treeSpacingFt,
   };
 }
