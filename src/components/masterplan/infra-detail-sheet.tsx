@@ -39,6 +39,7 @@ import {
   getInfraDetail,
   computeInfraViewBox,
   type InfraDetail,
+  type FloorPlan,
 } from "@/lib/infra-details";
 
 // ── Props ──
@@ -285,6 +286,210 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
 }
 
 // ================================================================
+// Architectural Floor Plan SVG
+// ================================================================
+function FloorPlanSVG({ plan, floorName }: { plan: FloorPlan; floorName: string }) {
+  const scale = 4; // 1ft = 4px
+  const pad = 24;  // padding for dimension lines
+  const wallT = 0.8; // wall thickness in SVG units
+  const svgW = plan.buildingW * scale + pad * 2;
+  const svgH = plan.buildingH * scale + pad * 2;
+  const ox = pad; // origin x offset
+  const oy = pad; // origin y offset
+
+  return (
+    <div className="rounded-lg border bg-white dark:bg-gray-950 overflow-hidden">
+      <div className="px-3 py-1.5 border-b bg-muted/30">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{floorName} — Floor Plan</p>
+      </div>
+      <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto" style={{ maxHeight: 340 }}>
+        {/* Background */}
+        <rect width={svgW} height={svgH} fill="#FAFAFA" />
+
+        {/* ── Outer building walls (thick) ── */}
+        <rect
+          x={ox} y={oy}
+          width={plan.buildingW * scale} height={plan.buildingH * scale}
+          fill="none" stroke="#333" strokeWidth={wallT * 2.5}
+        />
+
+        {/* ── Room fills and walls ── */}
+        {plan.rooms.map((room, i) => {
+          const rx = ox + room.x * scale;
+          const ry = oy + room.y * scale;
+          const rw = room.w * scale;
+          const rh = room.h * scale;
+          // Alternate light fills
+          const fills = ["#FFF8E1", "#E8F5E9", "#E3F2FD", "#FFF3E0", "#F3E5F5", "#E0F2F1", "#FCE4EC", "#F1F8E9", "#FFF9C4", "#E8EAF6"];
+          const fill = fills[i % fills.length];
+          return (
+            <g key={i}>
+              {/* Room fill */}
+              <rect x={rx} y={ry} width={rw} height={rh} fill={fill} opacity="0.6" />
+              {/* Room walls */}
+              <rect x={rx} y={ry} width={rw} height={rh} fill="none" stroke="#555" strokeWidth={wallT} />
+              {/* Room label */}
+              {room.name.includes("\n") ? (
+                <text x={rx + rw / 2} y={ry + rh / 2 - 3} textAnchor="middle" fontSize="4.5" fontWeight="600" fill="#333">
+                  {room.name.split("\n").map((line, li) => (
+                    <tspan key={li} x={rx + rw / 2} dy={li === 0 ? 0 : 5.5}>{line}</tspan>
+                  ))}
+                </text>
+              ) : (
+                <text x={rx + rw / 2} y={ry + rh / 2 + 1.5} textAnchor="middle" fontSize="4.5" fontWeight="600" fill="#333">
+                  {room.name}
+                </text>
+              )}
+              {/* Room dimensions */}
+              <text x={rx + rw / 2} y={ry + rh / 2 + (room.name.includes("\n") ? 10 : 7)} textAnchor="middle" fontSize="3.2" fill="#888" fontStyle="italic">
+                {room.w}&apos;x{room.h}&apos;
+              </text>
+            </g>
+          );
+        })}
+
+        {/* ── Doors (gaps in wall + swing arc) ── */}
+        {plan.rooms.map((room, ri) =>
+          (room.doors ?? []).map((door, di) => {
+            const rx = ox + room.x * scale;
+            const ry = oy + room.y * scale;
+            const rw = room.w * scale;
+            const rh = room.h * scale;
+            const dw = door.width * scale;
+            const dOff = door.offset * scale;
+            let dx: number, dy: number, arcPath: string;
+
+            if (door.wall === "N") {
+              dx = rx + dOff; dy = ry;
+              arcPath = `M ${dx} ${dy} A ${dw} ${dw} 0 0 1 ${dx + dw} ${dy}`;
+            } else if (door.wall === "S") {
+              dx = rx + dOff; dy = ry + rh;
+              arcPath = `M ${dx} ${dy} A ${dw} ${dw} 0 0 0 ${dx + dw} ${dy}`;
+            } else if (door.wall === "W") {
+              dx = rx; dy = ry + dOff;
+              arcPath = `M ${dx} ${dy} A ${dw} ${dw} 0 0 0 ${dx} ${dy + dw}`;
+            } else {
+              dx = rx + rw; dy = ry + dOff;
+              arcPath = `M ${dx} ${dy} A ${dw} ${dw} 0 0 1 ${dx} ${dy + dw}`;
+            }
+
+            // Clear the wall behind the door
+            let clearX: number, clearY: number, clearW: number, clearH: number;
+            if (door.wall === "N" || door.wall === "S") {
+              clearX = dx - 0.5; clearY = dy - wallT; clearW = dw + 1; clearH = wallT * 2;
+            } else {
+              clearX = dx - wallT; clearY = dy - 0.5; clearW = wallT * 2; clearH = dw + 1;
+            }
+
+            return (
+              <g key={`d-${ri}-${di}`}>
+                {/* White rect to "erase" the wall at door */}
+                <rect x={clearX} y={clearY} width={clearW} height={clearH} fill="#FAFAFA" />
+                {/* Door swing arc */}
+                <path d={arcPath} fill="none" stroke="#1565C0" strokeWidth="0.5" strokeDasharray="1.5 1" opacity="0.7" />
+              </g>
+            );
+          })
+        )}
+
+        {/* ── Windows (parallel marks on wall) ── */}
+        {plan.rooms.map((room, ri) =>
+          (room.windows ?? []).map((win, wi) => {
+            const rx = ox + room.x * scale;
+            const ry = oy + room.y * scale;
+            const rw = room.w * scale;
+            const rh = room.h * scale;
+            const ww = win.width * scale;
+            const wOff = win.offset * scale;
+
+            let x1: number, y1: number, x2: number, y2: number;
+            if (win.wall === "N") {
+              x1 = rx + wOff; y1 = ry; x2 = x1 + ww; y2 = ry;
+            } else if (win.wall === "S") {
+              x1 = rx + wOff; y1 = ry + rh; x2 = x1 + ww; y2 = y1;
+            } else if (win.wall === "W") {
+              x1 = rx; y1 = ry + wOff; x2 = rx; y2 = y1 + ww;
+            } else {
+              x1 = rx + rw; y1 = ry + wOff; x2 = x1; y2 = y1 + ww;
+            }
+
+            // 3 parallel lines for window symbol
+            const isHoriz = win.wall === "N" || win.wall === "S";
+            const off1 = 1.2;
+            return (
+              <g key={`w-${ri}-${wi}`}>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#0D47A1" strokeWidth="1.5" />
+                {isHoriz ? (
+                  <>
+                    <line x1={x1} y1={y1 - off1} x2={x2} y2={y2 - off1} stroke="#0D47A1" strokeWidth="0.4" />
+                    <line x1={x1} y1={y1 + off1} x2={x2} y2={y2 + off1} stroke="#0D47A1" strokeWidth="0.4" />
+                  </>
+                ) : (
+                  <>
+                    <line x1={x1 - off1} y1={y1} x2={x2 - off1} y2={y2} stroke="#0D47A1" strokeWidth="0.4" />
+                    <line x1={x1 + off1} y1={y1} x2={x2 + off1} y2={y2} stroke="#0D47A1" strokeWidth="0.4" />
+                  </>
+                )}
+              </g>
+            );
+          })
+        )}
+
+        {/* ── Dimension lines (outside the building) ── */}
+        {/* Width (top) */}
+        <g>
+          <line x1={ox} y1={oy - 12} x2={ox + plan.buildingW * scale} y2={oy - 12} stroke="#666" strokeWidth="0.4" />
+          <line x1={ox} y1={oy - 15} x2={ox} y2={oy - 9} stroke="#666" strokeWidth="0.4" />
+          <line x1={ox + plan.buildingW * scale} y1={oy - 15} x2={ox + plan.buildingW * scale} y2={oy - 9} stroke="#666" strokeWidth="0.4" />
+          <text x={ox + (plan.buildingW * scale) / 2} y={oy - 15} textAnchor="middle" fontSize="4" fill="#666" fontWeight="500">
+            {plan.buildingW}&apos; - 0&quot;
+          </text>
+        </g>
+        {/* Height (right) */}
+        <g>
+          <line x1={ox + plan.buildingW * scale + 12} y1={oy} x2={ox + plan.buildingW * scale + 12} y2={oy + plan.buildingH * scale} stroke="#666" strokeWidth="0.4" />
+          <line x1={ox + plan.buildingW * scale + 9} y1={oy} x2={ox + plan.buildingW * scale + 15} y2={oy} stroke="#666" strokeWidth="0.4" />
+          <line x1={ox + plan.buildingW * scale + 9} y1={oy + plan.buildingH * scale} x2={ox + plan.buildingW * scale + 15} y2={oy + plan.buildingH * scale} stroke="#666" strokeWidth="0.4" />
+          <text
+            x={ox + plan.buildingW * scale + 17}
+            y={oy + (plan.buildingH * scale) / 2}
+            textAnchor="middle" fontSize="4" fill="#666" fontWeight="500"
+            transform={`rotate(90, ${ox + plan.buildingW * scale + 17}, ${oy + (plan.buildingH * scale) / 2})`}
+          >
+            {plan.buildingH}&apos; - 0&quot;
+          </text>
+        </g>
+
+        {/* ── Compass (NW = top-left) ── */}
+        <g transform={`translate(${svgW - 16}, 14)`}>
+          <polygon points="0,-6 1.5,1 -1.5,1" fill="#D32F2F" />
+          <polygon points="0,6 1.5,-1 -1.5,-1" fill="#999" />
+          <circle cx="0" cy="0" r="0.8" fill="#555" />
+          <text x="0" y="-8" textAnchor="middle" fontSize="3.5" fontWeight="700" fill="#D32F2F">N</text>
+        </g>
+
+        {/* ── Direction label ── */}
+        <text x={ox + plan.buildingW * scale + 6} y={oy + (plan.buildingH * scale) / 2} textAnchor="middle" fontSize="3.5" fill="#F57C00" fontWeight="600"
+          transform={`rotate(-90, ${ox + plan.buildingW * scale + 6}, ${oy + (plan.buildingH * scale) / 2})`}
+        >
+          EAST (Main Entrance)
+        </text>
+
+        {/* ── Legend ── */}
+        <g transform={`translate(${ox}, ${svgH - 8})`}>
+          <line x1="0" y1="0" x2="6" y2="0" stroke="#1565C0" strokeWidth="0.5" strokeDasharray="1.5 1" />
+          <text x="8" y="1.5" fontSize="3" fill="#666">Door swing</text>
+          <line x1="30" y1="-1" x2="30" y2="1" stroke="#0D47A1" strokeWidth="1.5" />
+          <line x1="28.8" y1="-1" x2="28.8" y2="1" stroke="#0D47A1" strokeWidth="0.4" />
+          <line x1="31.2" y1="-1" x2="31.2" y2="1" stroke="#0D47A1" strokeWidth="0.4" />
+          <text x="34" y="1.5" fontSize="3" fill="#666">Window</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// ================================================================
 // Section wrapper with icon
 // ================================================================
 function DetailSection({
@@ -437,24 +642,77 @@ export function InfraDetailSheet({ infraId, open, onOpenChange }: InfraDetailShe
                           {floor.totalAreaSqFt.toLocaleString("en-IN")} sq ft
                         </Badge>
                       </div>
-                      <table className="w-full text-[11px]">
-                        <thead>
-                          <tr className="border-b text-left">
-                            <th className="py-1 pr-2 font-medium text-muted-foreground">Room</th>
-                            <th className="py-1 px-2 font-medium text-muted-foreground">Size</th>
-                            <th className="py-1 pl-2 font-medium text-muted-foreground">Purpose</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      {/* Check if any room has extended details */}
+                      {floor.rooms.some((r) => r.doors != null || r.windows != null || r.facing || r.notes) ? (
+                        <div className="space-y-2">
                           {floor.rooms.map((room) => (
-                            <tr key={room.name} className="border-b border-border/30">
-                              <td className="py-1 pr-2 font-medium">{room.name}</td>
-                              <td className="py-1 px-2 font-mono text-muted-foreground whitespace-nowrap">{room.sizeFt} ft</td>
-                              <td className="py-1 pl-2 text-muted-foreground">{room.purpose}</td>
-                            </tr>
+                            <div key={room.name} className="rounded-md border bg-background p-2.5 space-y-1.5">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-[11px] font-semibold">{room.name}</p>
+                                <Badge variant="outline" className="text-[9px] font-mono shrink-0">{room.sizeFt} ft</Badge>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground">{room.purpose}</p>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
+                                {room.doors != null && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-muted-foreground">Doors:</span>
+                                    <span className="font-medium">{room.doors}</span>
+                                  </span>
+                                )}
+                                {room.windows != null && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-muted-foreground">Windows:</span>
+                                    <span className="font-medium">{room.windows}</span>
+                                  </span>
+                                )}
+                                {room.facing && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-muted-foreground">Facing:</span>
+                                    <span className="font-medium">{room.facing}</span>
+                                  </span>
+                                )}
+                                {room.flooring && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-muted-foreground">Floor:</span>
+                                    <span className="font-medium">{room.flooring}</span>
+                                  </span>
+                                )}
+                              </div>
+                              {room.ventilation && (
+                                <p className="text-[10px] text-muted-foreground italic">{room.ventilation}</p>
+                              )}
+                              {room.notes && (
+                                <p className="text-[10px] text-muted-foreground">{room.notes}</p>
+                              )}
+                            </div>
                           ))}
-                        </tbody>
-                      </table>
+                        </div>
+                      ) : (
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr className="border-b text-left">
+                              <th className="py-1 pr-2 font-medium text-muted-foreground">Room</th>
+                              <th className="py-1 px-2 font-medium text-muted-foreground">Size</th>
+                              <th className="py-1 pl-2 font-medium text-muted-foreground">Purpose</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {floor.rooms.map((room) => (
+                              <tr key={room.name} className="border-b border-border/30">
+                                <td className="py-1 pr-2 font-medium">{room.name}</td>
+                                <td className="py-1 px-2 font-mono text-muted-foreground whitespace-nowrap">{room.sizeFt} ft</td>
+                                <td className="py-1 pl-2 text-muted-foreground">{room.purpose}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                      {/* Floor Plan SVG (if positioned room data available) */}
+                      {floor.floorPlan && (
+                        <div className="mt-3">
+                          <FloorPlanSVG plan={floor.floorPlan} floorName={floor.name} />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

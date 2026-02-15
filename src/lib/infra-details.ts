@@ -11,12 +11,48 @@ export interface RoomSpec {
   name: string;
   sizeFt: string; // "12x14"
   purpose: string;
+  doors?: number;       // number of doors
+  windows?: number;     // number of windows
+  facing?: string;      // "East", "North-East", etc.
+  ventilation?: string; // cross-ventilation notes
+  flooring?: string;    // "Vitrified tile", "Cement finish", etc.
+  notes?: string;       // any extra architectural notes
+}
+
+export interface FloorPlanDoor {
+  wall: "N" | "S" | "E" | "W";
+  offset: number;  // distance along the wall from left/top edge (ft)
+  width: number;   // door opening width (ft), typically 3 (single) or 5 (double)
+  swing?: "in" | "out"; // door swing direction
+}
+
+export interface FloorPlanWindow {
+  wall: "N" | "S" | "E" | "W";
+  offset: number;  // distance along the wall from left/top edge (ft)
+  width: number;   // window width (ft), typically 3-4
+}
+
+export interface FloorPlanRoom {
+  name: string;
+  x: number;   // position from NW corner of building (ft)
+  y: number;
+  w: number;   // room width (ft)
+  h: number;   // room height (ft)
+  doors?: FloorPlanDoor[];
+  windows?: FloorPlanWindow[];
+}
+
+export interface FloorPlan {
+  buildingW: number;  // overall building width (ft), E-W
+  buildingH: number;  // overall building height (ft), N-S
+  rooms: FloorPlanRoom[];
 }
 
 export interface InfraFloor {
   name: string; // "Ground Floor", "1st Floor", "Terrace"
   rooms: RoomSpec[];
   totalAreaSqFt: number;
+  floorPlan?: FloorPlan; // optional positioned room layout for SVG rendering
 }
 
 export interface AccessRoadInfo {
@@ -459,42 +495,182 @@ export const INFRA_DETAILS: InfraDetail[] = [
   {
     id: "inf-house",
     hub: "SW",
-    headline: "Farmhouse — Lightweight 2-Story Residence",
-    constructionType: "Lightweight steel frame + AAC blocks (not RCC concrete)",
+    headline: "Farmhouse — Vastu-Compliant Lightweight 2-Story Residence",
+    constructionType: "Lightweight steel frame + AAC blocks (Vastu-compliant layout)",
     materialNotes:
-      "Light gauge steel frame (LGSF) structure with AAC (Autoclaved Aerated Concrete) block infill. 40-50% lighter than conventional RCC. Faster to build (6-8 weeks vs 4-6 months). Better insulation than brick. Earthquake resistant. 2ft raised plinth on stone foundation. Sloped metal roof (Colorbond) for rainwater harvesting. Entire roof supports 5KW solar panels.",
+      "Light gauge steel frame (LGSF) structure with AAC (Autoclaved Aerated Concrete) block infill. Vastu Shastra compliant: Kitchen in SE (Agni corner), Master Bedroom in SW (stable corner), Living Room in NE (light/open), Bathroom in NW. 40-50% lighter than RCC. 2ft raised plinth on stone foundation. Sloped Colorbond roof for rainwater harvesting + 5KW solar.",
     floors: [
       {
-        name: "Ground Floor",
+        name: "Ground Floor (2BHK + Kitchen + Veranda) — Vastu",
         totalAreaSqFt: 1100,
         rooms: [
-          { name: "Living Room", sizeFt: "16x14", purpose: "Main living area with east-facing windows for morning light" },
-          { name: "Bedroom 1 (Master)", sizeFt: "14x12", purpose: "Master bedroom with attached bathroom, faces east (orchard view)" },
-          { name: "Bedroom 2", sizeFt: "12x10", purpose: "Guest / family bedroom, faces south" },
-          { name: "Kitchen + Dining", sizeFt: "14x12", purpose: "Open kitchen with dining. Connected to biogas line. West-facing for ventilation" },
-          { name: "Bathroom (Common)", sizeFt: "8x6", purpose: "Common bath near bedrooms" },
-          { name: "Veranda (East)", sizeFt: "20x6", purpose: "East-facing sit-out overlooking orchard, morning chai spot" },
-          { name: "Utility / Store", sizeFt: "8x6", purpose: "Washing area, water pump controls, electrical panel" },
+          { name: "Living Room (NE)", sizeFt: "35x16", purpose: "Main living area, family gathering. Vastu: NE = Ishan, open + light energy", doors: 2, windows: 3, facing: "East (main door) + North", ventilation: "Cross-ventilation E-N, morning sun", flooring: "Vitrified tiles", notes: "Main door faces East (sunrise, orchard view). Door to passage south. 3 windows (N, E, E)." },
+          { name: "Bedroom 1 — Master (SW)", sizeFt: "16x18", purpose: "Master bedroom. Vastu: SW = Nairutya, heaviest/most stable corner", doors: 2, windows: 2, facing: "South + West", ventilation: "Window S + W, cross-breeze", flooring: "Vitrified tiles", notes: "Head direction: South (Vastu). Attached bathroom (6x6). Wardrobe on east wall. Most private corner." },
+          { name: "Bedroom 2 — Guest (NW)", sizeFt: "14x16", purpose: "Guest / family bedroom. Vastu: NW = Vayu, suitable for guests", doors: 1, windows: 2, facing: "North + West", ventilation: "Cross-ventilation N-W", flooring: "Vitrified tiles", notes: "Can double as children's room. Good breeze from NW. Door faces south to passage." },
+          { name: "Kitchen + Dining (SE)", sizeFt: "27x18", purpose: "Open kitchen with dining. Vastu: SE = Agni (fire element) — ideal for cooking", doors: 2, windows: 2, facing: "East + South", ventilation: "Cross-ventilation E-S, chimney exhaust", flooring: "Anti-skid ceramic tiles", notes: "Platform on south wall. Biogas inlet point. Dining counter for 4-6. Door to veranda (herb garden access) + door from passage." },
+          { name: "Bathroom (NW)", sizeFt: "8x6", purpose: "Common bath. Vastu: NW = Vayu, best for bathroom (wind removes moisture)", doors: 1, windows: 1, facing: "West", ventilation: "Exhaust fan + ventilator on west wall", flooring: "Anti-skid ceramic tiles", notes: "Indian + Western WC option. Geyser point. Wash basin." },
+          { name: "Veranda (East)", sizeFt: "6x40", purpose: "East-facing sit-out, morning chai spot", doors: 0, windows: 0, facing: "East (open)", ventilation: "Fully open on east side", flooring: "Cement finish with tiles", notes: "3ft parapet wall + railing. Overlooks orchard. Full-length east side." },
+          { name: "Utility / Store (NW)", sizeFt: "6x6", purpose: "Washing, pump controls, electrical panel", doors: 1, windows: 1, facing: "West (road side)", flooring: "Cement finish", notes: "Washing machine point. Main electrical panel. Below bathroom." },
         ],
+        // ── Vastu-Compliant Architectural Floor Plan ──
+        // Building: 55ft (E-W) x 40ft (N-S). East = main entrance.
+        // Vastu: Kitchen SE, Master Bed SW, Living NE, Guest NW, Bath NW
+        // Coordinate origin: NW corner of building. X→East, Y→South.
+        floorPlan: {
+          buildingW: 55,
+          buildingH: 40,
+          rooms: [
+            // ── East strip — open Veranda ──
+            { name: "Veranda", x: 49, y: 0, w: 6, h: 40 },
+
+            // ── North row (y=0 to 16) ──
+            // NW — Guest Bedroom 2
+            { name: "Bedroom 2\n(Guest NW)", x: 0, y: 0, w: 14, h: 16,
+              doors: [{ wall: "S", offset: 5, width: 3 }],
+              windows: [
+                { wall: "N", offset: 4, width: 4 },
+                { wall: "W", offset: 5, width: 4 },
+              ],
+            },
+            // NE — Living Room (large, open, light)
+            { name: "Living Room\n(NE)", x: 14, y: 0, w: 35, h: 16,
+              doors: [
+                { wall: "E", offset: 5, width: 4 },   // Main entrance from veranda
+                { wall: "S", offset: 16, width: 3 },   // To passage
+              ],
+              windows: [
+                { wall: "N", offset: 8, width: 5 },
+                { wall: "N", offset: 22, width: 5 },
+                { wall: "E", offset: 11, width: 4 },
+              ],
+            },
+
+            // ── Middle row (y=16 to 22) — Passage + Services ──
+            // NW — Bathroom
+            { name: "Bath\n(NW)", x: 0, y: 16, w: 8, h: 6,
+              doors: [{ wall: "E", offset: 1, width: 2.5 }],
+              windows: [{ wall: "W", offset: 2, width: 2 }],
+            },
+            // W — Utility
+            { name: "Utility", x: 8, y: 16, w: 6, h: 6,
+              doors: [{ wall: "E", offset: 1, width: 2.5 }],
+              windows: [{ wall: "W", offset: 1, width: 2 }],
+            },
+            // Central Passage (connecting all rooms)
+            { name: "Passage", x: 14, y: 16, w: 35, h: 6,
+              doors: [
+                { wall: "N", offset: 16, width: 3 },  // From living room
+                { wall: "S", offset: 2, width: 3 },   // To staircase
+                { wall: "S", offset: 16, width: 3 },  // To kitchen
+              ],
+            },
+
+            // ── South row (y=22 to 40) ──
+            // SW — Master Bedroom (heaviest corner, Vastu)
+            { name: "Master\nBedroom\n(SW)", x: 0, y: 22, w: 16, h: 18,
+              doors: [
+                { wall: "E", offset: 3, width: 3 },   // To passage/staircase area
+              ],
+              windows: [
+                { wall: "S", offset: 4, width: 5 },
+                { wall: "W", offset: 6, width: 4 },
+              ],
+            },
+            // SW — Attached Bath (inside master bed area)
+            { name: "Att.\nBath", x: 10, y: 34, w: 6, h: 6,
+              doors: [{ wall: "N", offset: 1, width: 2.5 }],
+              windows: [{ wall: "S", offset: 1, width: 2 }],
+            },
+            // S — Staircase
+            { name: "Staircase", x: 16, y: 22, w: 6, h: 12,
+              doors: [{ wall: "N", offset: 1, width: 3 }],
+            },
+            // SE — Kitchen + Dining (Agni corner, Vastu)
+            { name: "Kitchen\n+ Dining\n(SE)", x: 22, y: 22, w: 27, h: 18,
+              doors: [
+                { wall: "N", offset: 12, width: 3 },  // From passage
+                { wall: "E", offset: 6, width: 3 },   // To veranda (herb garden)
+              ],
+              windows: [
+                { wall: "S", offset: 10, width: 5 },
+                { wall: "E", offset: 13, width: 4 },
+              ],
+            },
+          ],
+        },
       },
       {
-        name: "1st Floor",
+        name: "1st Floor (1BHK + Study/Office) — Vastu",
         totalAreaSqFt: 800,
         rooms: [
-          { name: "Bedroom 3", sizeFt: "14x12", purpose: "Upper floor bedroom, breeze from all sides" },
-          { name: "Study / Office", sizeFt: "12x10", purpose: "Farm office — records, planning, computer, CCTV monitor" },
-          { name: "Store Room", sizeFt: "10x8", purpose: "Seasonal storage, documents, valuables" },
-          { name: "Bathroom", sizeFt: "6x6", purpose: "Upper floor bathroom" },
-          { name: "Balcony (East)", sizeFt: "14x5", purpose: "East-facing balcony — full orchard view, sunset view west" },
+          { name: "Bedroom 3 (SW)", sizeFt: "16x18", purpose: "Upper floor bedroom. Vastu: SW for sleeping", doors: 1, windows: 3, facing: "South + West + East", ventilation: "Cross-ventilation from 3 sides", flooring: "Vitrified tiles", notes: "Best breeze in the house. Wardrobe niche. Full farm view from windows." },
+          { name: "Study / Office (NE)", sizeFt: "35x16", purpose: "Farm office in NE — Vastu: NE for concentration + positivity", doors: 1, windows: 3, facing: "East + North", ventilation: "Morning sun, north breeze", flooring: "Vitrified tiles", notes: "Desk facing East (Vastu). CCTV monitor. Internet router. Bookshelf on west wall." },
+          { name: "Store Room (NW)", sizeFt: "10x8", purpose: "Seasonal storage, documents", doors: 1, windows: 0, facing: "Internal", flooring: "Cement finish", notes: "Lockable steel door. No windows (secure). Shelving on 3 walls." },
+          { name: "Bathroom (NW)", sizeFt: "6x6", purpose: "Upper floor bathroom. Vastu: NW for bath", doors: 1, windows: 1, facing: "West", ventilation: "Exhaust fan + ventilator", flooring: "Anti-skid tiles", notes: "Western WC. Geyser point." },
+          { name: "Balcony (East)", sizeFt: "6x14", purpose: "East-facing balcony — sunrise + orchard view", doors: 1, windows: 0, facing: "East (open)", ventilation: "Fully open", flooring: "Weather-resistant tiles", notes: "3ft parapet + MS railing. Planter boxes." },
         ],
+        floorPlan: {
+          buildingW: 55,
+          buildingH: 40,
+          rooms: [
+            // East — Balcony
+            { name: "Balcony", x: 49, y: 6, w: 6, h: 14,
+              doors: [{ wall: "W", offset: 4, width: 4 }],
+            },
+            // NW — Store Room
+            { name: "Store\nRoom", x: 0, y: 0, w: 10, h: 10,
+              doors: [{ wall: "E", offset: 3, width: 3 }],
+            },
+            // NW — Bathroom
+            { name: "Bath\n(NW)", x: 0, y: 10, w: 8, h: 8,
+              doors: [{ wall: "E", offset: 2, width: 2.5 }],
+              windows: [{ wall: "W", offset: 3, width: 2 }],
+            },
+            // NE — Study / Office (large, concentration area)
+            { name: "Study\n/ Office\n(NE)", x: 14, y: 0, w: 35, h: 16,
+              doors: [{ wall: "S", offset: 16, width: 3 }],
+              windows: [
+                { wall: "N", offset: 8, width: 5 },
+                { wall: "N", offset: 22, width: 5 },
+                { wall: "E", offset: 5, width: 4 },
+              ],
+            },
+            // Lobby / Landing
+            { name: "Lobby", x: 10, y: 10, w: 4, h: 12,
+              doors: [
+                { wall: "N", offset: 0, width: 3 },
+                { wall: "E", offset: 4, width: 3 },
+              ],
+            },
+            // S — Staircase (same position as ground floor)
+            { name: "Staircase", x: 16, y: 22, w: 6, h: 12,
+              doors: [{ wall: "N", offset: 1, width: 3 }],
+            },
+            // SW — Bedroom 3 (sleeping in SW, Vastu)
+            { name: "Bedroom 3\n(SW)", x: 0, y: 22, w: 16, h: 18,
+              doors: [{ wall: "E", offset: 3, width: 3 }],
+              windows: [
+                { wall: "S", offset: 4, width: 5 },
+                { wall: "W", offset: 6, width: 4 },
+              ],
+            },
+            // SE — Open Terrace
+            { name: "Open\nTerrace\n(SE)", x: 22, y: 22, w: 27, h: 18,
+              doors: [{ wall: "N", offset: 12, width: 3 }],
+              windows: [
+                { wall: "E", offset: 5, width: 4 },
+              ],
+            },
+          ],
+        },
       },
       {
-        name: "2nd Floor / Terrace",
+        name: "2nd Floor / Terrace (Solar + Rainwater + Open)",
         totalAreaSqFt: 900,
         rooms: [
-          { name: "Solar Panel Area", sizeFt: "24x16", purpose: "5KW rooftop solar panels (10-12 panels @ 400W each)" },
-          { name: "Rainwater Catchment", sizeFt: "Full roof", purpose: "Entire roof drains to storage tank via gutters" },
-          { name: "Open Terrace", sizeFt: "16x12", purpose: "Open area for drying, relaxation, 360-degree farm view" },
+          { name: "Solar Panel Area", sizeFt: "24x16", purpose: "5KW rooftop solar (10-12 panels @ 400W)", doors: 0, windows: 0, notes: "South-facing tilt at 15°. Powers bore pumps + lighting + fans. Battery backup optional." },
+          { name: "Rainwater Catchment", sizeFt: "Full roof", purpose: "Entire roof drains to 50,000L tank via gutters", notes: "PVC gutters on all 4 sides. First-flush diverter. Feeds gravity-fed irrigation system." },
+          { name: "Open Terrace", sizeFt: "16x12", purpose: "Drying, relaxation, 360° farm view", doors: 1, windows: 0, flooring: "Waterproof cement finish", notes: "Staircase access with lockable door. 3.5ft parapet wall. Clothes line area. Evening gathering spot." },
         ],
       },
     ],
@@ -512,13 +688,15 @@ export const INFRA_DETAILS: InfraDetail[] = [
       { direction: "South-West", species: "Curry Leaf", canopyRadiusFt: 6, distanceFromWallFt: 5, purpose: "Kitchen herb access, fragrant" },
     ],
     utilization: [
-      "Primary farm residence for farm family",
-      "Ground floor: 2 bedrooms + kitchen + living (daily use)",
-      "1st floor: Guest bedroom + study/office + storage",
-      "Terrace: 5KW solar powers bore pumps + lighting + fan",
-      "Rainwater harvesting from entire roof to storage tank",
-      "East veranda for relaxation with orchard view",
-      "Farm office for records, planning, CCTV monitoring",
+      "Primary farm residence — Vastu Shastra compliant layout",
+      "Kitchen in SE (Agni corner) — ideal for cooking fire element",
+      "Master Bedroom in SW (Nairutya) — most stable, heavy corner",
+      "Living Room in NE (Ishan) — open, light, positive energy",
+      "Guest Bedroom in NW (Vayu) — good breeze, suitable for guests",
+      "Bathroom in NW — wind element removes moisture naturally",
+      "1st floor: Bedroom 3 (SW) + Study/Office (NE) + Terrace (SE)",
+      "Terrace: 5KW solar + rainwater harvesting to 50,000L tank",
+      "East veranda full-length — sunrise view, orchard access",
     ],
     estimatedCost: "₹18 - 25 Lakh (LGSF + AAC, fully finished)",
     timelineToBuild: "6-8 weeks (lightweight construction)",
