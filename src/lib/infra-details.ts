@@ -499,11 +499,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road (15ft) south → ~580ft → Reach SW Hub → Farmhouse main gate (East side)",
-      roadWidthFt: 15,
+      fromGate: "NW Gate → West Main Road (15ft) south ~580ft → Turn east into SW Hub Shared Road (10ft) → Farmhouse south gate. Main gate: East side (morning sun, orchard view).",
+      roadWidthFt: 10,
       distanceFromGateFt: 580,
-      surfaceType: "Compacted murram road (main road), concrete apron at farmhouse",
-      svgPathPoints: [[7, 7], [14, 7], [14, 605], [28, 605]],
+      surfaceType: "Compacted murram (main road), concrete apron at farmhouse",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [48, 632], [48, 625]],
     },
     surroundingTrees: [
       { direction: "North", species: "Mango", canopyRadiusFt: 20, distanceFromWallFt: 12, purpose: "Shade + fruit, blocks summer afternoon heat from north" },
@@ -544,11 +544,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → Past Farmhouse → Store loading gate (East side)",
-      roadWidthFt: 15,
+      fromGate: "NW Gate → West Main Road south → Turn east into SW Hub Shared Road (10ft) → Store south gate. Loading gate: East side.",
+      roadWidthFt: 10,
       distanceFromGateFt: 600,
       surfaceType: "Concrete apron at loading gate",
-      svgPathPoints: [[7, 7], [14, 7], [14, 600], [95, 600]],
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [108, 632], [108, 613]],
     },
     surroundingTrees: [
       { direction: "North", species: "Neem", canopyRadiusFt: 12, distanceFromWallFt: 10, purpose: "Pest repellent — critical for stored harvest" },
@@ -590,11 +590,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → Adjacent to Store",
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → North past Store → Watch Tower at NE corner of Store",
       roadWidthFt: 8,
-      distanceFromGateFt: 615,
+      distanceFromGateFt: 590,
       surfaceType: "Murram path",
-      svgPathPoints: [[7, 7], [14, 7], [14, 620], [95, 620]],
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [137, 632], [137, 585]],
     },
     surroundingTrees: [],
     utilization: [
@@ -629,11 +629,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → South of Farmhouse (15ft gap)",
-      roadWidthFt: 8,
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → Kitchen Garden north gate (across from Farmhouse)",
+      roadWidthFt: 10,
       distanceFromGateFt: 640,
-      surfaceType: "Mulched path",
-      svgPathPoints: [[7, 7], [14, 7], [14, 650], [28, 650]],
+      surfaceType: "Mulched path from shared road",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [50, 632], [50, 640]],
     },
     surroundingTrees: [
       { direction: "East", species: "Drumstick (Moringa)", canopyRadiusFt: 8, distanceFromWallFt: 5, purpose: "Functional shade + daily vegetable (drumstick pods)" },
@@ -672,11 +672,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → Past Kitchen Garden → Processing Unit gate (East side)",
-      roadWidthFt: 12,
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road → Continue south past Kitchen Garden → Processing Unit east gate",
+      roadWidthFt: 10,
       distanceFromGateFt: 700,
       surfaceType: "Concrete apron at gate",
-      svgPathPoints: [[7, 7], [14, 7], [14, 714], [28, 714]],
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [26, 632], [26, 714], [28, 714]],
     },
     surroundingTrees: [
       { direction: "East", species: "Neem", canopyRadiusFt: 12, distanceFromWallFt: 10, purpose: "Shade for workers + natural pest repellent" },
@@ -713,11 +713,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → Adjacent to Processing Unit (east side)",
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road → South past Kitchen Garden → Adjacent to Processing Unit (east side)",
       roadWidthFt: 8,
       distanceFromGateFt: 710,
       surfaceType: "Concrete (connected to processing unit path)",
-      svgPathPoints: [[7, 7], [14, 7], [14, 714], [80, 714]],
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [26, 632], [26, 714], [80, 714]],
     },
     surroundingTrees: [],
     utilization: [
@@ -751,11 +751,11 @@ export const INFRA_DETAILS: InfraDetail[] = [
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → Main Road south → SW Hub → Bottom of compound (y=740)",
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road → South past Kitchen Garden & Processing → Bottom of compound (y=740)",
       roadWidthFt: 8,
       distanceFromGateFt: 740,
       surfaceType: "Concrete pad",
-      svgPathPoints: [[7, 7], [14, 7], [14, 750], [28, 750]],
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [26, 632], [26, 750], [28, 750]],
     },
     surroundingTrees: [
       { direction: "South", species: "Pongamia", canopyRadiusFt: 12, distanceFromWallFt: 15, purpose: "Shade nearby but NOT overhead (to keep tank clean from leaf fall)" },

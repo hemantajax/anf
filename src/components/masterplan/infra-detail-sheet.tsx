@@ -28,6 +28,8 @@ import {
   INTERNAL_ROADS,
   NW_HUB_ROAD,
   NW_CIRCULATION,
+  SW_HUB_ROAD,
+  SW_CIRCULATION,
   INFRA_TREES,
   GATES,
   GATE,
@@ -67,7 +69,7 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
   const vbH = item.h + padding * 2;
 
   const nearbyRoads = useMemo(() => {
-    return [...PERIPHERAL_ROADS, ...INTERNAL_ROADS, NW_HUB_ROAD].filter((r) => {
+    return [...PERIPHERAL_ROADS, ...INTERNAL_ROADS, NW_HUB_ROAD, SW_HUB_ROAD].filter((r) => {
       return (
         r.x < vbX + vbW &&
         r.x + r.w > vbX &&
@@ -219,25 +221,46 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
         )}
 
         {/* NW Hub circulation loop (entry + exit, blue dashed) */}
+        {/* NW Hub circulation */}
         {detail.hub === "NW" && (
           <g>
-            {/* Entry: Gate → W Road south → Shared Road east */}
             <polyline
               points={NW_CIRCULATION.entry.map(([x, y]) => `${x},${y}`).join(" ")}
               fill="none" stroke="#2563EB" strokeWidth="1.8"
               strokeDasharray="4 2.5" opacity="0.75"
               strokeLinejoin="round"
             />
-            {/* Exit: Parking north → North Road west → Gate */}
             <polyline
               points={NW_CIRCULATION.exit.map(([x, y]) => `${x},${y}`).join(" ")}
               fill="none" stroke="#2563EB" strokeWidth="1.8"
               strokeDasharray="4 2.5" opacity="0.75"
               strokeLinejoin="round"
             />
-            {/* Labels */}
             <text x={14} y={36} fontSize="3" fill="#2563EB" fontWeight="600">Entry</text>
             <text x={82} y={13} fontSize="3" fill="#2563EB" fontWeight="600">Exit</text>
+          </g>
+        )}
+
+        {/* SW Hub circulation */}
+        {detail.hub === "SW" && (
+          <g>
+            {/* Entry: Gate → W Road south → SW Shared Road east */}
+            <polyline
+              points={SW_CIRCULATION.entry.map(([x, y]) => `${x},${y}`).join(" ")}
+              fill="none" stroke="#2563EB" strokeWidth="1.8"
+              strokeDasharray="4 2.5" opacity="0.75"
+              strokeLinejoin="round"
+            />
+            {/* Exit: Shared Road west → W Main Road → south to South Road */}
+            <polyline
+              points={SW_CIRCULATION.exit.map(([x, y]) => `${x},${y}`).join(" ")}
+              fill="none" stroke="#2563EB" strokeWidth="1.8"
+              strokeDasharray="4 2.5" opacity="0.75"
+              strokeLinejoin="round"
+            />
+            {/* Labels */}
+            <text x={14} y={620} fontSize="3" fill="#2563EB" fontWeight="600">Entry</text>
+            <text x={14} y={770} fontSize="3" fill="#2563EB" fontWeight="600">Exit</text>
           </g>
         )}
 

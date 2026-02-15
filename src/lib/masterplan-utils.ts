@@ -138,7 +138,7 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   // Row 1 — Residential (y=585)
   { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 40, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×40 ft — 2BHK at SW peak, 5KW rooftop solar. Main gate: EAST (morning sun, orchard view). Secondary: WEST (road access). Mango + Tamarind shade." },
   { id: "inf-store", label: "Store / Godown", x: 95, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage. Loading gate: EAST. Neem shade for pest repellent." },
-  { id: "inf-watchtower", label: "Watch Tower", x: 95, y: 620, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — 20ft tower at peak, full farm visibility" },
+  { id: "inf-watchtower", label: "Watch Tower", x: 131, y: 573, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — 20ft tower at NE corner of Store, max visibility of all zones" },
   // Row 2 — Kitchen Garden (y=640, 15ft gap)
   { id: "inf-kitchen-garden", label: "Kitchen Garden", x: 28, y: 640, w: 70, h: 45, color: "#A5D6A7", stroke: "#388E3C", type: "infra", details: "70×45 ft — Vegetables, herbs, medicinal plants. Expand east → / north ↑" },
   // Row 3 — Processing (y=700, 15ft gap)
@@ -174,6 +174,24 @@ export const NW_HUB_ROAD: LayoutItem = {
 export const NW_CIRCULATION: { entry: [number, number][]; exit: [number, number][] } = {
   entry: [[14, 10], [14, 59], [70, 59]],                  // Gate → south on W Road → east on Shared Road
   exit:  [[80, 25], [80, 16], [18, 16], [18, 7], [14, 7]], // Parking north → through north road → west → Gate
+};
+
+// ── SW Hub Shared Road (10ft — connects W Main Road to all SW Hub structures) ──
+// Runs E-W between Farmhouse/Store row (south edge y=625) and Kitchen Garden (north edge y=640)
+// Centered in the 15ft gap: y=627, h=10 → occupies y=627-637, with 2ft buffer top and 3ft buffer bottom
+// Vehicle entry from W Main Road → Shared Road → access Farmhouse (south), Store (south), Kitchen Garden (north)
+export const SW_HUB_ROAD: LayoutItem = {
+  id: "road-sw-hub", label: "SW Hub Shared Road 10 ft", x: 22, y: 627, w: 100, h: 10,
+  color: "#C5C5D8", stroke: "#A0A0B8", type: "road",
+  details: "10 ft — Shared vehicle road between Farmhouse/Store row and Kitchen Garden. 2.5ft buffer on each side. Entry from West Main Road.",
+};
+
+// ── SW Hub Vehicle Circulation ──
+// Entry: Gate → W Main Road (south, ~580ft) → Turn east into SW Hub Shared Road → access buildings
+// Exit:  Reverse on Shared Road → W Main Road → south to South Road or north back to Gate
+export const SW_CIRCULATION: { entry: [number, number][]; exit: [number, number][] } = {
+  entry: [[14, 10], [14, 632], [70, 632]],                    // Gate → south on W Road → east on SW Shared Road
+  exit:  [[70, 632], [14, 632], [14, 780], [22, 780]],        // Shared Road west → W Main Road → south to South Road
 };
 
 // ── Suggested Add-ons (optional extras) ──
@@ -259,9 +277,12 @@ export const GATES: GateMarker[] = [
   { id: "gate-biogas-n", infraId: "inf-biogas", label: "Biogas Entry", direction: "north", x: 114, y: 65, w: 6, h: 2 },
   { id: "gate-shed", infraId: "inf-shed", label: "Cattle Gate (East)", direction: "east", x: 66, y: 76, w: 2, h: 6 },
   { id: "gate-nursery", infraId: "inf-nursery", label: "Nursery Gate", direction: "east", x: 70, y: 112, w: 2, h: 6 },
-  // SW Hub — east-facing per user request
+  // SW Hub — east-facing main gates + south/north gates for shared road access
   { id: "gate-house", infraId: "inf-house", label: "Farmhouse Main", direction: "east", x: 83, y: 601, w: 2, h: 8 },
+  { id: "gate-house-s", infraId: "inf-house", label: "Farmhouse (Road)", direction: "south", x: 40, y: 625, w: 15, h: 2 },
   { id: "gate-store", infraId: "inf-store", label: "Store Loading", direction: "east", x: 130, y: 596, w: 2, h: 8 },
+  { id: "gate-store-s", infraId: "inf-store", label: "Store (Road)", direction: "south", x: 100, y: 613, w: 15, h: 2 },
+  { id: "gate-kitchen-n", infraId: "inf-kitchen-garden", label: "Kitchen Garden", direction: "north", x: 40, y: 640, w: 20, h: 2 },
   { id: "gate-processing", infraId: "inf-processing", label: "Processing Gate", direction: "east", x: 68, y: 711, w: 2, h: 6 },
 ];
 
@@ -277,12 +298,15 @@ export const ACCESS_PATHS: AccessPath[] = [
   // NW Hub — shared road centerline (y=59 = center of 10ft road y=54→64)
   { id: "path-nw-shared", label: "NW Hub Shared Road (from W Road)", points: [[22, 59], [140, 59]], type: "path" },
   { id: "path-nw-cross", label: "NW Hub N-S Corridor", points: [[50, 22], [50, 133]], type: "path" },
-  // SW Hub — compound spine N-S + W Road entry
-  { id: "path-sw-spine", label: "SW Compound Spine", points: [[26, 580], [26, 765]], type: "path" },
-  { id: "path-sw-entry", label: "SW Hub Entry (from W Road)", points: [[22, 605], [28, 605]], type: "direct" },
+  // SW Hub — shared road centerline (y=632 = center of 10ft road y=627→637)
+  { id: "path-sw-shared", label: "SW Hub Shared Road (from W Road)", points: [[22, 632], [122, 632]], type: "path" },
+  { id: "path-sw-spine", label: "SW Compound Spine (N-S)", points: [[26, 580], [26, 765]], type: "path" },
   // Gate access lines (short connectors from gate to nearest corridor)
+  { id: "path-gate-house-s", label: "Farmhouse → Shared Road", points: [[48, 625], [48, 632]], type: "direct" },
   { id: "path-gate-house", label: "Farmhouse Gate → East", points: [[85, 605], [130, 605]], type: "path" },
+  { id: "path-gate-store-s", label: "Store → Shared Road", points: [[108, 613], [108, 632]], type: "direct" },
   { id: "path-gate-store", label: "Store Gate → East", points: [[132, 600], [155, 600]], type: "path" },
+  { id: "path-gate-kitchen-n", label: "Kitchen Garden → Shared Road", points: [[50, 640], [50, 632]], type: "direct" },
   { id: "path-gate-processing", label: "Processing Gate → East", points: [[70, 714], [130, 714]], type: "path" },
   { id: "path-gate-shed", label: "Cattle Gate → East", points: [[68, 79], [140, 79]], type: "path" },
 ];
