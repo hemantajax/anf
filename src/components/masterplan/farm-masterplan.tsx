@@ -36,6 +36,7 @@ import {
   INFRASTRUCTURE,
   WATER_FEATURES,
   ADDONS,
+  NW_HUB_ROAD,
   LIVE_FENCE_LAYERS,
   ZONE_STRATEGIES,
   FLOWER_SPECIES,
@@ -48,11 +49,20 @@ import {
   computeAreaBreakdown,
   type LayoutItem,
 } from "@/lib/masterplan-utils";
+import { InfraDetailSheet } from "./infra-detail-sheet";
 
 // ================================================================
 // SVG Master Plan Layout
 // ================================================================
-function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
+function MasterPlanSVG({
+  showAddons,
+  selectedInfra,
+  onInfraClick,
+}: {
+  showAddons: boolean;
+  selectedInfra: string | null;
+  onInfraClick: (id: string) => void;
+}) {
   const coconutTrees = useMemo(() => getCoconutPositions(), []);
   const [tooltip, setTooltip] = useState<{
     text: string;
@@ -166,6 +176,28 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
           </g>
         ))}
 
+        {/* ── NW Hub Shared Road (10ft with 1ft gaps) ── */}
+        <g>
+          <rect
+            x={NW_HUB_ROAD.x} y={NW_HUB_ROAD.y}
+            width={NW_HUB_ROAD.w} height={NW_HUB_ROAD.h}
+            fill={NW_HUB_ROAD.color} opacity="0.55"
+          />
+          <rect
+            x={NW_HUB_ROAD.x} y={NW_HUB_ROAD.y}
+            width={NW_HUB_ROAD.w} height={NW_HUB_ROAD.h}
+            fill="transparent" stroke={NW_HUB_ROAD.stroke} strokeWidth="0.4"
+            className="cursor-pointer"
+            onMouseMove={(e) => handleHover(NW_HUB_ROAD, e)}
+            onMouseLeave={() => setTooltip(null)}
+          />
+          <line
+            x1={NW_HUB_ROAD.x + 3} y1={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
+            x2={NW_HUB_ROAD.x + NW_HUB_ROAD.w - 3} y2={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
+            stroke="#fff" strokeWidth="0.5" strokeDasharray="3 2" opacity="0.45"
+          />
+        </g>
+
         {/* ── Flower Panels ── */}
         {FLOWER_PANELS.map((f) => (
           <rect key={f.id} x={f.x} y={f.y} width={f.w} height={f.h} fill="url(#flowerPat)" stroke={f.stroke} strokeWidth="0.3" />
@@ -218,27 +250,42 @@ function MasterPlanSVG({ showAddons }: { showAddons: boolean }) {
         ))}
 
         {/* ── Infrastructure ── */}
-        {INFRASTRUCTURE.map((item) => (
-          <g key={item.id}>
-            <rect
-              x={item.x} y={item.y} width={item.w} height={item.h}
-              fill={item.color} stroke={item.stroke} strokeWidth="0.8" rx="1"
-              className="cursor-pointer"
-              onMouseMove={(e) => handleHover(item, e)}
-              onMouseLeave={() => setTooltip(null)}
-            />
-            <text
-              x={item.x + item.w / 2}
-              y={item.y + item.h / 2 + 2}
-              textAnchor="middle"
-              fontSize={Math.min(item.w / item.label.length * 1.5, 5.5)}
-              fontWeight="600"
-              fill="#333"
-            >
-              {item.label}
-            </text>
-          </g>
-        ))}
+        {INFRASTRUCTURE.map((item) => {
+          const isSelected = selectedInfra === item.id;
+          return (
+            <g key={item.id}>
+              <rect
+                x={item.x} y={item.y} width={item.w} height={item.h}
+                fill={item.color}
+                stroke={isSelected ? "#2563EB" : item.stroke}
+                strokeWidth={isSelected ? "2" : "0.8"}
+                rx="1"
+                className="cursor-pointer"
+                onClick={() => onInfraClick(item.id)}
+                onMouseMove={(e) => handleHover(item, e)}
+                onMouseLeave={() => setTooltip(null)}
+              />
+              {isSelected && (
+                <rect
+                  x={item.x - 2} y={item.y - 2}
+                  width={item.w + 4} height={item.h + 4}
+                  fill="none" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" rx="2" opacity="0.6"
+                />
+              )}
+              <text
+                x={item.x + item.w / 2}
+                y={item.y + item.h / 2 + 2}
+                textAnchor="middle"
+                fontSize={Math.min(item.w / item.label.length * 1.5, 5.5)}
+                fontWeight="600"
+                fill="#333"
+                className="pointer-events-none"
+              >
+                {item.label}
+              </text>
+            </g>
+          );
+        })}
 
         {/* ── Water Features ── */}
         {WATER_FEATURES.map((w) => (
@@ -919,6 +966,7 @@ function CoconutStats() {
 // ================================================================
 export function FarmMasterPlan() {
   const [showAddons, setShowAddons] = useState(true);
+  const [selectedInfra, setSelectedInfra] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
     zones: true,
     infra: true,
@@ -1017,10 +1065,14 @@ export function FarmMasterPlan() {
           <Badge variant="outline" className="text-[10px] font-mono ml-2">1 unit = 1 ft</Badge>
           <div className="flex items-center gap-1 ml-auto text-xs text-muted-foreground print:hidden">
             <Info className="size-3" />
-            Hover elements for details
+            Hover for details, click infrastructure for expanded view
           </div>
         </div>
-        <MasterPlanSVG showAddons={showAddons} />
+        <MasterPlanSVG
+          showAddons={showAddons}
+          selectedInfra={selectedInfra}
+          onInfraClick={(id) => setSelectedInfra(id)}
+        />
       </section>
 
       <Separator />
@@ -1071,6 +1123,15 @@ export function FarmMasterPlan() {
         All income estimates are conservative and based on Palekar Natural Farming (ZBNF) methodology.
         Consult a local agricultural officer and civil engineer before implementation.
       </p>
+
+      {/* ══════════════ Infrastructure Detail Sheet ══════════════ */}
+      <InfraDetailSheet
+        infraId={selectedInfra}
+        open={selectedInfra !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedInfra(null);
+        }}
+      />
     </div>
   );
 }

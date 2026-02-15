@@ -1,0 +1,515 @@
+"use client";
+
+import { useMemo } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Route,
+  TreePine,
+  Hammer,
+  LayoutGrid,
+  Maximize2,
+  Clock,
+  IndianRupee,
+  ArrowRight,
+  Building,
+} from "lucide-react";
+import {
+  INFRASTRUCTURE,
+  WATER_FEATURES,
+  PERIPHERAL_ROADS,
+  INTERNAL_ROADS,
+  NW_HUB_ROAD,
+  NW_CIRCULATION,
+  INFRA_TREES,
+  GATES,
+  GATE,
+  type LayoutItem,
+} from "@/lib/masterplan-utils";
+import {
+  getInfraDetail,
+  computeInfraViewBox,
+  type InfraDetail,
+} from "@/lib/infra-details";
+
+// ── Props ──
+interface InfraDetailSheetProps {
+  infraId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// ── Hub badge colors ──
+const HUB_COLORS: Record<string, string> = {
+  NW: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+  SW: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+  Field: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+};
+
+// ================================================================
+// Mini Access Road SVG — cropped view around selected infra
+// ================================================================
+function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail }) {
+  const padding = 70;
+  const viewBox = computeInfraViewBox(item.x, item.y, item.w, item.h, padding);
+
+  // Filter nearby roads that intersect the viewBox area
+  const vbX = item.x - padding;
+  const vbY = item.y - padding;
+  const vbW = item.w + padding * 2;
+  const vbH = item.h + padding * 2;
+
+  const nearbyRoads = useMemo(() => {
+    return [...PERIPHERAL_ROADS, ...INTERNAL_ROADS, NW_HUB_ROAD].filter((r) => {
+      return (
+        r.x < vbX + vbW &&
+        r.x + r.w > vbX &&
+        r.y < vbY + vbH &&
+        r.y + r.h > vbY
+      );
+    });
+  }, [vbX, vbY, vbW, vbH]);
+
+  // Filter nearby infra trees
+  const nearbyTrees = useMemo(() => {
+    return INFRA_TREES.filter((t) => {
+      return (
+        t.x > vbX && t.x < vbX + vbW &&
+        t.y > vbY && t.y < vbY + vbH
+      );
+    });
+  }, [vbX, vbY, vbW, vbH]);
+
+  // Filter nearby gates
+  const nearbyGates = useMemo(() => {
+    return GATES.filter((g) => {
+      return (
+        g.x > vbX && g.x < vbX + vbW &&
+        g.y > vbY && g.y < vbY + vbH
+      );
+    });
+  }, [vbX, vbY, vbW, vbH]);
+
+  // Other infra nearby (for context)
+  const nearbyInfra = useMemo(() => {
+    const allItems = [...INFRASTRUCTURE, ...WATER_FEATURES];
+    return allItems.filter((i) => {
+      if (i.id === item.id) return false;
+      return (
+        i.x < vbX + vbW &&
+        i.x + i.w > vbX &&
+        i.y < vbY + vbH &&
+        i.y + i.h > vbY
+      );
+    });
+  }, [item.id, vbX, vbY, vbW, vbH]);
+
+  // Access path
+  const accessPoints = detail.accessRoad.svgPathPoints;
+  const pathD = accessPoints.length > 1
+    ? `M ${accessPoints[0][0]} ${accessPoints[0][1]} ` +
+      accessPoints.slice(1).map((p) => `L ${p[0]} ${p[1]}`).join(" ")
+    : "";
+
+  // Check if gate marker is in view
+  const gateInView = GATE.x >= vbX && GATE.x <= vbX + vbW && GATE.y >= vbY && GATE.y <= vbY + vbH;
+
+  return (
+    <div className="rounded-lg border bg-white dark:bg-gray-950 overflow-hidden">
+      <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: 260 }}>
+        {/* Background */}
+        <rect x={vbX} y={vbY} width={vbW} height={vbH} fill="#FAFAFA" />
+
+        {/* Nearby roads */}
+        {nearbyRoads.map((r) => (
+          <g key={r.id}>
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} opacity="0.5" />
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill="transparent" stroke={r.stroke} strokeWidth="0.3" />
+            {/* Center line */}
+            {r.h > r.w ? (
+              <line
+                x1={r.x + r.w / 2} y1={Math.max(r.y + 3, vbY)}
+                x2={r.x + r.w / 2} y2={Math.min(r.y + r.h - 3, vbY + vbH)}
+                stroke="#fff" strokeWidth="0.6" strokeDasharray="3 2" opacity="0.5"
+              />
+            ) : (
+              <line
+                x1={Math.max(r.x + 3, vbX)} y1={r.y + r.h / 2}
+                x2={Math.min(r.x + r.w - 3, vbX + vbW)} y2={r.y + r.h / 2}
+                stroke="#fff" strokeWidth="0.6" strokeDasharray="3 2" opacity="0.5"
+              />
+            )}
+          </g>
+        ))}
+
+        {/* Nearby infra (dimmed context) */}
+        {nearbyInfra.map((ni) => (
+          <g key={ni.id} opacity="0.35">
+            <rect x={ni.x} y={ni.y} width={ni.w} height={ni.h} fill={ni.color} stroke={ni.stroke} strokeWidth="0.4" rx="1" />
+            <text
+              x={ni.x + ni.w / 2} y={ni.y + ni.h / 2 + 1.5}
+              textAnchor="middle" fontSize={Math.min(ni.w / ni.label.length * 1.3, 4)} fontWeight="500" fill="#666"
+            >
+              {ni.label}
+            </text>
+          </g>
+        ))}
+
+        {/* Access road path (highlighted) */}
+        {pathD && (
+          <path d={pathD} fill="none" stroke="#2563EB" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.8" />
+        )}
+
+        {/* Selected infrastructure (prominent) */}
+        <rect
+          x={item.x} y={item.y} width={item.w} height={item.h}
+          fill={item.color} stroke="#2563EB" strokeWidth="1.5" rx="1"
+        />
+        <text
+          x={item.x + item.w / 2} y={item.y + item.h / 2 + 2}
+          textAnchor="middle" fontSize={Math.min(item.w / item.label.length * 1.4, 5)} fontWeight="700" fill="#1a1a2e"
+        >
+          {item.label}
+        </text>
+
+        {/* Gate markers */}
+        {nearbyGates.map((g) => {
+          const isForThis = g.infraId === item.id;
+          return (
+            <g key={g.id}>
+              {g.direction === "east" && (
+                <line x1={g.x} y1={g.y} x2={g.x} y2={g.y + g.h} stroke={isForThis ? "#2563EB" : "#E65100"} strokeWidth={isForThis ? 2 : 1.2} strokeLinecap="round" />
+              )}
+              {g.direction === "south" && (
+                <line x1={g.x} y1={g.y} x2={g.x + g.w} y2={g.y} stroke={isForThis ? "#2563EB" : "#E65100"} strokeWidth={isForThis ? 2 : 1.2} strokeLinecap="round" />
+              )}
+              {g.direction === "west" && (
+                <line x1={g.x + g.w} y1={g.y} x2={g.x + g.w} y2={g.y + g.h} stroke={isForThis ? "#2563EB" : "#E65100"} strokeWidth={isForThis ? 2 : 1.2} strokeLinecap="round" />
+              )}
+              {g.direction === "north" && (
+                <line x1={g.x} y1={g.y + g.h} x2={g.x + g.w} y2={g.y + g.h} stroke={isForThis ? "#2563EB" : "#E65100"} strokeWidth={isForThis ? 2 : 1.2} strokeLinecap="round" />
+              )}
+            </g>
+          );
+        })}
+
+        {/* Nearby infra trees (clean circles only) */}
+        {nearbyTrees.map((t) => (
+          <g key={t.id}>
+            <circle cx={t.x} cy={t.y} r="3.5" fill="#4CAF50" opacity="0.25" />
+            <circle cx={t.x} cy={t.y} r="1.5" fill="#2E7D32" opacity="0.75" />
+          </g>
+        ))}
+
+        {/* Gate marker if in view */}
+        {gateInView && (
+          <g>
+            <rect x={GATE.x - 1} y={GATE.y - 3} width="14" height="6" fill="#F57C00" rx="1" opacity="0.9" />
+            <text x={GATE.x + 6} y={GATE.y + 1} textAnchor="middle" fontSize="3.5" fontWeight="700" fill="white">
+              GATE
+            </text>
+          </g>
+        )}
+
+        {/* NW Hub circulation loop (entry + exit, blue dashed) */}
+        {detail.hub === "NW" && (
+          <g>
+            {/* Entry: Gate → W Road south → Shared Road east */}
+            <polyline
+              points={NW_CIRCULATION.entry.map(([x, y]) => `${x},${y}`).join(" ")}
+              fill="none" stroke="#2563EB" strokeWidth="1.8"
+              strokeDasharray="4 2.5" opacity="0.75"
+              strokeLinejoin="round"
+            />
+            {/* Exit: Parking north → North Road west → Gate */}
+            <polyline
+              points={NW_CIRCULATION.exit.map(([x, y]) => `${x},${y}`).join(" ")}
+              fill="none" stroke="#2563EB" strokeWidth="1.8"
+              strokeDasharray="4 2.5" opacity="0.75"
+              strokeLinejoin="round"
+            />
+            {/* Labels */}
+            <text x={14} y={36} fontSize="3" fill="#2563EB" fontWeight="600">Entry</text>
+            <text x={82} y={13} fontSize="3" fill="#2563EB" fontWeight="600">Exit</text>
+          </g>
+        )}
+
+        {/* Scale reference */}
+        <g transform={`translate(${vbX + 5}, ${vbY + vbH - 8})`}>
+          <line x1="0" y1="0" x2="50" y2="0" stroke="#666" strokeWidth="0.6" />
+          <line x1="0" y1="-2" x2="0" y2="2" stroke="#666" strokeWidth="0.5" />
+          <line x1="50" y1="-2" x2="50" y2="2" stroke="#666" strokeWidth="0.5" />
+          <text x="25" y="5" textAnchor="middle" fontSize="3.5" fill="#666">50 ft</text>
+        </g>
+      </svg>
+      <div className="px-3 py-1.5 bg-muted/30 text-[10px] text-muted-foreground flex items-center gap-1.5 border-t flex-wrap gap-y-1">
+        <span className="inline-block w-4 h-0.5 bg-blue-600 rounded" style={{ borderBottom: "1.5px dashed #2563EB" }} />
+        Access / circulation path
+        <span className="ml-2 inline-block w-2.5 h-2.5 rounded-full bg-green-600 opacity-50" />
+        Shade trees
+        <span className="ml-2 inline-block w-3 h-2 rounded-sm border-2 border-blue-600" />
+        Selected
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
+// Section wrapper with icon
+// ================================================================
+function DetailSection({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <Icon className="size-3.5 text-primary shrink-0" />
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ================================================================
+// Main Component
+// ================================================================
+export function InfraDetailSheet({ infraId, open, onOpenChange }: InfraDetailSheetProps) {
+  const item = useMemo(() => {
+    if (!infraId) return null;
+    return [...INFRASTRUCTURE, ...WATER_FEATURES].find((i) => i.id === infraId) ?? null;
+  }, [infraId]);
+
+  const detail = useMemo(() => {
+    if (!infraId) return null;
+    return getInfraDetail(infraId) ?? null;
+  }, [infraId]);
+
+  // Nearby trees for the listing below the mini SVG
+  const nearbyTreesList = useMemo(() => {
+    if (!item) return [];
+    const pad = 70;
+    const vbX = item.x - pad;
+    const vbY = item.y - pad;
+    const vbW = item.w + pad * 2;
+    const vbH = item.h + pad * 2;
+    return INFRA_TREES.filter((t) =>
+      t.x > vbX && t.x < vbX + vbW && t.y > vbY && t.y < vbY + vbH
+    );
+  }, [item]);
+
+  if (!item || !detail) return null;
+
+  const sizeFt = `${item.w}x${item.h}`;
+  const areaSqFt = item.w * item.h;
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="overflow-y-auto w-full sm:max-w-lg">
+        <SheetHeader>
+          <div className="flex items-center gap-2 flex-wrap">
+            <SheetTitle className="text-base leading-tight">{item.label}</SheetTitle>
+            <Badge className={`text-[10px] px-1.5 py-0 ${HUB_COLORS[detail.hub] ?? ""}`}>
+              {detail.hub} Hub
+            </Badge>
+          </div>
+          <SheetDescription className="text-xs leading-relaxed">
+            {detail.headline}
+          </SheetDescription>
+          <div className="flex flex-wrap gap-2 mt-1">
+            <Badge variant="outline" className="text-[10px] font-mono gap-1">
+              <Maximize2 className="size-2.5" />
+              {sizeFt} ft ({areaSqFt.toLocaleString("en-IN")} sq ft)
+            </Badge>
+            {detail.estimatedCost && (
+              <Badge variant="outline" className="text-[10px] font-mono gap-1">
+                <IndianRupee className="size-2.5" />
+                {detail.estimatedCost}
+              </Badge>
+            )}
+            {detail.timelineToBuild && (
+              <Badge variant="outline" className="text-[10px] font-mono gap-1">
+                <Clock className="size-2.5" />
+                {detail.timelineToBuild}
+              </Badge>
+            )}
+          </div>
+        </SheetHeader>
+
+        <div className="px-4 pb-6 space-y-5">
+          {/* ── Mini SVG Map ── */}
+          <MiniInfraSVG item={item} detail={detail} />
+
+          {/* ── Nearby Trees (below mini map) ── */}
+          {nearbyTreesList.length > 0 && (
+            <div className="rounded-lg border bg-green-50/50 dark:bg-green-950/20 p-3 space-y-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-green-800 dark:text-green-300 flex items-center gap-1.5">
+                <TreePine className="size-3" />
+                Trees on Map ({nearbyTreesList.length})
+              </p>
+              <div className="grid gap-1">
+                {nearbyTreesList.map((t) => (
+                  <div key={t.id} className="flex items-center gap-2 text-xs">
+                    <span className="size-2 rounded-full bg-green-600 shrink-0" />
+                    <span className="font-medium text-foreground">{t.species}</span>
+                    <span className="text-muted-foreground truncate">— {t.purpose}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Access Road ── */}
+          <DetailSection icon={Route} title="Access Road">
+            <div className="rounded-lg bg-muted/40 p-3 space-y-1.5 text-xs">
+              <div className="flex items-start gap-2">
+                <ArrowRight className="size-3 mt-0.5 text-blue-600 shrink-0" />
+                <p className="text-foreground">{detail.accessRoad.fromGate}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="rounded bg-background px-2 py-1.5">
+                  <p className="text-[10px] text-muted-foreground">Road Width</p>
+                  <p className="font-mono font-semibold">{detail.accessRoad.roadWidthFt} ft</p>
+                </div>
+                <div className="rounded bg-background px-2 py-1.5">
+                  <p className="text-[10px] text-muted-foreground">Distance</p>
+                  <p className="font-mono font-semibold">~{detail.accessRoad.distanceFromGateFt} ft</p>
+                </div>
+                <div className="rounded bg-background px-2 py-1.5">
+                  <p className="text-[10px] text-muted-foreground">Surface</p>
+                  <p className="font-semibold">{detail.accessRoad.surfaceType}</p>
+                </div>
+              </div>
+            </div>
+          </DetailSection>
+
+          <Separator />
+
+          {/* ── Floor Plan ── */}
+          {detail.floors.length > 0 && (
+            <>
+              <DetailSection icon={LayoutGrid} title="Floor Plan">
+                <div className="space-y-3">
+                  {detail.floors.map((floor) => (
+                    <div key={floor.name} className="rounded-lg border p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold flex items-center gap-1.5">
+                          <Building className="size-3 text-muted-foreground" />
+                          {floor.name}
+                        </p>
+                        <Badge variant="secondary" className="text-[10px] font-mono">
+                          {floor.totalAreaSqFt.toLocaleString("en-IN")} sq ft
+                        </Badge>
+                      </div>
+                      <table className="w-full text-[11px]">
+                        <thead>
+                          <tr className="border-b text-left">
+                            <th className="py-1 pr-2 font-medium text-muted-foreground">Room</th>
+                            <th className="py-1 px-2 font-medium text-muted-foreground">Size</th>
+                            <th className="py-1 pl-2 font-medium text-muted-foreground">Purpose</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {floor.rooms.map((room) => (
+                            <tr key={room.name} className="border-b border-border/30">
+                              <td className="py-1 pr-2 font-medium">{room.name}</td>
+                              <td className="py-1 px-2 font-mono text-muted-foreground whitespace-nowrap">{room.sizeFt} ft</td>
+                              <td className="py-1 pl-2 text-muted-foreground">{room.purpose}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+              </DetailSection>
+              <Separator />
+            </>
+          )}
+
+          {/* ── Construction ── */}
+          <DetailSection icon={Hammer} title="Construction">
+            <div className="rounded-lg bg-muted/40 p-3 space-y-2 text-xs">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Type</p>
+                <p className="font-semibold">{detail.constructionType}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Material Notes</p>
+                <p className="text-muted-foreground leading-relaxed">{detail.materialNotes}</p>
+              </div>
+            </div>
+          </DetailSection>
+
+          <Separator />
+
+          {/* ── Surrounding Trees ── */}
+          {detail.surroundingTrees.length > 0 && (
+            <>
+              <DetailSection icon={TreePine} title="Surrounding Trees">
+                <div className="space-y-2">
+                  {detail.surroundingTrees.map((tree, i) => (
+                    <div key={i} className="flex items-start gap-3 rounded-lg border p-2.5">
+                      <div className="flex flex-col items-center shrink-0">
+                        <span className="size-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                          <TreePine className="size-3 text-green-700 dark:text-green-300" />
+                        </span>
+                        <span className="text-[9px] text-muted-foreground mt-0.5">{tree.direction}</span>
+                      </div>
+                      <div className="text-xs space-y-0.5 min-w-0">
+                        <p className="font-semibold">{tree.species}</p>
+                        <p className="text-muted-foreground">{tree.purpose}</p>
+                        <div className="flex gap-3 text-[10px] font-mono mt-1">
+                          <span>Canopy: {tree.canopyRadiusFt} ft radius</span>
+                          <span>Distance: {tree.distanceFromWallFt} ft from wall</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </DetailSection>
+              <Separator />
+            </>
+          )}
+
+          {/* ── Utilization ── */}
+          <DetailSection icon={LayoutGrid} title="Utilization">
+            <ul className="space-y-1">
+              {detail.utilization.map((u, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs">
+                  <span className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <span className="text-muted-foreground">{u}</span>
+                </li>
+              ))}
+            </ul>
+          </DetailSection>
+
+          {/* ── Expansion Notes ── */}
+          {detail.expansionNotes && (
+            <>
+              <Separator />
+              <DetailSection icon={Maximize2} title="Expansion Notes">
+                <p className="text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 leading-relaxed">
+                  {detail.expansionNotes}
+                </p>
+              </DetailSection>
+            </>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}

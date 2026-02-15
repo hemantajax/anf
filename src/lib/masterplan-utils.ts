@@ -116,14 +116,20 @@ export const ZONES: (LayoutItem & {
 //   SW (Peak elevation) — Residential + Processing: Farmhouse, Store, Tower, Water Tank, Kitchen Garden
 export const INFRASTRUCTURE: LayoutItem[] = [
   // ─── NW Hub — Farm Operations (near gate) ───
+  // Row 1: Guard + Parking (y=25-53)
   { id: "inf-guard", label: "Guard / Entry", x: 28, y: 25, w: 12, h: 10, color: "#78909C", stroke: "#546E7A", type: "infra", details: "10×12 ft — Entry checkpoint at NW gate, visitor register" },
-  { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Open parking, 3-4 vehicles + tractor. Entry: SOUTH. 3 Rain Tree / Neem for full shade canopy." },
-  { id: "inf-shed", label: "Cattle / Tool Shed", x: 28, y: 62, w: 38, h: 28, color: "#BCAAA4", stroke: "#6D4C41", type: "infra", details: "38×28 ft — 2-3 cow capacity + tool storage. Gate: EAST (cattle into zone). Neem shade trees." },
-  { id: "inf-compost", label: "Composting", x: 73, y: 62, w: 28, h: 28, color: "#8D6E63", stroke: "#4E342E", type: "infra", details: "28×28 ft — Jeevamrut, Panchagavya prep + compost pits" },
-  { id: "inf-biogas", label: "Biogas", x: 108, y: 62, w: 18, h: 18, color: "#FFD54F", stroke: "#F9A825", type: "infra", details: "18×18 ft — 2 cubic meter biogas plant, cow dung from cattle shed" },
-  { id: "inf-nursery", label: "Nursery", x: 28, y: 98, w: 42, h: 28, color: "#81C784", stroke: "#2E7D32", type: "infra", details: "42×28 ft — Seedling nursery, grafting area. Gate: EAST. Gulmohar + Semal for filtered light." },
-  { id: "inf-vermi", label: "Vermicompost", x: 78, y: 98, w: 25, h: 20, color: "#A1887F", stroke: "#5D4037", type: "infra", details: "25×20 ft — 4-bed vermicompost unit, near cattle shed" },
-  { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 98, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "infra", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
+  { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Tree-lined open parking, 3-4 vehicles + tractor. 7 shade trees (Pongamia + Arjun + 5 Neem) on all 4 sides at 20ft spacing — no fruit/sticky pods, vehicles pass freely. Entry: SOUTH, Exit: NORTH." },
+  // ── NW Hub Shared Road 12ft (y=53→65) — between Parking row and Cattle row
+  // ── Vehicles enter from W Main Road, access Parking (south side), Cattle, Composting, Biogas
+  // Row 2: Cattle + Composting + Biogas (y=65-93)
+  { id: "inf-shed", label: "Cattle / Tool Shed", x: 28, y: 65, w: 38, h: 28, color: "#BCAAA4", stroke: "#6D4C41", type: "infra", details: "38×28 ft — 2-3 cow capacity + tool storage. Entry: NORTH (from Shared Road). East gate for cattle into zone. Neem shade trees." },
+  { id: "inf-compost", label: "Composting", x: 73, y: 65, w: 28, h: 28, color: "#8D6E63", stroke: "#4E342E", type: "infra", details: "28×28 ft — Jeevamrut, Panchagavya prep + compost pits. Access: NORTH (from Shared Road)" },
+  { id: "inf-biogas", label: "Biogas", x: 108, y: 65, w: 18, h: 18, color: "#FFD54F", stroke: "#F9A825", type: "infra", details: "18×18 ft — 2 cubic meter biogas plant, cow dung from cattle shed. Access: NORTH (from Shared Road)" },
+  // 8ft service path (y=93→101)
+  // Row 3: Nursery + Vermicompost + Mushroom (y=101-129)
+  { id: "inf-nursery", label: "Nursery", x: 28, y: 101, w: 42, h: 28, color: "#81C784", stroke: "#2E7D32", type: "infra", details: "42×28 ft — Seedling nursery, grafting area. Gate: EAST. Gulmohar + Semal for filtered light." },
+  { id: "inf-vermi", label: "Vermicompost", x: 78, y: 101, w: 25, h: 20, color: "#A1887F", stroke: "#5D4037", type: "infra", details: "25×20 ft — 4-bed vermicompost unit, near cattle shed" },
+  { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 101, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "infra", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
   { id: "inf-beehive", label: "Bee Keeping", x: 280, y: 365, w: 20, h: 18, color: "#FFE082", stroke: "#FFA000", type: "infra", details: "20×18 ft — 4-5 bee hive boxes near flower panels for pollination" },
 
   // ─── SW Hub — Residential + Processing (peak elevation, SW corner) ───
@@ -150,9 +156,29 @@ export const WATER_FEATURES: LayoutItem[] = [
   { id: "water-percolation", label: "Percolation Pit", x: 600, y: 440, w: 28, h: 28, color: "#81D4FA", stroke: "#0288D1", type: "water", details: "28×28 ft — Groundwater recharge pit, near east nala" },
 ];
 
+// ── NW Hub Shared Road (10ft — connects W Main Road to all NW Hub structures) ──
+// Runs E-W between Parking (south) and Cattle/Composting/Biogas (north)
+// 1ft gap on each side separates road from structures
+// Vehicle entry from W Main Road → Shared Road → Park from south / access cattle row from north
+// Exit: reverse to W Main Road, or north through parking to North Road back to Gate (loop)
+export const NW_HUB_ROAD: LayoutItem = {
+  id: "road-nw-hub", label: "NW Hub Shared Road 10 ft", x: 22, y: 54, w: 118, h: 10,
+  color: "#C5C5D8", stroke: "#A0A0B8", type: "road",
+  details: "10 ft — Shared vehicle road between Parking and Cattle/Composting/Biogas row. 1ft gap on each side. Entry from West Main Road. Exit: reverse or loop via North Road back to Gate.",
+};
+
+// ── NW Hub Vehicle Circulation Loop ──
+// Entry: Gate → W Main Road (south) → Shared Road (east) → Parking from south
+// Exit:  Parking (north) → North Road (west) → Gate
+// Creates a one-way loop — especially convenient for 2-wheelers
+export const NW_CIRCULATION: { entry: [number, number][]; exit: [number, number][] } = {
+  entry: [[14, 10], [14, 59], [70, 59]],                  // Gate → south on W Road → east on Shared Road
+  exit:  [[80, 25], [80, 16], [18, 16], [18, 7], [14, 7]], // Parking north → through north road → west → Gate
+};
+
 // ── Suggested Add-ons (optional extras) ──
 export const ADDONS: LayoutItem[] = [
-  { id: "addon-polyhouse", label: "Polyhouse", x: 143, y: 98, w: 40, h: 28, color: "#E0E0E0", stroke: "#757575", type: "addon", details: "40×28 ft — High-value crop nursery, off-season vegetables, near NW nursery" },
+  { id: "addon-polyhouse", label: "Polyhouse", x: 143, y: 101, w: 40, h: 28, color: "#E0E0E0", stroke: "#757575", type: "addon", details: "40×28 ft — High-value crop nursery, off-season vegetables, near NW nursery" },
 ];
 
 // ── Shade / Utility Trees Around Infrastructure ──
@@ -166,17 +192,32 @@ export interface InfraTree {
 }
 
 export const INFRA_TREES: InfraTree[] = [
-  // ─── NW Hub — perimeter shade ring (cluster: x=28-135, y=25-126) ───
-  // South perimeter (y=138, below all buildings)
-  { id: "st-nw-s1", x: 45, y: 138, species: "Gulmohar", purpose: "Filtered light, south of nursery", nearInfra: "inf-nursery" },
-  { id: "st-nw-s2", x: 75, y: 138, species: "Neem", purpose: "South perimeter shade", nearInfra: "inf-nursery" },
-  { id: "st-nw-s3", x: 110, y: 138, species: "Semal", purpose: "South perimeter shade", nearInfra: "inf-mushroom" },
-  // East perimeter (x=145, east of all buildings)
-  { id: "st-nw-e1", x: 145, y: 40, species: "Rain Tree", purpose: "Parking east canopy shade", nearInfra: "inf-parking" },
-  { id: "st-nw-e2", x: 145, y: 76, species: "Neem", purpose: "Insect repellent east of shed area", nearInfra: "inf-shed" },
-  { id: "st-nw-e3", x: 145, y: 110, species: "Pongamia", purpose: "Dense shade east of mushroom", nearInfra: "inf-mushroom" },
-  // North-east corner (shade for parking)
-  { id: "st-nw-ne", x: 100, y: 20, species: "Rain Tree", purpose: "Heavy canopy shade for parking", nearInfra: "inf-parking" },
+  // ─── NW Hub — perimeter shade ring (cluster: x=28-135, y=25-129) ───
+  // South perimeter (y=141, below all buildings — shifted +3 for shared road)
+  { id: "st-nw-s1", x: 45, y: 141, species: "Gulmohar", purpose: "Filtered light, south of nursery", nearInfra: "inf-nursery" },
+  { id: "st-nw-s2", x: 75, y: 141, species: "Neem", purpose: "South perimeter shade", nearInfra: "inf-nursery" },
+  { id: "st-nw-s3", x: 110, y: 141, species: "Semal", purpose: "South perimeter shade", nearInfra: "inf-mushroom" },
+
+  // ─── Parking shade trees — full tree ring, all 4 sides + NW corner ───
+  // Vehicles pass freely through 20ft gaps between trees on N/S sides
+  // NO fruit trees / NO sticky-pod trees (Rain Tree) — only clean canopy species
+  //
+  // NW corner — Pongamia between guard cabin (x=28-40) and parking (x=46-96), north side
+  { id: "st-pk-nw", x: 43, y: 22, species: "Pongamia (Karanj)", purpose: "Fast dense canopy (15-20ft), shades guard + west parking. No mess, nitrogen-fixing, seeds → biodiesel", nearInfra: "inf-parking" },
+  // North side (y=21, along south edge of North Road y=7-19, 2ft gap from road) — 20ft spacing
+  { id: "st-pk-n1", x: 58, y: 21, species: "Neem", purpose: "North shade + pest repellent. Along road, not on road. 20ft gap for vehicle exit", nearInfra: "inf-parking" },
+  { id: "st-pk-n2", x: 78, y: 21, species: "Neem", purpose: "North shade, along road edge. 20ft gap to N1 for vehicle exit. Evergreen", nearInfra: "inf-parking" },
+  // East side (x=106, ~10ft east of parking edge x=96) — 15ft apart
+  { id: "st-pk-e1", x: 106, y: 33, species: "Arjun", purpose: "Tall clean canopy (20ft), shades east parking. Medicinal bark (Ayurveda). Zero mess on vehicles", nearInfra: "inf-parking" },
+  { id: "st-pk-e2", x: 106, y: 48, species: "Neem", purpose: "Evergreen pest repellent + long-term 25ft canopy, shades SE parking", nearInfra: "inf-parking" },
+  // South side (y=53, at parking south edge, just north of Shared Road y=54) — NOT on road
+  { id: "st-pk-s1", x: 58, y: 53, species: "Neem", purpose: "South shade, along road edge but not on road. 20ft gap for vehicle entry", nearInfra: "inf-parking" },
+  { id: "st-pk-s2", x: 78, y: 53, species: "Neem", purpose: "South shade, along road edge. 20ft gap to S1 for vehicle entry. Evergreen", nearInfra: "inf-parking" },
+
+  // East perimeter of NW Hub (x=145, east of all buildings)
+  { id: "st-nw-e1", x: 145, y: 40, species: "Rain Tree", purpose: "NW Hub east perimeter shade canopy", nearInfra: "inf-parking" },
+  { id: "st-nw-e2", x: 145, y: 79, species: "Neem", purpose: "Insect repellent east of shed area", nearInfra: "inf-shed" },
+  { id: "st-nw-e3", x: 145, y: 113, species: "Pongamia", purpose: "Dense shade east of mushroom", nearInfra: "inf-mushroom" },
 
   // ─── SW Hub — perimeter shade ring (cluster: x=28-115, y=585-762) ───
   // North perimeter (y=575, above farmhouse row)
@@ -210,10 +251,14 @@ export interface GateMarker {
 }
 
 export const GATES: GateMarker[] = [
-  // NW Hub
-  { id: "gate-parking", infraId: "inf-parking", label: "Parking Entry", direction: "south", x: 66, y: 53, w: 8, h: 2 },
-  { id: "gate-shed", infraId: "inf-shed", label: "Cattle Gate", direction: "east", x: 66, y: 73, w: 2, h: 6 },
-  { id: "gate-nursery", infraId: "inf-nursery", label: "Nursery Gate", direction: "east", x: 70, y: 109, w: 2, h: 6 },
+  // NW Hub — Parking is open space (wide south entry), Cattle row enters from north (shared road)
+  { id: "gate-parking-entry", infraId: "inf-parking", label: "Entry (tree-lined)", direction: "south", x: 50, y: 53, w: 40, h: 2 },
+  { id: "gate-parking-exit", infraId: "inf-parking", label: "Exit (tree-lined)", direction: "north", x: 50, y: 25, w: 40, h: 2 },
+  { id: "gate-shed-n", infraId: "inf-shed", label: "Cattle Entry", direction: "north", x: 40, y: 65, w: 10, h: 2 },
+  { id: "gate-compost-n", infraId: "inf-compost", label: "Composting Entry", direction: "north", x: 82, y: 65, w: 8, h: 2 },
+  { id: "gate-biogas-n", infraId: "inf-biogas", label: "Biogas Entry", direction: "north", x: 114, y: 65, w: 6, h: 2 },
+  { id: "gate-shed", infraId: "inf-shed", label: "Cattle Gate (East)", direction: "east", x: 66, y: 76, w: 2, h: 6 },
+  { id: "gate-nursery", infraId: "inf-nursery", label: "Nursery Gate", direction: "east", x: 70, y: 112, w: 2, h: 6 },
   // SW Hub — east-facing per user request
   { id: "gate-house", infraId: "inf-house", label: "Farmhouse Main", direction: "east", x: 83, y: 601, w: 2, h: 8 },
   { id: "gate-store", infraId: "inf-store", label: "Store Loading", direction: "east", x: 130, y: 596, w: 2, h: 8 },
@@ -229,9 +274,9 @@ export interface AccessPath {
 }
 
 export const ACCESS_PATHS: AccessPath[] = [
-  // NW Hub — main access corridor from W Road into hub
-  { id: "path-nw-entry", label: "NW Hub Access (from W Road)", points: [[22, 76], [140, 76]], type: "path" },
-  { id: "path-nw-cross", label: "NW Hub N-S Corridor", points: [[50, 22], [50, 130]], type: "path" },
+  // NW Hub — shared road centerline (y=59 = center of 10ft road y=54→64)
+  { id: "path-nw-shared", label: "NW Hub Shared Road (from W Road)", points: [[22, 59], [140, 59]], type: "path" },
+  { id: "path-nw-cross", label: "NW Hub N-S Corridor", points: [[50, 22], [50, 133]], type: "path" },
   // SW Hub — compound spine N-S + W Road entry
   { id: "path-sw-spine", label: "SW Compound Spine", points: [[26, 580], [26, 765]], type: "path" },
   { id: "path-sw-entry", label: "SW Hub Entry (from W Road)", points: [[22, 605], [28, 605]], type: "direct" },
@@ -239,7 +284,7 @@ export const ACCESS_PATHS: AccessPath[] = [
   { id: "path-gate-house", label: "Farmhouse Gate → East", points: [[85, 605], [130, 605]], type: "path" },
   { id: "path-gate-store", label: "Store Gate → East", points: [[132, 600], [155, 600]], type: "path" },
   { id: "path-gate-processing", label: "Processing Gate → East", points: [[70, 714], [130, 714]], type: "path" },
-  { id: "path-gate-shed", label: "Cattle Gate → East", points: [[68, 76], [140, 76]], type: "path" },
+  { id: "path-gate-shed", label: "Cattle Gate → East", points: [[68, 79], [140, 79]], type: "path" },
 ];
 
 // ── Live Fence Specification ──
