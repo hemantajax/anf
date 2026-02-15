@@ -121,15 +121,12 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Tree-lined open parking, 3-4 vehicles + tractor. 7 shade trees (Pongamia + Arjun + 5 Neem) on all 4 sides at 20ft spacing — no fruit/sticky pods, vehicles pass freely. Entry: SOUTH, Exit: NORTH." },
   // ── NW Hub Shared Road 12ft (y=53→65) — between Parking row and Cattle row
   // ── Vehicles enter from W Main Road, access Parking (south side), Cattle, Composting, Biogas
-  // Row 2: Cattle + Composting + Biogas (y=65-93)
+  // Row 2: Cattle + Composting (y=65-93) — Biogas is toggleable addon
   { id: "inf-shed", label: "Cattle / Tool Shed", x: 28, y: 65, w: 38, h: 28, color: "#BCAAA4", stroke: "#6D4C41", type: "infra", details: "38×28 ft — 2-3 cow capacity + tool storage. Entry: NORTH (from Shared Road). East gate for cattle into zone. Neem shade trees." },
   { id: "inf-compost", label: "Composting", x: 73, y: 65, w: 28, h: 28, color: "#8D6E63", stroke: "#4E342E", type: "infra", details: "28×28 ft — Jeevamrut, Panchagavya prep + compost pits. Access: NORTH (from Shared Road)" },
-  { id: "inf-biogas", label: "Biogas", x: 108, y: 65, w: 18, h: 18, color: "#FFD54F", stroke: "#F9A825", type: "infra", details: "18×18 ft — 2 cubic meter biogas plant, cow dung from cattle shed. Access: NORTH (from Shared Road)" },
   // 8ft service path (y=93→101)
-  // Row 3: Nursery + Vermicompost + Mushroom (y=101-129)
+  // Row 3: Nursery (y=101-129) — Vermicompost & Mushroom are toggleable addons
   { id: "inf-nursery", label: "Nursery", x: 28, y: 101, w: 42, h: 28, color: "#81C784", stroke: "#2E7D32", type: "infra", details: "42×28 ft — Seedling nursery, grafting area. Gate: EAST. Gulmohar + Semal for filtered light." },
-  { id: "inf-vermi", label: "Vermicompost", x: 78, y: 101, w: 25, h: 20, color: "#A1887F", stroke: "#5D4037", type: "infra", details: "25×20 ft — 4-bed vermicompost unit, near cattle shed" },
-  { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 101, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "infra", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
   { id: "inf-beehive", label: "Bee Keeping", x: 280, y: 365, w: 20, h: 18, color: "#FFE082", stroke: "#FFA000", type: "infra", details: "20×18 ft — 4-5 bee hive boxes near flower panels for pollination" },
 
   // ─── SW Hub — Residential + Processing (peak elevation, SW corner) ───
@@ -194,9 +191,68 @@ export const SW_CIRCULATION: { entry: [number, number][]; exit: [number, number]
   exit:  [[70, 632], [14, 632], [14, 780], [22, 780]],        // Shared Road west → W Main Road → south to South Road
 };
 
-// ── Suggested Add-ons (optional extras) ──
+// ── Toggleable Add-ons (optional extras — hide to see productive orchard area) ──
+// Includes: Polyhouse, Biogas, Vermicompost, Mushroom Shed, Tourism Cottages
 export const ADDONS: LayoutItem[] = [
+  // ─── NW Hub optional structures ───
   { id: "addon-polyhouse", label: "Polyhouse", x: 143, y: 101, w: 40, h: 28, color: "#E0E0E0", stroke: "#757575", type: "addon", details: "40×28 ft — High-value crop nursery, off-season vegetables, near NW nursery" },
+  { id: "inf-biogas", label: "Biogas", x: 108, y: 65, w: 18, h: 18, color: "#FFD54F", stroke: "#F9A825", type: "addon", details: "18×18 ft — 2 cubic meter biogas plant, cow dung from cattle shed. Access: NORTH (from Shared Road)" },
+  { id: "inf-vermi", label: "Vermicompost", x: 78, y: 101, w: 25, h: 20, color: "#A1887F", stroke: "#5D4037", type: "addon", details: "25×20 ft — 4-bed vermicompost unit, near cattle shed" },
+  { id: "inf-mushroom", label: "Mushroom Shed", x: 110, y: 101, w: 25, h: 20, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "25×20 ft — Oyster/Shiitake mushroom, shaded area near cattle shed" },
+  // ─── Agri-Tourism Eco Cottages (Zone C — east of SW Hub infrastructure) ───
+  // 6 bamboo/thatch eco cottages in a courtyard layout. North row of 3
+  // (level with Farmhouse), large open Common Area center, South row of 3
+  // (level with Processing/Drying). Shared Facility on the east side.
+  { id: "inf-cottage-1", label: "Cottage 1", x: 160, y: 585, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, north row west. East of Store. 1 room + bath." },
+  { id: "inf-cottage-2", label: "Cottage 2", x: 200, y: 585, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, north row center. Orchard view east. 1 room + bath." },
+  { id: "inf-cottage-3", label: "Cottage 3", x: 240, y: 585, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, north row east. Morning sun, best view. 1 room + bath." },
+  { id: "inf-cottage-4", label: "Cottage 4", x: 160, y: 700, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, south row west. Near kitchen garden. 1 room + bath." },
+  { id: "inf-cottage-5", label: "Cottage 5", x: 200, y: 700, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, south row center. 1 room + bath." },
+  { id: "inf-cottage-6", label: "Cottage 6", x: 240, y: 700, w: 20, h: 15, color: "#D7CCC8", stroke: "#795548", type: "addon", details: "20×15 ft — Eco bamboo cottage, south row east. Orchard view. 1 room + bath." },
+  { id: "inf-tourism-common", label: "Common Area", x: 160, y: 620, w: 120, h: 60, color: "#FFE0B2", stroke: "#E65100", type: "addon", details: "120×60 ft — Large open courtyard: fire pit, communal dining, yoga, farm workshops. East-facing orchard view." },
+  { id: "inf-tourism-facility", label: "Shared Facility", x: 290, y: 645, w: 15, h: 25, color: "#BCAAA4", stroke: "#5D4037", type: "addon", details: "15×25 ft — Shared washrooms, laundry, linen storage for all 6 cottages." },
+];
+
+// Convenience subset: tourism-only items from ADDONS (for detail sheet context)
+export const TOURISM_COTTAGES: LayoutItem[] = ADDONS.filter(
+  (a) => a.id.startsWith("inf-cottage-") || a.id.startsWith("inf-tourism-")
+);
+
+// ── Tourism Trees (shade + fruit around the courtyard cluster) ──
+export const TOURISM_TREES: InfraTree[] = [
+  // West side — between existing infra and cottages (buffer path area, x≈150)
+  { id: "st-tour-w1", x: 150, y: 595, species: "Jackfruit", purpose: "Dense shade between Store and Cottage 1", nearInfra: "inf-cottage-1" },
+  { id: "st-tour-w2", x: 150, y: 660, species: "Mulberry", purpose: "Fruit-picking along west path, quick-growing shade", nearInfra: "inf-tourism-common" },
+  { id: "st-tour-w3", x: 150, y: 710, species: "Jackfruit", purpose: "Shade between Kitchen Garden and Cottage 4", nearInfra: "inf-cottage-4" },
+  // North edge — shade for north cottage row
+  { id: "st-tour-n1", x: 175, y: 578, species: "Lychee", purpose: "Fruit-picking for guests, shade over north cottages", nearInfra: "inf-cottage-1" },
+  { id: "st-tour-n2", x: 250, y: 578, species: "Avocado", purpose: "Evergreen shade, premium fruit, north row east end", nearInfra: "inf-cottage-3" },
+  // East side — orchard edge
+  { id: "st-tour-e1", x: 275, y: 600, species: "Anjeer (Fig)", purpose: "Compact fruit tree, east of north row", nearInfra: "inf-cottage-3" },
+  { id: "st-tour-e2", x: 290, y: 660, species: "Neem", purpose: "Pest repellent near facility block, evergreen shade", nearInfra: "inf-tourism-facility" },
+  { id: "st-tour-e3", x: 275, y: 710, species: "Anjeer (Fig)", purpose: "Compact fruit tree, east of south row", nearInfra: "inf-cottage-6" },
+  // Common area borders — aromatic herbs
+  { id: "st-tour-h1", x: 180, y: 685, species: "Curry Leaf + Tulsi", purpose: "Aromatic border south of common area, cooking herbs", nearInfra: "inf-tourism-common" },
+  { id: "st-tour-h2", x: 250, y: 685, species: "Lemongrass", purpose: "Insect repellent + fragrance at common area edge", nearInfra: "inf-tourism-common" },
+  // South edge — shade for south cottage row
+  { id: "st-tour-s1", x: 175, y: 722, species: "Mulberry", purpose: "Quick shade south of cottages, fruit-picking", nearInfra: "inf-cottage-4" },
+  { id: "st-tour-s2", x: 250, y: 722, species: "Lychee", purpose: "Shade + fruit, south row east end", nearInfra: "inf-cottage-6" },
+];
+
+// ── Tourism Access Paths (from SW Hub Road east into courtyard) ──
+export const TOURISM_PATHS: AccessPath[] = [
+  // Main entry: SW Hub Shared Road east → buffer path → Common Area
+  { id: "path-tourism-entry", label: "Tourism Entry (from SW Hub Road)", points: [[122, 632], [220, 632], [220, 620]], type: "path" },
+  // North-south spine connecting both cottage rows through common area
+  { id: "path-tourism-spine", label: "Tourism Courtyard Spine (N-S)", points: [[220, 600], [220, 700]], type: "path" },
+  // Connection west to farmhouse
+  { id: "path-tourism-farmhouse", label: "Tourism → Farmhouse Path", points: [[160, 600], [143, 600], [83, 600]], type: "direct" },
+];
+
+// ── Tourism Gate Markers ──
+export const TOURISM_GATES: GateMarker[] = [
+  { id: "gate-tourism-entry", infraId: "inf-tourism-common", label: "Guest Entry", direction: "north", x: 210, y: 620, w: 20, h: 2 },
+  { id: "gate-common-south", infraId: "inf-tourism-common", label: "South Access", direction: "south", x: 210, y: 680, w: 20, h: 2 },
 ];
 
 // ── Shade / Utility Trees Around Infrastructure ──

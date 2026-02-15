@@ -24,6 +24,7 @@ import {
 import {
   INFRASTRUCTURE,
   WATER_FEATURES,
+  ADDONS,
   PERIPHERAL_ROADS,
   INTERNAL_ROADS,
   NW_HUB_ROAD,
@@ -33,6 +34,9 @@ import {
   INFRA_TREES,
   GATES,
   GATE,
+  TOURISM_TREES,
+  TOURISM_PATHS,
+  TOURISM_GATES,
   type LayoutItem,
 } from "@/lib/masterplan-utils";
 import {
@@ -80,9 +84,9 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
     });
   }, [vbX, vbY, vbW, vbH]);
 
-  // Filter nearby infra trees
+  // Filter nearby infra trees (including tourism trees)
   const nearbyTrees = useMemo(() => {
-    return INFRA_TREES.filter((t) => {
+    return [...INFRA_TREES, ...TOURISM_TREES].filter((t) => {
       return (
         t.x > vbX && t.x < vbX + vbW &&
         t.y > vbY && t.y < vbY + vbH
@@ -90,9 +94,9 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
     });
   }, [vbX, vbY, vbW, vbH]);
 
-  // Filter nearby gates
+  // Filter nearby gates (including tourism gates)
   const nearbyGates = useMemo(() => {
-    return GATES.filter((g) => {
+    return [...GATES, ...TOURISM_GATES].filter((g) => {
       return (
         g.x > vbX && g.x < vbX + vbW &&
         g.y > vbY && g.y < vbY + vbH
@@ -100,9 +104,9 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
     });
   }, [vbX, vbY, vbW, vbH]);
 
-  // Other infra nearby (for context)
+  // Other infra nearby (for context — includes addons: biogas, vermi, mushroom, cottages)
   const nearbyInfra = useMemo(() => {
-    const allItems = [...INFRASTRUCTURE, ...WATER_FEATURES];
+    const allItems = [...INFRASTRUCTURE, ...WATER_FEATURES, ...ADDONS];
     return allItems.filter((i) => {
       if (i.id === item.id) return false;
       return (
@@ -113,6 +117,13 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
       );
     });
   }, [item.id, vbX, vbY, vbW, vbH]);
+
+  // Tourism access paths in view
+  const nearbyTourismPaths = useMemo(() => {
+    return TOURISM_PATHS.filter((p) =>
+      p.points.some(([px, py]) => px >= vbX && px <= vbX + vbW && py >= vbY && py <= vbY + vbH)
+    );
+  }, [vbX, vbY, vbW, vbH]);
 
   // Access path
   const accessPoints = detail.accessRoad.svgPathPoints;
@@ -169,6 +180,15 @@ function MiniInfraSVG({ item, detail }: { item: LayoutItem; detail: InfraDetail 
         {pathD && (
           <path d={pathD} fill="none" stroke="#2563EB" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.8" />
         )}
+
+        {/* Tourism footpaths (in view) */}
+        {nearbyTourismPaths.map((tp) => {
+          const d = `M ${tp.points[0][0]} ${tp.points[0][1]} ` +
+            tp.points.slice(1).map((p) => `L ${p[0]} ${p[1]}`).join(" ");
+          return (
+            <path key={tp.id} d={d} fill="none" stroke="#795548" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+          );
+        })}
 
         {/* Selected infrastructure (prominent) */}
         <rect
@@ -518,7 +538,7 @@ function DetailSection({
 export function InfraDetailSheet({ infraId, open, onOpenChange }: InfraDetailSheetProps) {
   const item = useMemo(() => {
     if (!infraId) return null;
-    return [...INFRASTRUCTURE, ...WATER_FEATURES].find((i) => i.id === infraId) ?? null;
+    return [...INFRASTRUCTURE, ...WATER_FEATURES, ...ADDONS].find((i) => i.id === infraId) ?? null;
   }, [infraId]);
 
   const detail = useMemo(() => {
@@ -526,7 +546,7 @@ export function InfraDetailSheet({ infraId, open, onOpenChange }: InfraDetailShe
     return getInfraDetail(infraId) ?? null;
   }, [infraId]);
 
-  // Nearby trees for the listing below the mini SVG
+  // Nearby trees for the listing below the mini SVG (includes tourism trees)
   const nearbyTreesList = useMemo(() => {
     if (!item) return [];
     const pad = 70;
@@ -534,7 +554,7 @@ export function InfraDetailSheet({ infraId, open, onOpenChange }: InfraDetailShe
     const vbY = item.y - pad;
     const vbW = item.w + pad * 2;
     const vbH = item.h + pad * 2;
-    return INFRA_TREES.filter((t) =>
+    return [...INFRA_TREES, ...TOURISM_TREES].filter((t) =>
       t.x > vbX && t.x < vbX + vbW && t.y > vbY && t.y < vbY + vbH
     );
   }, [item]);

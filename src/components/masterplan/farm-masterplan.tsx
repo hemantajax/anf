@@ -311,31 +311,44 @@ function MasterPlanSVG({
           </g>
         ))}
 
-        {/* ── Add-ons (optional) ── */}
+        {/* ── Add-ons (toggleable — Polyhouse, Biogas, Vermicompost, Mushroom, Tourism) ── */}
         {showAddons &&
-          ADDONS.map((a) => (
-            <g key={a.id}>
-              <rect
-                x={a.x} y={a.y} width={a.w} height={a.h}
-                fill={a.color} stroke={a.stroke} strokeWidth="0.6" rx="1"
-                strokeDasharray="2 1" opacity="0.7"
-                className="cursor-pointer"
-                onMouseMove={(e) => handleHover(a, e)}
-                onMouseLeave={() => setTooltip(null)}
-              />
-              <text
-                x={a.x + a.w / 2}
-                y={a.y + a.h / 2 + 2}
-                textAnchor="middle"
-                fontSize={Math.min(a.w / a.label.length * 1.4, 4.5)}
-                fontWeight="500"
-                fill="#555"
-                fontStyle="italic"
-              >
-                {a.label}
-              </text>
-            </g>
-          ))}
+          ADDONS.map((a) => {
+            const isSelected = selectedInfra === a.id;
+            return (
+              <g key={a.id}>
+                <rect
+                  x={a.x} y={a.y} width={a.w} height={a.h}
+                  fill={a.color}
+                  stroke={isSelected ? "#2563EB" : a.stroke}
+                  strokeWidth={isSelected ? "2" : "0.8"}
+                  rx="1"
+                  className="cursor-pointer"
+                  onClick={() => onInfraClick(a.id)}
+                  onMouseMove={(e) => handleHover(a, e)}
+                  onMouseLeave={() => setTooltip(null)}
+                />
+                {isSelected && (
+                  <rect
+                    x={a.x - 2} y={a.y - 2}
+                    width={a.w + 4} height={a.h + 4}
+                    fill="none" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" rx="2" opacity="0.6"
+                  />
+                )}
+                <text
+                  x={a.x + a.w / 2}
+                  y={a.y + a.h / 2 + 2}
+                  textAnchor="middle"
+                  fontSize={Math.min(a.w / a.label.length * 1.5, 5.5)}
+                  fontWeight="600"
+                  fill="#333"
+                  className="pointer-events-none"
+                >
+                  {a.label}
+                </text>
+              </g>
+            );
+          })}
 
         {/* ── Coconut Trees on Roads ── */}
         {coconutTrees.map((t, i) => (

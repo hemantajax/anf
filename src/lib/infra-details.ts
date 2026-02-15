@@ -949,6 +949,175 @@ export const INFRA_DETAILS: InfraDetail[] = [
     estimatedCost: "₹2.5 - 4 Lakh (tank + platform + piping)",
     timelineToBuild: "2-3 weeks",
   },
+  // ─────────────────────────────────────────────────
+  // AGRI-TOURISM ECO COTTAGES — Zone C (East of SW Hub)
+  // ─────────────────────────────────────────────────
+  // 6 identical eco-style bamboo cottages in a courtyard layout
+  // east of all existing SW Hub infrastructure. North row of 3
+  // cottages (level with farmhouse), large open Common Area in
+  // center, south row of 3 cottages (level with processing).
+
+  ...[1, 2, 3, 4, 5, 6].map((n): InfraDetail => {
+    const positions: Record<number, { pos: string; row: string; notes: string }> = {
+      1: { pos: "North row, west", row: "north", notes: "Closest to Store / Watch Tower. Jackfruit shade from west buffer trees." },
+      2: { pos: "North row, center", row: "north", notes: "Faces the full courtyard common area. East orchard view." },
+      3: { pos: "North row, east", row: "north", notes: "Best morning sun. Avocado + Anjeer trees east side." },
+      4: { pos: "South row, west", row: "south", notes: "Near Kitchen Garden — fresh herbs and veggies. Jackfruit shade." },
+      5: { pos: "South row, center", row: "south", notes: "Faces common area from south. Central courtyard view." },
+      6: { pos: "South row, east", row: "south", notes: "Orchard view east, Lychee + Anjeer shade. Peaceful corner." },
+    };
+    return {
+      id: `inf-cottage-${n}`,
+      hub: "SW",
+      headline: `Eco Cottage ${n} — Bamboo Farm Stay (${positions[n].pos})`,
+      constructionType: "Bamboo frame with thatch roof, mud plaster walls",
+      materialNotes:
+        "Treated bamboo pole frame (Dendrocalamus strictus) with cross-braced joints. Mud plaster + lime wash walls (breathable, cool in summer). Palm-leaf / vetiver thatch roof on bamboo rafters. Cement-finished floor with anti-termite treatment. Minimal foundation — stone rubble sochar 1ft raised plinth. Eco-friendly, low carbon footprint, blends with orchard.",
+      floors: [
+        {
+          name: "Single Floor (1 Room + Bath)",
+          totalAreaSqFt: 300,
+          rooms: [
+            { name: "Bedroom", sizeFt: "14x15", purpose: "Double bed, bamboo furniture, farm-view window", doors: 1, windows: 2, facing: "East (sunrise + orchard)", ventilation: "Cross-ventilation E-W through bamboo jali", flooring: "Cement finish with jute rug", notes: "Queen cot, side table, wall hooks for bags. Mosquito net frame." },
+            { name: "Attached Bath", sizeFt: "6x8", purpose: "Eco bathroom with bucket shower", doors: 1, windows: 1, facing: "West", ventilation: "Ventilator + bamboo jali", flooring: "Anti-skid cement with stone pebble finish", notes: "Indian WC, bucket + mug shower, wash basin. Solar water heater connection." },
+            { name: "Sit-out", sizeFt: "6x4", purpose: "Small bamboo veranda facing east", doors: 0, windows: 0, facing: "East (open)", flooring: "Bamboo deck", notes: "2 bamboo chairs + small table. Morning chai spot." },
+          ],
+          floorPlan: {
+            buildingW: 20,
+            buildingH: 15,
+            rooms: [
+              { name: "Bedroom", x: 0, y: 0, w: 14, h: 15,
+                doors: [{ wall: "E", offset: 5, width: 3 }],
+                windows: [
+                  { wall: "E", offset: 10, width: 3 },
+                  { wall: "N", offset: 5, width: 3 },
+                ],
+              },
+              { name: "Bath", x: 14, y: 0, w: 6, h: 8,
+                doors: [{ wall: "W", offset: 2, width: 2.5 }],
+                windows: [{ wall: "E", offset: 2, width: 2 }],
+              },
+              { name: "Sit-out", x: 14, y: 8, w: 6, h: 7,
+                doors: [{ wall: "W", offset: 1, width: 3 }],
+              },
+            ],
+          },
+        },
+      ],
+      accessRoad: {
+        fromGate: `NW Gate → West Main Road south → SW Hub Shared Road east → Continue east on footpath → Tourism courtyard → Cottage ${n} (${positions[n].pos}).`,
+        roadWidthFt: 8,
+        distanceFromGateFt: 650,
+        surfaceType: "Murram footpath with stone edges",
+        svgPathPoints: [[7, 7], [14, 7], [14, 632], [220, 632], [220, positions[n].row === "north" ? 600 : 700]],
+      },
+      surroundingTrees: [
+        { direction: "West", species: "Jackfruit / Mulberry", canopyRadiusFt: 12, distanceFromWallFt: 8, purpose: "Dense shade + fruit-picking along west buffer" },
+        { direction: "East", species: "Avocado / Anjeer / Lychee", canopyRadiusFt: 10, distanceFromWallFt: 10, purpose: "Orchard view, evergreen shade, premium fruit" },
+        { direction: positions[n].row === "north" ? "South" : "North", species: "Curry Leaf + Lemongrass", canopyRadiusFt: 5, distanceFromWallFt: 15, purpose: "Aromatic border facing courtyard common area" },
+      ],
+      utilization: [
+        `Farm stay for 1 family (2 adults + 1-2 children) — ${positions[n].pos}`,
+        "Courtyard layout: faces large open common area with fire pit + dining",
+        "Morning chai on bamboo sit-out with sunrise + orchard view",
+        "Right next to farmhouse, kitchen garden, and processing — immersive farm life",
+        "Activities: fruit picking, farm walk, cow milking, Jeevamrut making",
+        "Shared facility block for extra washrooms and laundry",
+        positions[n].notes,
+      ],
+      estimatedCost: "₹1.5 - 2.5 Lakh per cottage (bamboo + thatch)",
+      timelineToBuild: "2-3 weeks per cottage",
+      expansionNotes: "Can add more cottages east of courtyard or extend the row. Bamboo structure is modular and relocatable.",
+    };
+  }),
+
+  {
+    id: "inf-tourism-common",
+    hub: "SW",
+    headline: "Common Gathering Area — Open Courtyard with Fire Pit, Dining & Events",
+    constructionType: "Open-air courtyard with bamboo canopy structure",
+    materialNotes:
+      "Large 120×60 ft open courtyard between north and south cottage rows. Central stone fire pit (4ft diameter, lined with river stone). Surrounding bamboo + timber seating (log benches for 30+ people). Bamboo pole canopy frame with removable shade cloth / fairy lights for evening events. Compacted earth floor with stone edging. Open on all sides for breeze and east-facing orchard views.",
+    floors: [
+      {
+        name: "Open Courtyard Layout",
+        totalAreaSqFt: 7200,
+        rooms: [
+          { name: "Fire Pit Circle", sizeFt: "20x20", purpose: "Central stone fire pit with log bench seating ring" },
+          { name: "Dining Pavilion", sizeFt: "30x20", purpose: "Communal bamboo dining tables, seats 30+ guests. Farm-to-table meals." },
+          { name: "Yoga / Activity Lawn", sizeFt: "30x20", purpose: "Morning yoga, meditation, farm workshops, children's play" },
+          { name: "Open Lawn", sizeFt: "40x20", purpose: "Flexible space for events, stargazing, cultural programs" },
+        ],
+      },
+    ],
+    accessRoad: {
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → Continue on footpath → Common Area courtyard (between cottage rows).",
+      roadWidthFt: 8,
+      distanceFromGateFt: 660,
+      surfaceType: "Murram footpath with stone edging",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [220, 632], [220, 650]],
+    },
+    surroundingTrees: [
+      { direction: "West", species: "Jackfruit + Mulberry", canopyRadiusFt: 15, distanceFromWallFt: 5, purpose: "Dense canopy shade along west buffer path" },
+      { direction: "South border", species: "Curry Leaf + Tulsi + Lemongrass", canopyRadiusFt: 5, distanceFromWallFt: 3, purpose: "Aromatic border, insect repellent, cooking herbs" },
+      { direction: "East", species: "Neem", canopyRadiusFt: 12, distanceFromWallFt: 8, purpose: "Pest repellent near facility block" },
+    ],
+    utilization: [
+      "Large open courtyard (120×60 ft) between 2 rows of cottages — spacious and airy",
+      "Evening bonfire / campfire gathering for all guests",
+      "Open-air communal dining (farm-to-table meals from kitchen garden)",
+      "Morning yoga / meditation sessions facing east orchard",
+      "Farm storytelling, nature education for children",
+      "Workshop area: Jeevamrut making, composting, seed ball making",
+      "Stargazing on clear nights (no light pollution at farm)",
+      "Live music / cultural events on weekends",
+      "Flexible lawn for games (badminton, cricket) and festivals",
+    ],
+    estimatedCost: "₹80,000 - 1.5 Lakh (fire pit + bamboo canopy + seating + landscaping)",
+    timelineToBuild: "1-2 weeks",
+    expansionNotes: "Can extend east for a larger event space. Add a small bamboo stage for performances.",
+  },
+
+  {
+    id: "inf-tourism-facility",
+    hub: "SW",
+    headline: "Shared Facility Block — Washrooms, Laundry & Linen Storage",
+    constructionType: "Brick + cement with waterproof finish",
+    materialNotes:
+      "Standard brick masonry with cement plaster (waterproof). Tiled flooring (anti-skid). Corrugated sheet roof with insulation. Proper plumbing connected to domestic bore. Septic tank (2-chamber) for waste. Solar water heater on roof for hot water supply to all 6 cottages. Positioned east of Common Area for equal access from both cottage rows.",
+    floors: [
+      {
+        name: "Ground Floor",
+        totalAreaSqFt: 375,
+        rooms: [
+          { name: "Men's Washroom", sizeFt: "6x8", purpose: "2 WC + 2 urinals + wash basin" },
+          { name: "Women's Washroom", sizeFt: "6x8", purpose: "2 WC + wash basin + baby-change shelf" },
+          { name: "Laundry Room", sizeFt: "6x5", purpose: "Washing machine, drying rack, ironing" },
+          { name: "Linen Store", sizeFt: "5x4", purpose: "Clean sheets, towels, pillows, mosquito nets" },
+        ],
+      },
+    ],
+    accessRoad: {
+      fromGate: "NW Gate → W Main Road → SW Hub Shared Road east → Tourism footpath → East side of courtyard → Shared Facility Block.",
+      roadWidthFt: 8,
+      distanceFromGateFt: 670,
+      surfaceType: "Stone-paved path",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [220, 632], [220, 660], [290, 660]],
+    },
+    surroundingTrees: [
+      { direction: "East", species: "Neem", canopyRadiusFt: 10, distanceFromWallFt: 8, purpose: "Pest repellent, shade over facility block" },
+    ],
+    utilization: [
+      "Extra washrooms when cottage baths are occupied",
+      "Centralized laundry service for all 6 cottages",
+      "Clean linen storage and distribution",
+      "Solar water heater on roof serves all cottages via insulated pipes",
+      "Septic tank system (eco-friendly, 2-chamber)",
+    ],
+    estimatedCost: "₹2 - 3 Lakh (brick + plumbing + solar heater)",
+    timelineToBuild: "2-3 weeks",
+    expansionNotes: "Can add a small kitchen / pantry if demand justifies on-site meal prep.",
+  },
 ];
 
 // ── Lookup helper ──
