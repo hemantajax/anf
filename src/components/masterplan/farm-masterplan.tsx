@@ -921,10 +921,11 @@ function SlopeSection() {
         </div>
         <Separator />
         <div className="space-y-1 text-muted-foreground">
-          <p className="font-medium text-foreground">Water Management Plan (Two-Bore System):</p>
-          <p>• <strong>Domestic Bore Well</strong> at SW peak near farmhouse — kitchen, drinking, bathroom (convenient start/stop)</p>
-          <p>• <strong>Irrigation Bore Well</strong> at SE low area near nala — reliable water table, solar pump pushes water UP to SW tank</p>
-          <p>• <strong>Water Tank (50,000L)</strong> at SW peak — filled by irrigation bore, gravity-fed drip to all zones downhill</p>
+          <p className="font-medium text-foreground">Water Management Plan (Two-Bore + Swimming Pool System):</p>
+          <p>• <strong>Integrated Watch Tower</strong> (NE of SW Hub) — bore at base + 10,000L tank on 20ft platform + 360° observation deck. Best visibility of all zones.</p>
+          <p>• <strong>Swimming Pool</strong> (30×14 ft, ~9m lap length) east of tower — bore-fed, 3ft shallow → 5ft deep. Natural tree shed canopy (Jamun, Kadamba, Ashoka, Bakul — water-loving, evergreen, flowers Feb-Sep). Overflow east wall → straight trench into orchard. Zero water waste.</p>
+          <p>• <strong>Irrigation Bore Well</strong> at central intersection — reliable water table, solar pump pushes water UP to tower tank</p>
+          <p>• <strong>Gravity-Fed Irrigation</strong> — tank on 20ft tower (still in western high side) = strong gravity head, drip to all zones downhill</p>
           <p>• <strong>Farm Pond (85×65 ft)</strong> at SE corner — collects runoff from all roads, near nala for overflow, fish culture</p>
           <p>• <strong>Contour Trenches (3ft)</strong> run N-S between rows to slow E-ward water flow</p>
           <p>• <strong>Percolation Pit (28×28 ft)</strong> on east side for groundwater recharge</p>
@@ -1064,8 +1065,8 @@ export function FarmMasterPlan() {
         <StatCard
           icon={Droplets}
           label="Water Features"
-          value="4"
-          sub="Pond, 2 Bore Wells, Percolation Pit"
+          value="3 + Tower Bore"
+          sub="Pond, Irrigation Bore, Percolation Pit + Domestic Bore in Watch Tower"
           accent="#0288D1"
         />
       </div>

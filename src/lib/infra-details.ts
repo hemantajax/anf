@@ -747,44 +747,108 @@ export const INFRA_DETAILS: InfraDetail[] = [
   {
     id: "inf-watchtower",
     hub: "SW",
-    headline: "Watch Tower — Elevated Observation Point",
-    constructionType: "Steel/bamboo frame tower, 20ft height",
+    headline: "Watch Tower — Integrated Bore + Tank + Observation + Swimming Pool (NE of SW Hub)",
+    constructionType: "20ft galvanized steel frame tower with bore at base, 10,000L tank on platform, swimming pool east",
     materialNotes:
-      "Galvanized steel tube frame (preferred) or treated bamboo poles. 12x12 ft base with ladder access. Open observation platform at 20ft height with safety railing. Weatherproof canopy over observation deck. Can mount CCTV cameras, weather station, and bird house.",
+      "Galvanized steel tube frame (4-post, 16×16 ft base). Positioned at NE corner of SW Hub infra cluster for maximum 360° visibility of all 4 zones, gate, roads, and eastern boundary. Domestic bore well shaft at one corner (6-8 inch casing, underground). Ground level: pump room with controls, valve assembly, water filter, and ladder access. Bore feeds both the tank above (via pump) and the swimming pool east (via direct pipe). 20ft height platform: 10,000L Sintex plastic tank (~8ft diameter, ~6ft tall) centered on platform. 4ft walkway on all sides with GI pipe safety railing (3.5ft height). Weatherproof canopy over tank + walkway. Can mount CCTV cameras, weather station, and bird house on railing posts. Swimming pool (20×14 ft) east of tower — bore-fed, 3-5ft deep, surrounded by natural tree shed (Jamun, Kadamba, Ashoka, Bakul). Overflow runs straight east into orchard. Replaces 3 separate structures (old 12×12 tower + 22×22 tank + 10×10 bore) — saves ~472 sq ft of productive land.",
     floors: [
       {
-        name: "Base Level",
-        totalAreaSqFt: 144,
+        name: "Underground — Bore Well",
+        totalAreaSqFt: 9,
         rooms: [
-          { name: "Base Structure", sizeFt: "12x12", purpose: "Foundation and structural frame base" },
+          { name: "Bore Shaft", sizeFt: "3x3 (access cover)", purpose: "Domestic bore well — 150-250ft depth, 6-8 inch casing, submersible pump" },
         ],
       },
       {
-        name: "Observation Deck (20ft)",
-        totalAreaSqFt: 80,
+        name: "Ground Level — Pump Room + Tower Base",
+        totalAreaSqFt: 256,
         rooms: [
-          { name: "Observation Platform", sizeFt: "8x10", purpose: "360-degree view of entire farm, seating for 2-3 persons" },
+          { name: "Pump Room", sizeFt: "8x6", purpose: "Pump controls, pressure switch, water filter, valve assembly" },
+          { name: "Tower Base Structure", sizeFt: "16x16", purpose: "4-post steel frame foundation, ladder access to platform" },
+          { name: "Storage Nook", sizeFt: "6x4", purpose: "Pipe fittings, spare parts, tool storage under platform" },
+        ],
+      },
+      {
+        name: "Platform Level (20ft) — Tank + Observation Deck",
+        totalAreaSqFt: 256,
+        rooms: [
+          { name: "Water Tank", sizeFt: "~8ft dia × 6ft", purpose: "10,000L Sintex plastic tank — gravity-fed irrigation to all zones downhill" },
+          { name: "Observation Walkway", sizeFt: "4ft wide all around", purpose: "360° farm observation, safety railing, seating for 2-3 persons" },
         ],
       },
     ],
     accessRoad: {
-      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → North past Store → Watch Tower at NE corner of Store",
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → North past Store east gate → Watch Tower at NE corner of SW Hub",
       roadWidthFt: 8,
       distanceFromGateFt: 590,
-      surfaceType: "Murram path",
-      svgPathPoints: [[7, 7], [14, 7], [14, 632], [137, 632], [137, 585]],
+      surfaceType: "Murram path + concrete pad at base",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [140, 632], [140, 583]],
     },
-    surroundingTrees: [],
-    utilization: [
-      "360-degree farm surveillance and monitoring",
-      "Security watch — visible deterrent",
-      "CCTV camera mounting point (covers all zones)",
-      "Weather station mounting",
-      "Bird watching and nature observation",
-      "Agro-tourism attraction point",
+    surroundingTrees: [
+      { direction: "North-East", species: "Neem", canopyRadiusFt: 10, distanceFromWallFt: 5, purpose: "Pest repellent near tower, NOT overhead (keeps tank clean from leaf fall)" },
+      { direction: "East", species: "Pool Tree Canopy (Jamun, Kadamba, Ashoka, Bakul)", canopyRadiusFt: 20, distanceFromWallFt: 2, purpose: "Natural 'tree shed' over swimming pool — 4 water-loving evergreen trees, flowers Feb-Sep" },
     ],
-    estimatedCost: "₹1 - 1.5 Lakh",
-    timelineToBuild: "1-2 weeks",
+    utilization: [
+      "360-degree farm surveillance — NE of SW Hub gives clear sightlines to all 4 zones, gate, roads, and eastern boundary",
+      "10,000L gravity-fed water storage on 20ft platform — supplies drip irrigation to all zones downhill",
+      "Domestic bore well — kitchen, drinking, bathroom water for farmhouse + fills swimming pool",
+      "Pump room with controls, filter, and valve assembly at ground level",
+      "Swimming pool (20×14 ft) east — bore-fed, natural tree shed canopy, overflow → orchard irrigation",
+      "Security watch — visible deterrent, CCTV camera mounting (covers all zones)",
+      "Weather station mounting point",
+      "Bird watching and nature observation deck",
+      "Agri-tourism attraction — panoramic farm view + swimming pool under tree shed",
+      "Space-optimized: 3 structures in 1 footprint (saves ~472 sq ft)",
+    ],
+    estimatedCost: "₹4.5 - 6.5 Lakh (tower + bore + tank + pool + tree saplings + piping + railing)",
+    timelineToBuild: "5-6 weeks (bore: 1 week, tower: 2 weeks, pool: 2 weeks, plumbing: 1 week). Trees reach full canopy in 3-5 years.",
+  },
+
+  {
+    id: "inf-splash-tub",
+    hub: "SW",
+    headline: "Swimming Pool — Village-Style Bore-Fed Pool with Natural Tree Shed",
+    constructionType: "Cemented/tiled pool, 3-5 ft deep (shallow→deep), natural tree canopy",
+    materialNotes:
+      "Cemented rectangular lap pool with smooth tiled interior (30×14 ft, ~9m swimming length). 3ft shallow end at west (tower/entry side) → 5ft deep end at east. Width (14ft N-S) constrained by cottage row 4ft south; length stretches east into open orchard — plenty of room. Bore pipe runs from tower base into pool west wall (2-inch GI pipe, ball valve for flow control). Overflow pipe on east wall channels excess water straight east (follows natural W→E slope) into an open irrigation trench running to orchard tree basins — zero turns, simplest plumbing. Non-slip mosaic tile floor, rounded edges for child safety. Drain plug at deep end for periodic cleaning. Low brick/stone wall (2 ft) on 3 sides with smooth cap for seating. Steps + shallow entry on west side (facing Watch Tower). Surrounded by 4 water-loving evergreen trees forming a natural 'tree shed' canopy: Jamun + Kadamba on north (main canopy wall), Ashoka on south (columnar screen between pool and cottages), Bakul on east at deep end (dense shade, year-round fragrance, cleanest leaves). Watch Tower (20ft) provides afternoon shade from west. Year-round shade coverage, flowers Feb through Sep, fruit Jun-Aug.",
+    floors: [
+      {
+        name: "Pool Structure",
+        totalAreaSqFt: 420,
+        rooms: [
+          { name: "Swimming Pool", sizeFt: "30x14", purpose: "Village-style lap pool — ~9m length for real swimming. Shallow end (3ft, west) for kids, deep end (5ft, east) for adults. Bore-fed, naturally cool water." },
+          { name: "Pool Surround", sizeFt: "4ft wide paved deck", purpose: "Non-slip stone/tile surround for walking, seating walls, changing area" },
+          { name: "Overflow Trench", sizeFt: "2ft wide, ~80ft east", purpose: "Open irrigation trench from east wall → straight east into orchard tree basins. Zero water waste." },
+        ],
+      },
+    ],
+    accessRoad: {
+      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road east → North to Watch Tower → Swimming Pool (east of tower)",
+      roadWidthFt: 6,
+      distanceFromGateFt: 595,
+      surfaceType: "Murram path + stone paved pool deck",
+      svgPathPoints: [[7, 7], [14, 7], [14, 632], [140, 632], [140, 575], [150, 575]],
+    },
+    surroundingTrees: [
+      { direction: "North", species: "Jamun (Java Plum)", canopyRadiusFt: 20, distanceFromWallFt: 9, purpose: "Main canopy tree — evergreen, water-loving, wide 20ft spread. Purple fruit Jun-Aug. Naturally grows near water. THE best poolside tree in India." },
+      { direction: "North-West", species: "Kadamba (Neolamarckia cadamba)", canopyRadiusFt: 15, distanceFromWallFt: 9, purpose: "Fast-growing shade — water-loving, fragrant orange ball flowers Jul-Sep. Sacred tree associated with water. Pairs with Jamun for continuous N canopy." },
+      { direction: "South", species: "Ashoka (Saraca indica)", canopyRadiusFt: 8, distanceFromWallFt: 5, purpose: "Columnar evergreen screen — spectacular orange-red flower clusters Feb-May. Narrow shape fits tight space between pool and cottage row. Minimal leaf drop." },
+      { direction: "East", species: "Bakul (Mimusops elengi)", canopyRadiusFt: 12, distanceFromWallFt: 5, purpose: "Dense evergreen shade — tiny fragrant white flowers nearly year-round (peak Mar-Jun). Cleanest leaf drop of all 4 trees = best for keeping pool water clean." },
+      { direction: "West", species: "Watch Tower (20ft structure)", canopyRadiusFt: 0, distanceFromWallFt: 2, purpose: "Tower structure casts afternoon shade on pool from west side — exactly when shade is most needed for swimmers." },
+    ],
+    utilization: [
+      "Village-style swimming pool — 20×14 ft, shallow (3ft) to deep (5ft) end. Proper swimming size for adults + kids.",
+      "Bore water cycling: bore → pool → overflow → orchard irrigation trench (zero water waste)",
+      "Natural 'tree shed' canopy — 4 water-loving evergreen trees provide year-round shade over pool",
+      "Flowering calendar: Ashoka (Feb-May), Bakul (Mar-Jun year-round), Kadamba (Jul-Sep), Jamun fruit (Jun-Aug)",
+      "Agri-tourism star attraction — families with children, village pool experience",
+      "Water naturally cool from bore (perfect for hot summer afternoons)",
+      "Seating walls (2ft) on 3 sides — parents/elders can watch kids, relax under tree canopy",
+      "Periodic drain water feeds orchard tree basins directly",
+      "Evening ambiance — Bakul + Kadamba fragrance, fairy lights on trees, farm dining nearby",
+    ],
+    estimatedCost: "₹80,000 - 1.2 Lakh (tiled pool + deck + plumbing + overflow trench + tree saplings)",
+    timelineToBuild: "2-3 weeks (masonry + tiling + plumbing). Trees reach canopy in 3-5 years.",
   },
 
   {
@@ -911,44 +975,7 @@ export const INFRA_DETAILS: InfraDetail[] = [
     expansionNotes: "Can extend east. Keep area tree-free overhead for maximum sun exposure.",
   },
 
-  {
-    id: "inf-tank",
-    hub: "SW",
-    headline: "Water Tank — 50,000L Gravity-Fed Storage",
-    constructionType: "RCC / Ferrocement tank on raised platform",
-    materialNotes:
-      "RCC (reinforced cement concrete) or ferrocement tank. Elevated 6-8ft on RCC pillars for gravity-fed pressure. 50,000 liters capacity. Filled by irrigation bore pump (solar-powered). Gravity feeds drip irrigation lines to all zones downhill. Overflow pipe connects to kitchen garden.",
-    floors: [
-      {
-        name: "Structure",
-        totalAreaSqFt: 484,
-        rooms: [
-          { name: "Tank Chamber", sizeFt: "20x20", purpose: "50,000L water storage — cylindrical or rectangular" },
-          { name: "Pump Room (below)", sizeFt: "8x6", purpose: "Pump controls, valve assembly, filter unit" },
-        ],
-      },
-    ],
-    accessRoad: {
-      fromGate: "NW Gate → West Main Road south → SW Hub Shared Road → South past Kitchen Garden & Processing → Bottom of compound (y=740)",
-      roadWidthFt: 8,
-      distanceFromGateFt: 740,
-      surfaceType: "Concrete pad",
-      svgPathPoints: [[7, 7], [14, 7], [14, 632], [26, 632], [26, 750], [28, 750]],
-    },
-    surroundingTrees: [
-      { direction: "South", species: "Pongamia", canopyRadiusFt: 12, distanceFromWallFt: 15, purpose: "Shade nearby but NOT overhead (to keep tank clean from leaf fall)" },
-    ],
-    utilization: [
-      "Central water storage — gravity-fed to all 4 zones",
-      "Filled by solar-powered bore pump from irrigation bore",
-      "Supplies drip irrigation lines through control valves",
-      "Emergency water reserve during pump failure",
-      "Overflow feeds kitchen garden and composting area",
-      "Water level monitoring (float valve or sensor)",
-    ],
-    estimatedCost: "₹2.5 - 4 Lakh (tank + platform + piping)",
-    timelineToBuild: "2-3 weeks",
-  },
+  // Water Tank is now integrated into inf-watchtower (bore + tank + observation deck — single 16×16 ft structure)
   // ─────────────────────────────────────────────────
   // AGRI-TOURISM ECO COTTAGES — Zone C (East of SW Hub)
   // ─────────────────────────────────────────────────
@@ -959,7 +986,7 @@ export const INFRA_DETAILS: InfraDetail[] = [
 
   ...[1, 2, 3, 4, 5, 6].map((n): InfraDetail => {
     const positions: Record<number, { pos: string; row: string; notes: string }> = {
-      1: { pos: "North row, west", row: "north", notes: "Closest to Store / Watch Tower. Jackfruit shade from west buffer trees." },
+      1: { pos: "North row, west", row: "north", notes: "Closest to Store. Jackfruit shade from west buffer trees." },
       2: { pos: "North row, center", row: "north", notes: "Faces the full courtyard common area. East orchard view." },
       3: { pos: "North row, east", row: "north", notes: "Best morning sun. Avocado + Anjeer trees east side." },
       4: { pos: "South row, west", row: "south", notes: "Near Kitchen Garden — fresh herbs and veggies. Jackfruit shade." },

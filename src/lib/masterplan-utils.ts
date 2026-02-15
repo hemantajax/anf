@@ -95,7 +95,7 @@ export const ZONES: (LayoutItem & {
     color: "#FFF8E1", stroke: "#FF9800", type: "zone",
     areaAcres: 2.54,
     strategy: "Mixed Fruit + Spice + Residential Hub",
-    details: "SW corner is the peak elevation — Farmhouse, Store, Watch Tower, Water Tank (gravity-fed) located here. Mixed fruit orchard with spice intercrops surrounds the residential compound.",
+    details: "SW corner is the peak elevation — Farmhouse, Store, Kitchen Garden, Processing here. Integrated Watch Tower (bore + tank + observation) + Swimming Pool with tree shed at NE of infra for max visibility. Mixed fruit orchard with spice intercrops surrounds the residential compound.",
     crops: ["Jackfruit (Konkan Prolific)", "Anjeer (Poona Fig)", "Mulberry", "Lychee", "Avocado", "Black Pepper (climber)", "Turmeric / Ginger intercrop"],
     keyTrees: ["jackfruit", "anjeer", "mulberry", "lychee", "avocado"],
   },
@@ -135,20 +135,32 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   // Row 1 — Residential (y=585)
   { id: "inf-house", label: "Farmhouse", x: 28, y: 585, w: 55, h: 40, color: "#FFCC80", stroke: "#F57C00", type: "infra", details: "55×40 ft — 2BHK at SW peak, 5KW rooftop solar. Main gate: EAST (morning sun, orchard view). Secondary: WEST (road access). Mango + Tamarind shade." },
   { id: "inf-store", label: "Store / Godown", x: 95, y: 585, w: 35, h: 28, color: "#CE93D8", stroke: "#7B1FA2", type: "infra", details: "35×28 ft — Harvest & tool storage. Loading gate: EAST. Neem shade for pest repellent." },
-  { id: "inf-watchtower", label: "Watch Tower", x: 131, y: 573, w: 12, h: 12, color: "#B0BEC5", stroke: "#455A64", type: "infra", details: "12×12 ft — 20ft tower at NE corner of Store, max visibility of all zones" },
   // Row 2 — Kitchen Garden (y=640, 15ft gap)
   { id: "inf-kitchen-garden", label: "Kitchen Garden", x: 28, y: 640, w: 70, h: 45, color: "#A5D6A7", stroke: "#388E3C", type: "infra", details: "70×45 ft — Vegetables, herbs, medicinal plants. Expand east → / north ↑" },
   // Row 3 — Processing (y=700, 15ft gap)
   { id: "inf-processing", label: "Processing Unit", x: 28, y: 700, w: 40, h: 28, color: "#FFECB3", stroke: "#FF8F00", type: "infra", details: "40×28 ft — Pickle, jam, juice, pulp. Gate: EAST. Neem shade. Expand east → / north ↑" },
   { id: "inf-drying", label: "Drying Yard", x: 80, y: 700, w: 35, h: 28, color: "#FFF9C4", stroke: "#F9A825", type: "infra", details: "35×28 ft — Solar drying platform. Expand east →" },
-  // Row 4 — Water (y=740, at very bottom of SW corner)
-  { id: "inf-tank", label: "Water Tank", x: 28, y: 740, w: 22, h: 22, color: "#4FC3F7", stroke: "#0288D1", type: "infra", details: "22×22 ft — 50,000L tank at peak, gravity-fed irrigation" },
+  // ─── Integrated Watch Tower + Water Tank + Bore — NE of SW Hub (best visibility) ───
+  // Positioned at NE corner of infra cluster for clear sightlines to all 4 zones, gate, and boundary.
+  // Still in western (high) half of farm — 20ft tower height provides ample gravity head for irrigation.
+  // Bore at base (underground) → 20ft steel tower → 10,000L plastic tank on platform → railing walkway for 360° observation
+  { id: "inf-watchtower", label: "Watch Tower", x: 132, y: 567, w: 16, h: 16, color: "#607D8B", stroke: "#37474F", type: "infra", details: "16×16 ft integrated: Bore at base + 20ft steel tower + 10,000L tank on platform + railing walkway. NE of SW Hub = clear sightlines to all zones. Bore feeds swimming pool (east) → overflow runs straight east into orchard." },
+  // ─── Village-style Swimming Pool — EAST of Watch Tower (W→E slope → overflow straight into orchard) ───
+  // 30×14 ft — width (N-S) constrained by cottage row (4ft gap south), length (E) stretches into open orchard.
+  // 30ft = ~9m swimming length — real lap pool. Shallow end (3ft) at west near tower steps, deep end (5ft) at east.
+  // Surrounded by natural tree canopy ("tree shed"):
+  //   North: Jamun (water-loving, evergreen, fruit) + Kadamba (water-loving, fragrant orange flowers)
+  //   South: Ashoka (evergreen, columnar, orange-red flowers Feb-May, screen to cottages)
+  //   East:  Bakul (evergreen, dense shade, fragrant white flowers year-round, cleanest leaf drop)
+  //   West:  Watch Tower (20ft) casts afternoon shade
+  // → Year-round evergreen canopy + flowers Feb-Sep + fruit Jun-Aug. All water-loving species.
+  { id: "inf-splash-tub", label: "Swimming Pool", x: 150, y: 567, w: 30, h: 14, color: "#4DD0E1", stroke: "#00838F", type: "infra", details: "30×14 ft swimming pool — 3ft shallow (west/tower side) → 5ft deep (east). ~9m lap length. Bore-fed, tiled. Overflow east wall → straight trench into orchard (W→E slope). Natural tree shed: Jamun + Kadamba (N), Ashoka (S), Bakul (E), Tower (W). Year-round evergreen canopy + flowers Feb-Sep." },
 ];
 
 // ── Water Features ──
 export const WATER_FEATURES: LayoutItem[] = [
   { id: "water-pond", label: "Farm Pond", x: 540, y: 690, w: 85, h: 65, color: "#4FC3F7", stroke: "#0277BD", type: "water", details: "85×65 ft — Rainwater harvesting, fish culture, SE corner near nala" },
-  { id: "water-bore-domestic", label: "Domestic Bore", x: 55, y: 745, w: 10, h: 10, color: "#29B6F6", stroke: "#01579B", type: "water", details: "10×10 ft — Domestic bore near water tank (SW peak) for kitchen, drinking" },
+  // Domestic bore integrated into Watch Tower base (inf-watchtower) — no separate footprint
   { id: "water-bore-irrigation", label: "Irrigation Bore", x: 340, y: 404, w: 14, h: 14, color: "#1E88E5", stroke: "#01579B", type: "water", details: "14×14 ft — Main irrigation bore + pump house at central intersection (mid-slope), pumps UP to SW tank + gravity-feeds E-ward trenches" },
   { id: "water-percolation", label: "Percolation Pit", x: 600, y: 440, w: 28, h: 28, color: "#81D4FA", stroke: "#0288D1", type: "water", details: "28×28 ft — Groundwater recharge pit, near east nala" },
 ];
@@ -221,11 +233,10 @@ export const TOURISM_COTTAGES: LayoutItem[] = ADDONS.filter(
 // ── Tourism Trees (shade + fruit around the courtyard cluster) ──
 export const TOURISM_TREES: InfraTree[] = [
   // West side — between existing infra and cottages (buffer path area, x≈150)
-  { id: "st-tour-w1", x: 150, y: 595, species: "Jackfruit", purpose: "Dense shade between Store and Cottage 1", nearInfra: "inf-cottage-1" },
   { id: "st-tour-w2", x: 150, y: 660, species: "Mulberry", purpose: "Fruit-picking along west path, quick-growing shade", nearInfra: "inf-tourism-common" },
   { id: "st-tour-w3", x: 150, y: 710, species: "Jackfruit", purpose: "Shade between Kitchen Garden and Cottage 4", nearInfra: "inf-cottage-4" },
-  // North edge — shade for north cottage row
-  { id: "st-tour-n1", x: 175, y: 578, species: "Lychee", purpose: "Fruit-picking for guests, shade over north cottages", nearInfra: "inf-cottage-1" },
+  // North edge — shade for north cottage row (shifted east to clear pool area)
+  { id: "st-tour-n1", x: 195, y: 578, species: "Lychee", purpose: "Fruit-picking for guests, shade over north cottages", nearInfra: "inf-cottage-1" },
   { id: "st-tour-n2", x: 250, y: 578, species: "Avocado", purpose: "Evergreen shade, premium fruit, north row east end", nearInfra: "inf-cottage-3" },
   // East side — orchard edge
   { id: "st-tour-e1", x: 275, y: 600, species: "Anjeer (Fig)", purpose: "Compact fruit tree, east of north row", nearInfra: "inf-cottage-3" },
@@ -302,9 +313,19 @@ export const INFRA_TREES: InfraTree[] = [
   { id: "st-sw-e1", x: 125, y: 610, species: "Neem", purpose: "East shade for store", nearInfra: "inf-store" },
   { id: "st-sw-e2", x: 105, y: 660, species: "Drumstick", purpose: "Functional shade for kitchen garden", nearInfra: "inf-kitchen-garden" },
   { id: "st-sw-e3", x: 125, y: 714, species: "Neem", purpose: "Shade for processing workers", nearInfra: "inf-processing" },
-  // South perimeter (below processing, near tank)
+  // South perimeter (below processing)
   { id: "st-sw-s1", x: 75, y: 735, species: "Curry Leaf", purpose: "Kitchen herbs near processing", nearInfra: "inf-processing" },
-  { id: "st-sw-s2", x: 60, y: 768, species: "Pongamia", purpose: "Shade near tank (not overhead)", nearInfra: "inf-tank" },
+  { id: "st-sw-s2", x: 55, y: 735, species: "Pongamia", purpose: "Shade south of drying yard, wind buffer", nearInfra: "inf-drying" },
+  // ─── Swimming Pool "Tree Shed" — 4 water-loving evergreen canopy trees ───
+  // Creates year-round natural shade over pool. Flowers Feb-Sep, fruit Jun-Aug. All love moisture.
+  // North pair: Jamun + Kadamba form continuous canopy wall (blocks noon sun)
+  // South: Ashoka (columnar, evergreen screen between pool and cottage row, flowers Feb-May)
+  // East: Bakul (dense shade, fragrant year-round white flowers, minimal leaf drop = cleanest for pool)
+  // West: Watch Tower (20ft) provides afternoon structural shade
+  { id: "st-pool-n1", x: 158, y: 558, species: "Jamun (Java Plum)", purpose: "Main canopy — water-loving, evergreen, 20ft spread. Purple fruit Jun-Aug. THE best poolside tree.", nearInfra: "inf-splash-tub" },
+  { id: "st-pool-n2", x: 148, y: 558, species: "Kadamba", purpose: "Fast-growing shade — water-loving, fragrant orange ball flowers Jul-Sep. Sacred tree of water. Pairs with Jamun for N canopy wall.", nearInfra: "inf-splash-tub" },
+  { id: "st-pool-s1", x: 165, y: 586, species: "Ashoka (Saraca indica)", purpose: "Columnar evergreen screen — spectacular orange-red flower clusters Feb-May. Buffer between pool and cottage row. Minimal leaf drop.", nearInfra: "inf-splash-tub" },
+  { id: "st-pool-e1", x: 185, y: 574, species: "Bakul (Mimusops elengi)", purpose: "Dense evergreen shade at deep end — tiny fragrant white flowers nearly year-round (peak Mar-Jun). Cleanest leaf drop = best for pool water.", nearInfra: "inf-splash-tub" },
 
   // ─── Farm Pond — west bank stabilization ───
   { id: "st-pond-1", x: 532, y: 695, species: "Bamboo", purpose: "Bank stabilization", nearInfra: "water-pond" },
@@ -614,7 +635,8 @@ export const INFRA_RECOMMENDATIONS: InfraRecommendation[] = [
   { name: "Mushroom Shed", recommendedSize: "25×18 ft (450 sq ft)", purpose: "Oyster/Shiitake mushroom cultivation, ₹30-50K/yr income", construction: "Enclosed shed, controlled humidity, shade net, near cattle shed" },
   { name: "Drying Yard", recommendedSize: "28×22 ft (616 sq ft)", purpose: "Solar drying for turmeric, ginger, chilli, and other produce", construction: "Concrete platform, raised edges, optional retractable shade" },
   { name: "Processing Unit", recommendedSize: "30×22 ft (660 sq ft)", purpose: "Value addition — pickle, jam, juice, pulp (2-3x farm-gate price)", construction: "Enclosed room, food-grade flooring, water + electricity, near store" },
-  { name: "Watch Tower", recommendedSize: "10×10 ft (100 sq ft)", purpose: "Elevated observation point for security, bird watching, farm monitoring", construction: "Steel/bamboo structure, 15-20 ft height, near central east boundary" },
+  { name: "Watch Tower (Integrated)", recommendedSize: "16×16 ft (256 sq ft)", purpose: "Integrated: bore at base + 10,000L tank on 20ft platform + 360° observation walkway. Bore feeds swimming pool (east). NE of SW Hub for best visibility.", construction: "20ft galvanized steel frame, bore shaft at base, 10,000L Sintex tank on platform (~8ft dia), 4ft railing walkway. Pipe to pool east." },
+  { name: "Swimming Pool", recommendedSize: "30×14 ft (420 sq ft)", purpose: "Village-style lap pool (~9m length), bore-fed. Width constrained (cottage row 4ft south), length stretches east into open orchard. Overflow east → orchard trench. Natural tree shed canopy.", construction: "Cemented/tiled pool, 3ft shallow (west) → 5ft deep (east). Bore inlet west wall, overflow east wall. Tree canopy: Jamun + Kadamba (N), Ashoka (S), Bakul (E). Tower (W) afternoon shade." },
 ];
 
 // ── Gate Position ──
@@ -630,6 +652,6 @@ export const SLOPE_INFO = {
   gradient: "Gentle (~2-3%)",
   highSide: "West (SW corner = highest point)",
   lowSide: "East (Nala / Stream)",
-  drainageStrategy: "Two-bore system: Domestic bore at SW peak (farmhouse use) + Irrigation bore at SE low area (reliable water table) pumps UP to 50,000L tank at SW peak → gravity-fed drip to all zones. Contour trenches N-S slow E-ward runoff.",
+  drainageStrategy: "Two-bore system: Domestic bore in Watch Tower base (NE of SW Hub, farmhouse use) → fills 10,000L tank on 20ft platform + feeds swimming pool (overflow → orchard trench). Irrigation bore at central intersection pumps UP to tower tank → gravity-fed drip to all zones. Contour trenches N-S slow E-ward runoff.",
   erosionControl: "Dense live fence on East, percolation pits, farm pond at SE",
 };
