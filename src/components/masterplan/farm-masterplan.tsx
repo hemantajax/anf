@@ -16,6 +16,7 @@ import {
   ChevronUp,
   Compass,
   Info,
+  Bike,
 } from "lucide-react";
 import {
   Card,
@@ -45,6 +46,8 @@ import {
   GATE,
   SLOPE_INFO,
   GATES,
+  SW_HUB_ROAD,
+  CYCLE_TOUR_ROUTES,
   getCoconutPositions,
   computeAreaBreakdown,
   type LayoutItem,
@@ -56,10 +59,12 @@ import { InfraDetailSheet } from "./infra-detail-sheet";
 // ================================================================
 function MasterPlanSVG({
   showAddons,
+  showCycleTour,
   selectedInfra,
   onInfraClick,
 }: {
   showAddons: boolean;
+  showCycleTour: boolean;
   selectedInfra: string | null;
   onInfraClick: (id: string) => void;
 }) {
@@ -88,8 +93,8 @@ function MasterPlanSVG({
     <div className="relative w-full overflow-auto border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
       <svg
         viewBox="-50 -65 760 907"
-        className="w-full h-auto max-h-[85vh]"
-        style={{ minHeight: 500 }}
+        className="w-full h-auto"
+        style={{ minHeight: 600 }}
         preserveAspectRatio="xMidYMid meet"
         onMouseLeave={() => setTooltip(null)}
       >
@@ -114,6 +119,27 @@ function MasterPlanSVG({
           <marker id="arrowHead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
             <polygon points="0 0, 6 2, 0 4" fill="#EF5350" />
           </marker>
+          {/* ── Cycle icon symbol (bicycle silhouette) ── */}
+          <symbol id="iconCycle" viewBox="0 0 24 24">
+            {/* Wheels */}
+            <circle cx="5.5" cy="17" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="18.5" cy="17" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            {/* Frame */}
+            <polyline points="5.5,17 10,9 16,9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <polyline points="18.5,17 16,9 10,9 12,17" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            {/* Handlebar */}
+            <line x1="16" y1="9" x2="18" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            {/* Seat */}
+            <line x1="9" y1="9" x2="11" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </symbol>
+          {/* ── Water wash icon symbol (droplets) ── */}
+          <symbol id="iconWash" viewBox="0 0 24 24">
+            {/* Main droplet */}
+            <path d="M12 2C12 2 6 10 6 14.5C6 18.1 8.7 21 12 21C15.3 21 18 18.1 18 14.5C18 10 12 2 12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            {/* Wave lines inside */}
+            <path d="M8.5 15 Q10.25 13.5 12 15 Q13.75 16.5 15.5 15" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.7" />
+            <path d="M9 17.5 Q10.5 16 12 17.5 Q13.5 19 15 17.5" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+          </symbol>
         </defs>
 
         {/* Background grid */}
@@ -252,6 +278,10 @@ function MasterPlanSVG({
         {/* ── Infrastructure ── */}
         {INFRASTRUCTURE.map((item) => {
           const isSelected = selectedInfra === item.id;
+          const isCycle = item.id === "inf-cycle-stand";
+          const isWash = item.id === "inf-wash-bay";
+          const hasIcon = isCycle || isWash;
+          const iconSize = Math.min(item.w, item.h) * 0.75;
           return (
             <g key={item.id}>
               <rect
@@ -272,17 +302,30 @@ function MasterPlanSVG({
                   fill="none" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" rx="2" opacity="0.6"
                 />
               )}
-              <text
-                x={item.x + item.w / 2}
-                y={item.y + item.h / 2 + 2}
-                textAnchor="middle"
-                fontSize={Math.min(item.w / item.label.length * 1.5, 5.5)}
-                fontWeight="600"
-                fill="#333"
-                className="pointer-events-none"
-              >
-                {item.label}
-              </text>
+              {hasIcon ? (
+                <use
+                  href={isCycle ? "#iconCycle" : "#iconWash"}
+                  x={item.x + (item.w - iconSize) / 2}
+                  y={item.y + (item.h - iconSize) / 2}
+                  width={iconSize}
+                  height={iconSize}
+                  color={item.stroke}
+                  opacity="0.55"
+                  className="pointer-events-none"
+                />
+              ) : (
+                <text
+                  x={item.x + item.w / 2}
+                  y={item.y + item.h / 2 + 2}
+                  textAnchor="middle"
+                  fontSize={Math.min(item.w / item.label.length * 1.5, 5.5)}
+                  fontWeight="600"
+                  fill="#333"
+                  className="pointer-events-none"
+                >
+                  {item.label}
+                </text>
+              )}
             </g>
           );
         })}
@@ -392,12 +435,62 @@ function MasterPlanSVG({
           <line x1={GATE.x + 2} y1={0} x2={GATE.x + 12} y2={0} stroke="#F57C00" strokeWidth="2.5" />
         </g>
 
-        {/* ── Slope Indicator Arrow ── */}
+        {/* ── SW Hub Shared Road ── */}
         <g>
-          <line x1="120" y1="-22" x2="540" y2="-22" stroke="#EF5350" strokeWidth="1.2" markerEnd="url(#arrowHead)" strokeDasharray="4 2" />
-          <text x="330" y="-27" textAnchor="middle" fontSize="6" fill="#EF5350" fontWeight="600">
-            Slope W → E (toward Nala ↘)
-          </text>
+          <rect
+            x={SW_HUB_ROAD.x} y={SW_HUB_ROAD.y}
+            width={SW_HUB_ROAD.w} height={SW_HUB_ROAD.h}
+            fill={SW_HUB_ROAD.color} opacity="0.55"
+          />
+          <rect
+            x={SW_HUB_ROAD.x} y={SW_HUB_ROAD.y}
+            width={SW_HUB_ROAD.w} height={SW_HUB_ROAD.h}
+            fill="transparent" stroke={SW_HUB_ROAD.stroke} strokeWidth="0.4"
+            className="cursor-pointer"
+            onMouseMove={(e) => handleHover(SW_HUB_ROAD, e)}
+            onMouseLeave={() => setTooltip(null)}
+          />
+          <line
+            x1={SW_HUB_ROAD.x + 3} y1={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
+            x2={SW_HUB_ROAD.x + SW_HUB_ROAD.w - 3} y2={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
+            stroke="#fff" strokeWidth="0.5" strokeDasharray="3 2" opacity="0.45"
+          />
+        </g>
+
+        {/* ── Wash Bay Grey Water Drain (subtle dashed line + plant dots) ── */}
+        <g>
+          <line
+            x1={116} y1={46} x2={145} y2={46}
+            stroke="#0288D1" strokeWidth="0.8" strokeDasharray="2 1.5" opacity="0.5"
+          />
+          <circle cx={130} cy={46} r="2" fill="#66BB6A" opacity="0.45" />
+          <circle cx={140} cy={46} r="2" fill="#66BB6A" opacity="0.45" />
+          <polygon points="145,44.8 147.5,46 145,47.2" fill="#0288D1" opacity="0.4" />
+        </g>
+
+        {/* ── Cycle Tour Routes (toggleable — legend explains colors) ── */}
+        {showCycleTour && CYCLE_TOUR_ROUTES.map((route) => {
+          const d = route.points
+            .map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`)
+            .join(" ");
+          return (
+            <path
+              key={route.id}
+              d={d}
+              fill="none"
+              stroke={route.color}
+              strokeWidth="2.5"
+              strokeDasharray="6 3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.55"
+            />
+          );
+        })}
+
+        {/* ── Slope Indicator Arrow (no text — tooltip on hover covers it) ── */}
+        <g>
+          <line x1="120" y1="-22" x2="540" y2="-22" stroke="#EF5350" strokeWidth="1.2" markerEnd="url(#arrowHead)" strokeDasharray="4 2" opacity="0.6" />
         </g>
 
         {/* ── North Arrow / Compass ── */}
@@ -439,49 +532,7 @@ function MasterPlanSVG({
           792 ft (N → S)
         </text>
 
-        {/* Road width label (only West main road) */}
-        <text x={14.5} y={-3} textAnchor="middle" fontSize="5" fill="#7E57C2" fontWeight="500">15 ft</text>
-
-        {/* Buffer Zone labels on all 4 sides */}
-        <text x={3.5} y={400} textAnchor="middle" fontSize="4" fill="#388E3C" fontWeight="500" transform="rotate(-90,3.5,400)">
-          7 ft Buffer Zone — Live Fence
-        </text>
-        <text x={330} y={3.5} textAnchor="middle" fontSize="4.5" fill="#388E3C" fontWeight="500">
-          7 ft Buffer Zone — Live Fence
-        </text>
-        <text x={656.5} y={400} textAnchor="middle" fontSize="4" fill="#388E3C" fontWeight="500" transform="rotate(90,656.5,400)">
-          7 ft Buffer Zone — Live Fence
-        </text>
-        <text x={330} y={796} textAnchor="middle" fontSize="4.5" fill="#388E3C" fontWeight="500">
-          7 ft Buffer Zone — Live Fence
-        </text>
-
-        {/* Public road label at North */}
-        <text x={330} y={-36} textAnchor="middle" fontSize="6.5" fill="#455A64" fontWeight="600">
-          ← 30 ft Public Road (North Side) →
-        </text>
-
-        {/* East nala indicator */}
-        <text
-          x={700} y={650}
-          textAnchor="middle"
-          fontSize="6"
-          fill="#0277BD"
-          fontWeight="500"
-          transform="rotate(90, 700, 650)"
-        >
-          ↓ Nala / Stream (East) ↓
-        </text>
-
-        {/* Flower panel label */}
-        <text x={330} y={23.5} textAnchor="middle" fontSize="3.5" fill="#C2185B" fontStyle="italic">
-          ← 3ft Flower Panel →
-        </text>
-
-        {/* Road width labels */}
-        <text x={580} y={16} textAnchor="middle" fontSize="3.5" fill="#6D6D8A" fontWeight="500">12 ft</text>
-        <text x={648} y={400} textAnchor="middle" fontSize="3.5" fill="#6D6D8A" fontWeight="500" transform="rotate(90,648,400)">12 ft</text>
-        <text x={580} y={781} textAnchor="middle" fontSize="3.5" fill="#6D6D8A" fontWeight="500">12 ft</text>
+        {/* All road / buffer / flower labels removed — tooltip on hover is sufficient */}
 
         {/* ── Scale Bar ── */}
         <g transform="translate(10, 810)">
@@ -495,19 +546,28 @@ function MasterPlanSVG({
         </g>
 
         {/* ── Legend ── */}
-        <g transform="translate(430, 805)">
+        <g transform="translate(350, 805)">
           <text x="0" y="0" fontSize="5.5" fontWeight="700" fill="#333">Legend</text>
           {[
-            { color: "#A5D6A7", label: "Buffer / Live Fence" },
-            { color: "#B8B8D1", label: "Roads (15 ft / 12 ft)" },
-            { color: "#F9A8D4", label: "Flower Panel (3 ft)" },
-            { color: "#8B6914", label: "Coconut Trees" },
-            { color: "#4FC3F7", label: "Water Features" },
-            { color: "#FFCC80", label: "Infrastructure" },
-            { color: "#E65100", label: "Gates / Entrances" },
+            { color: "#A5D6A7", label: "Buffer / Live Fence", dash: false },
+            { color: "#B8B8D1", label: "Roads (15 ft / 12 ft)", dash: false },
+            { color: "#F9A8D4", label: "Flower Panel (3 ft)", dash: false },
+            { color: "#8B6914", label: "Coconut Trees", dash: false },
+            { color: "#4FC3F7", label: "Water Features", dash: false },
+            { color: "#FFCC80", label: "Infrastructure", dash: false },
+            { color: "#E65100", label: "Gates / Entrances", dash: false },
+            ...(showCycleTour ? [
+              { color: "#4CAF50", label: "Quick Loop (~1 km)", dash: true },
+              { color: "#FF9800", label: "Perimeter (~0.9 km)", dash: true },
+              { color: "#9C27B0", label: "Grand Tour (~1.5 km)", dash: true },
+            ] : []),
           ].map((item, i) => (
-            <g key={i} transform={`translate(${(i % 3) * 75}, ${Math.floor(i / 3) * 11 + 8})`}>
-              <rect x="0" y="-4" width="6" height="6" fill={item.color} rx="1" stroke="#999" strokeWidth="0.3" />
+            <g key={i} transform={`translate(${(i % 4) * 75}, ${Math.floor(i / 4) * 11 + 8})`}>
+              {item.dash ? (
+                <line x1="0" y1="-1" x2="6" y2="-1" stroke={item.color} strokeWidth="2" strokeDasharray="2 1" />
+              ) : (
+                <rect x="0" y="-4" width="6" height="6" fill={item.color} rx="1" stroke="#999" strokeWidth="0.3" />
+              )}
               <text x="9" y="1" fontSize="4.5" fill="#555">{item.label}</text>
             </g>
           ))}
@@ -976,12 +1036,71 @@ function CoconutStats() {
 }
 
 // ================================================================
+// Cycle Tour Routes Section
+// ================================================================
+function CycleTourSection() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Bike className="size-4 text-teal-600" />
+          Orchard Cycle Tour Routes
+        </CardTitle>
+        <CardDescription className="text-xs">
+          Pick up a cycle from the stand (east of parking) and ride the coconut avenues through all 4 zones
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {CYCLE_TOUR_ROUTES.map((route) => (
+            <div
+              key={route.id}
+              className="rounded-lg border p-3 space-y-2"
+              style={{ borderLeftWidth: 4, borderLeftColor: route.color }}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="size-3 rounded-full shrink-0"
+                  style={{ backgroundColor: route.color }}
+                />
+                <span className="text-sm font-semibold">{route.label}</span>
+              </div>
+              <div className="flex gap-3">
+                <Badge variant="secondary" className="text-[10px] font-mono">
+                  {route.distanceKm}
+                </Badge>
+                <Badge variant="outline" className="text-[10px] font-mono">
+                  {route.durationMin}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {route.description}
+              </p>
+            </div>
+          ))}
+        </div>
+        <Separator />
+        <div className="text-xs text-muted-foreground space-y-1">
+          <p className="font-medium text-foreground">Ride Info</p>
+          <p>All routes start and end at the <strong>Cycle Stand</strong> (east of parking, NW Hub).</p>
+          <p>Roads are 12-15 ft wide with <strong>coconut avenues on both sides</strong> — shaded, scenic ride.</p>
+          <p>Cycles available: 6 adult, 3 child, 3 with front basket for fruit picking.</p>
+          <p>Toggle <strong>&quot;Show Cycle Tours&quot;</strong> button above the map to see routes overlaid on the layout.</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ================================================================
 // Main Farm Master Plan Component
 // ================================================================
 export function FarmMasterPlan() {
   const [showAddons, setShowAddons] = useState(true);
+  const [showCycleTour, setShowCycleTour] = useState(false);
   const [selectedInfra, setSelectedInfra] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
+    cycleTour: true,
     zones: true,
     infra: true,
     fence: true,
@@ -1010,7 +1129,7 @@ export function FarmMasterPlan() {
             12-Acre Architectural Layout — 660 × 792 ft — North gate, W→E slope
           </p>
         </div>
-        <div className="flex gap-2 print:hidden">
+        <div className="flex gap-2 print:hidden flex-wrap">
           <Button
             variant={showAddons ? "default" : "outline"}
             size="sm"
@@ -1019,6 +1138,15 @@ export function FarmMasterPlan() {
           >
             <Lightbulb className="size-3.5" />
             {showAddons ? "Hide" : "Show"} Add-ons
+          </Button>
+          <Button
+            variant={showCycleTour ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() => setShowCycleTour(!showCycleTour)}
+          >
+            <Bike className="size-3.5" />
+            {showCycleTour ? "Hide" : "Show"} Cycle Tours
           </Button>
           <Button
             variant="outline"
@@ -1084,6 +1212,7 @@ export function FarmMasterPlan() {
         </div>
         <MasterPlanSVG
           showAddons={showAddons}
+          showCycleTour={showCycleTour}
           selectedInfra={selectedInfra}
           onInfraClick={(id) => setSelectedInfra(id)}
         />
@@ -1098,6 +1227,7 @@ export function FarmMasterPlan() {
 
       {/* ══════════════ Collapsible Sections ══════════════ */}
       {([
+        { key: "cycleTour" as const, title: "Orchard Cycle Tour Routes", icon: Bike, component: CycleTourSection },
         { key: "zones" as const, title: "Zone-wise Planting Strategy", icon: TreesIcon, component: ZoneStrategySection },
         { key: "infra" as const, title: "Infrastructure Sizing Guide", icon: Home, component: InfraSection },
         { key: "fence" as const, title: "Live Fence Boundary Details", icon: Shield, component: LiveFenceSection },

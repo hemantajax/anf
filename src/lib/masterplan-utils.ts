@@ -119,6 +119,9 @@ export const INFRASTRUCTURE: LayoutItem[] = [
   // Row 1: Guard + Parking (y=25-53)
   { id: "inf-guard", label: "Guard / Entry", x: 28, y: 25, w: 12, h: 10, color: "#78909C", stroke: "#546E7A", type: "infra", details: "10×12 ft — Entry checkpoint at NW gate, visitor register" },
   { id: "inf-parking", label: "Parking", x: 46, y: 25, w: 50, h: 28, color: "#90A4AE", stroke: "#607D8B", type: "infra", details: "50×28 ft — Tree-lined open parking, 3-4 vehicles + tractor. 7 shade trees (Pongamia + Arjun + 5 Neem) on all 4 sides at 20ft spacing — no fruit/sticky pods, vehicles pass freely. Entry: SOUTH, Exit: NORTH." },
+  // Row 1 contd: Cycle Stand + Wash Bay (east of parking, x=100-116)
+  { id: "inf-cycle-stand", label: "Cycle Stand", x: 100, y: 25, w: 16, h: 12, color: "#80CBC4", stroke: "#00897B", type: "infra", details: "16×12 ft — Covered cycle stand for orchard tours. 10-12 cycles (adult + child + basket-equipped). Helmet rack, tire pump, basic tool kit. Signboard with 3 suggested tour route maps. Pick up a cycle here, ride the coconut avenues!" },
+  { id: "inf-wash-bay", label: "Wash Bay", x: 100, y: 40, w: 16, h: 12, color: "#B3E5FC", stroke: "#0288D1", type: "infra", details: "16×12 ft — Water-only vehicle wash (no chemicals). Concrete platform sloped 2% east → gravel bio-filter → open channel → Zone A banana/papaya tree basins. ~200L per car wash, all water nourishes plants. Bore-water tap + pressure hose." },
   // ── NW Hub Shared Road 12ft (y=53→65) — between Parking row and Cattle row
   // ── Vehicles enter from W Main Road, access Parking (south side), Cattle, Composting, Biogas
   // Row 2: Cattle + Composting (y=65-93) — Biogas is toggleable addon
@@ -171,9 +174,9 @@ export const WATER_FEATURES: LayoutItem[] = [
 // Vehicle entry from W Main Road → Shared Road → Park from south / access cattle row from north
 // Exit: reverse to W Main Road, or north through parking to North Road back to Gate (loop)
 export const NW_HUB_ROAD: LayoutItem = {
-  id: "road-nw-hub", label: "NW Hub Shared Road 10 ft", x: 22, y: 54, w: 118, h: 10,
+  id: "road-nw-hub", label: "NW Hub Shared Road 10 ft", x: 22, y: 54, w: 120, h: 10,
   color: "#C5C5D8", stroke: "#A0A0B8", type: "road",
-  details: "10 ft — Shared vehicle road between Parking and Cattle/Composting/Biogas row. 1ft gap on each side. Entry from West Main Road. Exit: reverse or loop via North Road back to Gate.",
+  details: "10 ft — Shared vehicle road between Parking/Cycle Stand/Wash Bay and Cattle/Composting/Biogas row. 1ft gap on each side. Entry from West Main Road. Exit: reverse or loop via North Road back to Gate. Wash Bay accessed from this road.",
 };
 
 // ── NW Hub Vehicle Circulation Loop ──
@@ -202,6 +205,77 @@ export const SW_CIRCULATION: { entry: [number, number][]; exit: [number, number]
   entry: [[14, 10], [14, 632], [70, 632]],                    // Gate → south on W Road → east on SW Shared Road
   exit:  [[70, 632], [14, 632], [14, 780], [22, 780]],        // Shared Road west → W Main Road → south to South Road
 };
+
+// ── Cycle Tour Routes (ride the coconut avenues through all 4 zones) ──
+// Start/end at Cycle Stand (x=108, y=31 = center of cycle stand)
+// All routes follow the 12-15ft roads with coconut avenues on both sides
+export interface CycleTourRoute {
+  id: string;
+  label: string;
+  color: string;
+  distanceKm: string;
+  durationMin: string;
+  description: string;
+  points: [number, number][]; // polyline waypoints following road center-lines
+}
+
+export const CYCLE_TOUR_ROUTES: CycleTourRoute[] = [
+  {
+    id: "route-quick",
+    label: "Quick Loop",
+    color: "#4CAF50",
+    distanceKm: "~1.0 km",
+    durationMin: "8-10 min",
+    description: "Zone A + B via internal roads — coconut avenues, quick ride",
+    points: [
+      [108, 31],   // Cycle Stand
+      [108, 13],   // North Road center
+      [332, 13],   // East to Central N-S Road
+      [332, 396],  // South on N-S Road to E-W intersection
+      [14, 396],   // West on E-W Road to West Main Road
+      [14, 31],    // North on West Main Road
+      [108, 31],   // Back to Cycle Stand via parking
+    ],
+  },
+  {
+    id: "route-perimeter",
+    label: "Full Perimeter",
+    color: "#FF9800",
+    distanceKm: "~0.9 km",
+    durationMin: "10-12 min",
+    description: "Entire farm boundary — all 4 sides, coconut avenues, boundary views",
+    points: [
+      [108, 31],   // Cycle Stand
+      [108, 13],   // North Road center
+      [647, 13],   // East along North Road
+      [647, 779],  // South along East Road
+      [22, 779],   // West along South Road
+      [14, 779],   // Turn north on West Main Road
+      [14, 31],    // North on West Main Road
+      [108, 31],   // Back to Cycle Stand
+    ],
+  },
+  {
+    id: "route-grand",
+    label: "Grand Tour",
+    color: "#9C27B0",
+    distanceKm: "~1.0 km",
+    durationMin: "12-15 min",
+    description: "Figure-8 through all 4 zones — rides between C/D on N-S road, covers every internal road",
+    points: [
+      [108, 31],   // Cycle Stand
+      [108, 13],   // North Road center
+      [332, 13],   // East on North Road to N-S junction
+      [332, 779],  // South on N-S Road ALL the way — between A/B then between C/D
+      [14, 779],   // West on South Road to SW corner
+      [14, 396],   // North on West Road to E-W junction (past Zone C west side)
+      [647, 396],  // East on E-W Road to East Road (crosses center)
+      [647, 13],   // North on East Road to NE corner (past Zone B east side)
+      [108, 13],   // West on North Road back toward cycle stand
+      [108, 31],   // Back to Cycle Stand
+    ],
+  },
+];
 
 // ── Toggleable Add-ons (optional extras — hide to see productive orchard area) ──
 // Includes: Polyhouse, Biogas, Vermicompost, Mushroom Shed, Tourism Cottages
@@ -292,9 +366,14 @@ export const INFRA_TREES: InfraTree[] = [
   // North side (y=21, along south edge of North Road y=7-19, 2ft gap from road) — 20ft spacing
   { id: "st-pk-n1", x: 58, y: 21, species: "Neem", purpose: "North shade + pest repellent. Along road, not on road. 20ft gap for vehicle exit", nearInfra: "inf-parking" },
   { id: "st-pk-n2", x: 78, y: 21, species: "Neem", purpose: "North shade, along road edge. 20ft gap to N1 for vehicle exit. Evergreen", nearInfra: "inf-parking" },
-  // East side (x=106, ~10ft east of parking edge x=96) — 15ft apart
-  { id: "st-pk-e1", x: 106, y: 33, species: "Arjun", purpose: "Tall clean canopy (20ft), shades east parking. Medicinal bark (Ayurveda). Zero mess on vehicles", nearInfra: "inf-parking" },
-  { id: "st-pk-e2", x: 106, y: 48, species: "Neem", purpose: "Evergreen pest repellent + long-term 25ft canopy, shades SE parking", nearInfra: "inf-parking" },
+  // East side (x=120, east of Cycle Stand + Wash Bay strip x=100-116) — 15ft apart
+  // Shifted from x=106 to x=120 to accommodate Cycle Stand (x=100-116, y=25-37) + Wash Bay (x=100-116, y=40-52)
+  { id: "st-pk-e1", x: 120, y: 33, species: "Arjun", purpose: "Tall clean canopy (20ft), shades cycle stand + east parking. Medicinal bark (Ayurveda). Zero mess on vehicles", nearInfra: "inf-cycle-stand" },
+  { id: "st-pk-e2", x: 120, y: 48, species: "Neem", purpose: "Evergreen pest repellent + long-term 25ft canopy, shades wash bay + SE parking", nearInfra: "inf-wash-bay" },
+  // ─── Wash Bay grey water planting — banana/papaya along drain channel east of wash bay ───
+  // Water flows east from wash bay (x=116) through gravel bio-filter → open channel → tree basins
+  { id: "st-wb-1", x: 130, y: 46, species: "Banana (Grand Naine)", purpose: "Grey water recipient — water-loving, high water uptake, quick growth. First tree basin along wash drain channel.", nearInfra: "inf-wash-bay" },
+  { id: "st-wb-2", x: 140, y: 46, species: "Papaya (Red Lady)", purpose: "Grey water recipient — loves consistent moisture, fast-growing, fruit from Year 1.", nearInfra: "inf-wash-bay" },
   // South side (y=53, at parking south edge, just north of Shared Road y=54) — NOT on road
   { id: "st-pk-s1", x: 58, y: 53, species: "Neem", purpose: "South shade, along road edge but not on road. 20ft gap for vehicle entry", nearInfra: "inf-parking" },
   { id: "st-pk-s2", x: 78, y: 53, species: "Neem", purpose: "South shade, along road edge. 20ft gap to S1 for vehicle entry. Evergreen", nearInfra: "inf-parking" },
@@ -349,6 +428,10 @@ export const GATES: GateMarker[] = [
   // NW Hub — Parking is open space (wide south entry), Cattle row enters from north (shared road)
   { id: "gate-parking-entry", infraId: "inf-parking", label: "Entry (tree-lined)", direction: "south", x: 50, y: 53, w: 40, h: 2 },
   { id: "gate-parking-exit", infraId: "inf-parking", label: "Exit (tree-lined)", direction: "north", x: 50, y: 25, w: 40, h: 2 },
+  // Cycle Stand — open west side facing parking, walk-in from parking area
+  { id: "gate-cycle-w", infraId: "inf-cycle-stand", label: "Cycle Pickup", direction: "west", x: 100, y: 28, w: 2, h: 8 },
+  // Wash Bay — south entry from Shared Road (vehicles drive in from road)
+  { id: "gate-wash-s", infraId: "inf-wash-bay", label: "Wash Entry", direction: "south", x: 104, y: 52, w: 10, h: 2 },
   { id: "gate-shed-n", infraId: "inf-shed", label: "Cattle Entry", direction: "north", x: 40, y: 65, w: 10, h: 2 },
   { id: "gate-compost-n", infraId: "inf-compost", label: "Composting Entry", direction: "north", x: 82, y: 65, w: 8, h: 2 },
   { id: "gate-biogas-n", infraId: "inf-biogas", label: "Biogas Entry", direction: "north", x: 114, y: 65, w: 6, h: 2 },
@@ -386,6 +469,13 @@ export const ACCESS_PATHS: AccessPath[] = [
   { id: "path-gate-kitchen-n", label: "Kitchen Garden → Shared Road", points: [[50, 640], [50, 632]], type: "direct" },
   { id: "path-gate-processing", label: "Processing Gate → East", points: [[70, 714], [130, 714]], type: "path" },
   { id: "path-gate-shed", label: "Cattle Gate → East", points: [[68, 79], [140, 79]], type: "path" },
+  // Cycle Stand — walk east from parking or south from North Road
+  { id: "path-cycle-from-parking", label: "Parking → Cycle Stand", points: [[96, 35], [100, 35]], type: "direct" },
+  { id: "path-cycle-from-north", label: "North Road → Cycle Stand", points: [[108, 19], [108, 25]], type: "direct" },
+  // Wash Bay — drive in from Shared Road, turn north into wash bay
+  { id: "path-wash-from-road", label: "Shared Road → Wash Bay", points: [[108, 59], [108, 52]], type: "direct" },
+  // Wash Bay grey water drain — east into Zone A tree basins
+  { id: "path-wash-drain", label: "Wash Grey Water → Zone A", points: [[116, 46], [120, 46], [130, 46], [140, 46]], type: "path" },
 ];
 
 // ── Live Fence Specification ──
@@ -637,6 +727,8 @@ export const INFRA_RECOMMENDATIONS: InfraRecommendation[] = [
   { name: "Processing Unit", recommendedSize: "30×22 ft (660 sq ft)", purpose: "Value addition — pickle, jam, juice, pulp (2-3x farm-gate price)", construction: "Enclosed room, food-grade flooring, water + electricity, near store" },
   { name: "Watch Tower (Integrated)", recommendedSize: "16×16 ft (256 sq ft)", purpose: "Integrated: bore at base + 10,000L tank on 20ft platform + 360° observation walkway. Bore feeds swimming pool (east). NE of SW Hub for best visibility.", construction: "20ft galvanized steel frame, bore shaft at base, 10,000L Sintex tank on platform (~8ft dia), 4ft railing walkway. Pipe to pool east." },
   { name: "Swimming Pool", recommendedSize: "30×14 ft (420 sq ft)", purpose: "Village-style lap pool (~9m length), bore-fed. Width constrained (cottage row 4ft south), length stretches east into open orchard. Overflow east → orchard trench. Natural tree shed canopy.", construction: "Cemented/tiled pool, 3ft shallow (west) → 5ft deep (east). Bore inlet west wall, overflow east wall. Tree canopy: Jamun + Kadamba (N), Ashoka (S), Bakul (E). Tower (W) afternoon shade." },
+  { name: "Cycle Stand", recommendedSize: "16×12 ft (192 sq ft)", purpose: "Covered cycle stand for orchard tours. 10-12 cycles for visitors to ride coconut avenues through all 4 zones.", construction: "Bamboo/steel frame, GI sheet roof, cycle rack rails, helmet hooks, tire pump station, route signboard" },
+  { name: "Water Wash Bay", recommendedSize: "16×12 ft (192 sq ft)", purpose: "Water-only vehicle wash — no chemicals. Grey water channels to orchard plants via bio-filter.", construction: "Concrete platform (2% slope east), bore-water tap + hose, gravel bio-filter strip, open drain channel to Zone A tree basins, low brick splash walls (2ft)" },
 ];
 
 // ── Gate Position ──

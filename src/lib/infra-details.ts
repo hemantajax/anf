@@ -197,6 +197,124 @@ export const INFRA_DETAILS: InfraDetail[] = [
   },
 
   {
+    id: "inf-cycle-stand",
+    hub: "NW",
+    headline: "Cycle Stand — Orchard Tour Cycle Pickup Point",
+    constructionType: "Bamboo/steel frame with GI sheet roof",
+    materialNotes:
+      "Treated bamboo pole uprights (or GI pipe) with corrugated sheet roof for weather protection. Cycle rack rails made from GI pipes at 2ft height — bicycles park nose-in with front wheel between rails. Concrete floor pad (4 inch) for stability. Helmet hooks on rear wall. Signboard with laminated route maps on east wall. Tire pump station and basic tool kit (wrench, puncture kit) in locked box.",
+    floors: [
+      {
+        name: "Ground Level",
+        totalAreaSqFt: 192,
+        rooms: [
+          { name: "Cycle Rack Area", sizeFt: "12x10", purpose: "10-12 cycle parking slots — mix of adult, child, and basket-equipped cycles" },
+          { name: "Helmet & Gear Rack", sizeFt: "4x3", purpose: "Wall-mounted helmet hooks (12 nos), knee guard basket" },
+          { name: "Tool Station", sizeFt: "3x3", purpose: "Tire pump, puncture kit, wrench set in locked steel box" },
+          { name: "Route Signboard", sizeFt: "4x3", purpose: "Laminated board showing 3 tour routes: Quick Loop (green), Full Perimeter (orange), Grand Tour (purple)" },
+        ],
+        floorPlan: {
+          buildingW: 16,
+          buildingH: 12,
+          rooms: [
+            { name: "Cycle Rack\n(10-12 slots)", x: 0, y: 0, w: 12, h: 10,
+              doors: [{ wall: "W", offset: 2, width: 4 }],
+            },
+            { name: "Helmets", x: 12, y: 0, w: 4, h: 4 },
+            { name: "Tools", x: 12, y: 4, w: 4, h: 4 },
+            { name: "Route\nBoard", x: 12, y: 8, w: 4, h: 4 },
+          ],
+        },
+      },
+    ],
+    accessRoad: {
+      fromGate: "NW Gate → West Main Road south → Parking area → Walk east to Cycle Stand (adjacent to parking east edge). Or: North Road south to Cycle Stand directly.",
+      roadWidthFt: 8,
+      distanceFromGateFt: 55,
+      surfaceType: "Concrete pad",
+      svgPathPoints: [[7, 7], [14, 7], [14, 31], [96, 31], [100, 31]],
+    },
+    surroundingTrees: [
+      { direction: "East", species: "Arjun (shifted from parking east)", canopyRadiusFt: 20, distanceFromWallFt: 4, purpose: "Tall clean canopy shades cycle stand. Medicinal bark. Zero mess on cycles." },
+    ],
+    utilization: [
+      "Orchard tour cycle pickup and return point",
+      "10-12 cycles: 6 adult, 3 child, 3 with front basket (for fruit picking)",
+      "3 suggested tour routes with laminated signboard:",
+      "  Quick Loop (~1 km, 8-10 min) — Zone A + B via internal roads",
+      "  Full Perimeter (~0.9 km, 10-12 min) — entire boundary, coconut avenues",
+      "  Grand Tour (~1.0 km, 12-15 min) — figure-8 through all 4 zones, rides between C/D on N-S road",
+      "Helmet rack (12 nos) — safety for all riders",
+      "Tire pump + basic repair kit for minor issues",
+      "Tourist attraction — families, school groups, corporate retreats",
+      "Evening rides along coconut avenues are particularly scenic",
+    ],
+    estimatedCost: "₹25,000 - 40,000 (structure) + ₹60,000 - 1 Lakh (10-12 cycles + helmets)",
+    timelineToBuild: "3-5 days (structure), cycles procured separately",
+    expansionNotes: "Can add e-bikes / electric cycles in future. Extend rack south if more cycles needed. Can set up a small rental fee (₹50-100/hr) for agri-tourism visitors.",
+  },
+
+  {
+    id: "inf-wash-bay",
+    hub: "NW",
+    headline: "Water Wash Bay — Eco Vehicle Wash (No Chemicals, Grey Water to Plants)",
+    constructionType: "Concrete platform with gravel bio-filter and drain channel",
+    materialNotes:
+      "Reinforced concrete platform (6 inch thick, 2% slope toward east). Low brick walls (2ft height) on north, west, and south sides to contain splash. East side open with 2ft wide gravel bio-filter strip (coarse gravel bottom, fine gravel + sand top) to filter sediment from wash water. Beyond filter: open masonry drain channel (1ft wide, 6 inch deep) runs ~30 ft east into Zone A banana/papaya tree basins. Bore-water tap with ball valve on north wall + 50ft pressure hose on reel. Clear signage: 'WATER ONLY — NO SOAP / NO CHEMICALS — Water goes to plants'. Drain grate at platform east edge prevents debris entering channel.",
+    floors: [
+      {
+        name: "Ground Level",
+        totalAreaSqFt: 192,
+        rooms: [
+          { name: "Wash Platform", sizeFt: "12x10", purpose: "Concrete wash area — fits 1 car or 2 bikes. 2% slope east for drainage. Non-slip broomed finish." },
+          { name: "Bio-Filter Strip", sizeFt: "2x12", purpose: "Gravel + sand filter along east edge — removes sediment, oil traces, dust from wash water before reaching plants" },
+          { name: "Hose Station", sizeFt: "2x3", purpose: "Bore-water tap, ball valve, 50ft pressure hose on wall-mounted reel. North wall." },
+          { name: "Drain Channel", sizeFt: "1ft wide × 30ft east", purpose: "Open masonry channel from bio-filter → Zone A tree basins. Feeds 3-4 banana/papaya plants directly." },
+        ],
+        floorPlan: {
+          buildingW: 16,
+          buildingH: 12,
+          rooms: [
+            { name: "Wash\nPlatform", x: 0, y: 0, w: 12, h: 12,
+              doors: [{ wall: "S", offset: 3, width: 8 }],
+            },
+            { name: "Hose", x: 0, y: 0, w: 3, h: 2 },
+            { name: "Bio\nFilter", x: 12, y: 0, w: 2, h: 12 },
+            { name: "Drain\nChannel", x: 14, y: 4, w: 2, h: 4 },
+          ],
+        },
+      },
+    ],
+    accessRoad: {
+      fromGate: "NW Gate → West Main Road south → NW Hub Shared Road east → Turn north into Wash Bay (south entry gate). After wash, drive out south back to Shared Road → park in Parking area.",
+      roadWidthFt: 10,
+      distanceFromGateFt: 60,
+      surfaceType: "Concrete apron at entry, concrete wash platform",
+      svgPathPoints: [[7, 7], [14, 7], [14, 59], [108, 59], [108, 52]],
+    },
+    surroundingTrees: [
+      { direction: "East (along drain)", species: "Banana (Grand Naine)", canopyRadiusFt: 6, distanceFromWallFt: 14, purpose: "First grey water recipient — loves consistent moisture, high water uptake, quick growth. Fruit from 9 months." },
+      { direction: "East (further)", species: "Papaya (Red Lady)", canopyRadiusFt: 5, distanceFromWallFt: 24, purpose: "Second grey water recipient — loves consistent moisture, fast-growing, fruit from Year 1. Washed water = pure water = safe for edible crops." },
+      { direction: "East (shade tree)", species: "Neem (shifted from parking east)", canopyRadiusFt: 12, distanceFromWallFt: 4, purpose: "Evergreen shade over wash bay, pest repellent. Vehicles stay insect-free." },
+    ],
+    utilization: [
+      "Water-only vehicle wash — NO soap, NO detergent, NO chemicals allowed (signage enforced)",
+      "All wash water nourishes Zone A orchard plants directly — zero waste",
+      "Grey water flow: platform (2% slope) → gravel bio-filter → drain channel → banana/papaya tree basins",
+      "~200 liters per car wash, ~50 liters per bike wash — all absorbed by plant roots",
+      "Bore-water tap with 50ft pressure hose — good pressure for mud/dust removal",
+      "Can wash 1 car or 2 bikes simultaneously",
+      "Gravel bio-filter removes sediment and minor oil traces before water reaches plants",
+      "Eco-friendly approach — demonstrate sustainable farm practices to visitors",
+      "Particularly useful during monsoon/mud season when vehicles get dirty on farm roads",
+      "Wash water enriches soil around banana/papaya — consistent moisture boosts growth",
+    ],
+    estimatedCost: "₹40,000 - 60,000 (concrete platform + walls + bio-filter + drain channel + tap + hose)",
+    timelineToBuild: "1 week",
+    expansionNotes: "Can add a second wash bay if visitor traffic increases. Drain channel can be extended further east to feed more tree basins. Potential to add rainwater collection from wash bay roof (if covered in future).",
+  },
+
+  {
     id: "inf-shed",
     hub: "NW",
     headline: "Cattle / Tool Shed — Dual-Purpose Farm Shed",
