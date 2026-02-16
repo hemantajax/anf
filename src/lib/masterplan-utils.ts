@@ -224,8 +224,8 @@ export const CYCLE_TOUR_ROUTES: CycleTourRoute[] = [
     id: "route-quick",
     label: "Quick Loop",
     color: "#4CAF50",
-    distanceKm: "~1.0 km",
-    durationMin: "8-10 min",
+    distanceKm: "~0.4 km",
+    durationMin: "4-6 min",
     description: "Zone A + B via internal roads — coconut avenues, quick ride",
     points: [
       [108, 31],   // Cycle Stand
@@ -241,8 +241,8 @@ export const CYCLE_TOUR_ROUTES: CycleTourRoute[] = [
     id: "route-perimeter",
     label: "Full Perimeter",
     color: "#FF9800",
-    distanceKm: "~0.9 km",
-    durationMin: "10-12 min",
+    distanceKm: "~0.85 km",
+    durationMin: "8-10 min",
     description: "Entire farm boundary — all 4 sides, coconut avenues, boundary views",
     points: [
       [108, 31],   // Cycle Stand
@@ -260,7 +260,7 @@ export const CYCLE_TOUR_ROUTES: CycleTourRoute[] = [
     label: "Grand Tour",
     color: "#9C27B0",
     distanceKm: "~1.0 km",
-    durationMin: "12-15 min",
+    durationMin: "10-15 min",
     description: "Figure-8 through all 4 zones — rides between C/D on N-S road, covers every internal road",
     points: [
       [108, 31],   // Cycle Stand
