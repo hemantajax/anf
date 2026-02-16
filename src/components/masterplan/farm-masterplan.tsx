@@ -59,6 +59,7 @@ import {
 } from "@/lib/masterplan-utils";
 import { InfraDetailSheet } from "./infra-detail-sheet";
 import { BoundaryDetailSheet } from "./boundary-detail-sheet";
+import { RoadDetailSheet } from "./road-detail-sheet";
 
 // ================================================================
 // SVG Master Plan Layout
@@ -70,6 +71,7 @@ function MasterPlanSVG({
   selectedInfra,
   onInfraClick,
   onBoundaryClick,
+  onRoadClick,
 }: {
   showAddons: boolean;
   showCycleTour: boolean;
@@ -77,6 +79,7 @@ function MasterPlanSVG({
   selectedInfra: string | null;
   onInfraClick: (id: string) => void;
   onBoundaryClick: () => void;
+  onRoadClick: () => void;
 }) {
   const coconutTrees = useMemo(() => getCoconutPositions(), []);
   const [tooltip, setTooltip] = useState<{
@@ -335,7 +338,20 @@ function MasterPlanSVG({
               stroke={r.stroke}
               strokeWidth="0.5"
               className="cursor-pointer"
-              onMouseMove={(e) => handleHover(r, e)}
+              onClick={onRoadClick}
+              onMouseMove={(e) => {
+                const svg = e.currentTarget.closest("svg");
+                if (!svg) return;
+                const pt = svg.createSVGPoint();
+                pt.x = e.clientX;
+                pt.y = e.clientY;
+                const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+                setTooltip({
+                  text: `${r.label} — Compacted murum surface. Click for road cross-section detail`,
+                  x: svgP.x,
+                  y: svgP.y - 10,
+                });
+              }}
               onMouseLeave={() => setTooltip(null)}
             />
             {/* Center line */}
@@ -1953,6 +1969,7 @@ export function FarmMasterPlan() {
   const [showOrchard, setShowOrchard] = useState(false);
   const [selectedInfra, setSelectedInfra] = useState<string | null>(null);
   const [boundaryDetailOpen, setBoundaryDetailOpen] = useState(false);
+  const [roadDetailOpen, setRoadDetailOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     orchard: true,
     cycleTour: true,
@@ -2073,8 +2090,8 @@ export function FarmMasterPlan() {
           </Badge>
           <div className="flex items-center gap-1 ml-auto text-xs text-muted-foreground print:hidden">
             <Info className="size-3" />
-            Hover for details, click infrastructure or boundary for expanded
-            view
+            Hover for details, click infrastructure, boundary, or roads for
+            detail view
           </div>
         </div>
         <MasterPlanSVG
@@ -2084,6 +2101,7 @@ export function FarmMasterPlan() {
           selectedInfra={selectedInfra}
           onInfraClick={(id) => setSelectedInfra(id)}
           onBoundaryClick={() => setBoundaryDetailOpen(true)}
+          onRoadClick={() => setRoadDetailOpen(true)}
         />
       </section>
 
@@ -2257,6 +2275,12 @@ export function FarmMasterPlan() {
       <BoundaryDetailSheet
         open={boundaryDetailOpen}
         onOpenChange={setBoundaryDetailOpen}
+      />
+
+      {/* ══════════════ Road Detail Sheet ══════════════ */}
+      <RoadDetailSheet
+        open={roadDetailOpen}
+        onOpenChange={setRoadDetailOpen}
       />
     </div>
   );

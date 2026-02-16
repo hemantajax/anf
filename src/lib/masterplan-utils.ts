@@ -2553,3 +2553,287 @@ export const BOUNDARY_CONSTRUCTION_STEPS: string[] = [
   "Within 6-12 months, Subabul + Gliricidia form dense canopy. Prune to 6-8 ft height for hedge shape.",
   "Trench naturally collects rainwater — channels along boundary to farm pond at SE corner.",
 ];
+
+// ================================================================
+// Road Cross-Section — Peripheral Square Road Surface Design
+// ================================================================
+// Full-width compacted murum road, flowers on BOTH sides
+// 12ft roads: [1ft Flower outer] → [12ft Murum] → [3ft Flower inner]
+// 15ft Main Road: [1ft Flower outer] → [15ft Murum] → [3ft Flower inner]
+// Full section: [Buffer 7ft] → [1ft Flower] → [12/15ft Murum road] → [3ft Flower bed] → [Zone]
+
+export interface RoadCrossSectionLayer {
+  id: string;
+  label: string;
+  widthFt: number;
+  material: string;
+  color: string;
+  description: string;
+}
+
+export const ROAD_CROSS_SECTION_12FT: RoadCrossSectionLayer[] = [
+  {
+    id: "rcs-buffer",
+    label: "Live Fence Buffer",
+    widthFt: 7,
+    material: "Boundary system (trench + berm + planting)",
+    color: "#81C784",
+    description:
+      "7 ft boundary buffer zone with trench & berm live fence system. See Boundary Detail for full spec.",
+  },
+  {
+    id: "rcs-flower-outer",
+    label: "Outer Flower Strip",
+    widthFt: 1,
+    material: "Marigold, Crossandra, Aloe Vera, Lemongrass",
+    color: "#F9A8D4",
+    description:
+      "1 ft flower strip between boundary berm and road — mirrors the inner flower bed. Creates a colorful frame on both sides of the road. Hardy species: Marigold (bright color, pest repellent), Crossandra (year-round bloom), Aloe Vera + Lemongrass (aromatic, low-maintenance). Prevents berm soil from spilling onto road.",
+  },
+  {
+    id: "rcs-murum",
+    label: "Compacted Murum Road",
+    widthFt: 12,
+    material: "Compacted Laterite / Murum",
+    color: "#D4A373",
+    description:
+      "Full 12 ft compacted murum (red laterite) road. Sub-base from boundary trench excavation soil (free), topped with 4-6 inch murum layer compacted with roller. Crowned 2 inches at center for drainage. Handles tractors, trucks, bullock carts, cycles, and barefoot walking. Smooth-finished surface is comfortable underfoot.",
+  },
+  {
+    id: "rcs-flower-inner",
+    label: "Inner Flower Bed",
+    widthFt: 3,
+    material: "Marigold, Rose, Jasmine, Crossandra, Tuberose mix",
+    color: "#F9A8D4",
+    description:
+      "3 ft pollinator flower bed with seasonal rotation. Marigold + Crossandra (Kharif), Rose + Jasmine + Tuberose (year-round). Attracts bees, butterflies. Income from flower sales. The main flower display bed.",
+  },
+];
+
+export const ROAD_CROSS_SECTION_15FT: RoadCrossSectionLayer[] = [
+  {
+    id: "rcs-buffer-15",
+    label: "Live Fence Buffer",
+    widthFt: 7,
+    material: "Boundary system (trench + berm + planting)",
+    color: "#81C784",
+    description:
+      "7 ft boundary buffer zone with trench & berm live fence system. See Boundary Detail for full spec.",
+  },
+  {
+    id: "rcs-flower-outer-15",
+    label: "Outer Flower Strip",
+    widthFt: 1,
+    material: "Marigold, Crossandra, Aloe Vera, Lemongrass",
+    color: "#F9A8D4",
+    description:
+      "1 ft flower strip on boundary side, same as 12ft roads. Colorful frame for the main entry road.",
+  },
+  {
+    id: "rcs-murum-15",
+    label: "Compacted Murum Road",
+    widthFt: 15,
+    material: "Compacted Laterite / Murum",
+    color: "#D4A373",
+    description:
+      "Full 15 ft compacted murum main entry road. Accommodates two-way tractor traffic comfortably. Sub-base from trench excavation, 6 inch murum top layer. Crowned center for drainage. Vehicles, cycles, and barefoot walking all share the same smooth surface.",
+  },
+  {
+    id: "rcs-flower-inner-15",
+    label: "Inner Flower Bed",
+    widthFt: 3,
+    material: "Marigold, Rose, Jasmine, Crossandra, Tuberose mix",
+    color: "#F9A8D4",
+    description:
+      "3 ft main flower bed on farm side. Same seasonal rotation as all peripheral flower panels.",
+  },
+];
+
+// ── Road Surface Material ──
+export interface RoadSurfaceMaterial {
+  id: string;
+  name: string;
+  nameHindi: string;
+  description: string;
+  color: string;
+  costPerSqFt: string;
+  pros: string[];
+  cons: string[];
+}
+
+export const ROAD_SURFACE_MATERIALS: RoadSurfaceMaterial[] = [
+  {
+    id: "rsm-murum",
+    name: "Compacted Murum (Red Laterite)",
+    nameHindi: "मुरम / लाल मिट्टी",
+    description:
+      "Locally sourced red laterite soil, laid in 4-6 inch layers and compacted with water + roller. Sub-base uses free excavated soil from boundary trenches. Hardens naturally over time. Natural earth-brown tone blends with farm aesthetic. Smooth-finished murum is comfortable for barefoot walking.",
+    color: "#D4A373",
+    costPerSqFt: "₹15-25",
+    pros: [
+      "Cheapest durable road surface — vehicles + walking on same surface",
+      "Natural earth tone — beautiful warm farm aesthetic",
+      "Handles tractor + truck + bullock cart traffic when compacted",
+      "Sub-base is FREE (boundary trench excavation soil ~26,000 cu ft)",
+      "Full road width available — no space wasted on separate walking strips",
+      "Self-healing — minor cracks seal with next rain + traffic compaction",
+      "Smooth-finished surface is comfortable barefoot (not sharp like gravel)",
+      "Available locally everywhere in Maharashtra/Karnataka/Telangana",
+      "Crowned center sheds water to edges — self-draining, no puddles",
+    ],
+    cons: [
+      "Slightly dusty in peak summer (water spray or neem oil mix fixes this)",
+      "Softens briefly after heavy monsoon rain (dries within hours, hardens again)",
+      "Needs re-compaction every 2-3 years on heavy-traffic stretches",
+    ],
+  },
+  {
+    id: "rsm-flower",
+    name: "Flower Borders (Both Sides)",
+    nameHindi: "फूल पट्टी (दोनों तरफ)",
+    description:
+      "Flowers on BOTH sides of the road — 1ft outer strip (boundary side) + 3ft inner bed (farm side). Creates a beautiful colorful frame for the murum road with coconut avenue overhead. Outer strip uses hardy, low-maintenance species; inner bed has a fuller seasonal rotation for display and income.",
+    color: "#F9A8D4",
+    costPerSqFt: "₹5-10",
+    pros: [
+      "Road framed by flowers on both sides — stunning coconut avenue corridor",
+      "1ft outer strip uses hardy species (Marigold, Aloe, Lemongrass) — low maintenance",
+      "3ft inner bed provides main flower display + income from flower sales",
+      "Marigold repels pests naturally — protects both boundary plants and orchard",
+      "Attracts pollinators (bees, butterflies) — boosts fruit set in adjacent zones",
+      "Lemongrass + Aloe Vera in outer strip are aromatic + medicinal",
+      "Flower income: ₹8,000-15,000/year from Marigold + Jasmine + Rose sales",
+      "Prevents soil erosion on both road edges",
+    ],
+    cons: [
+      "Seasonal replanting needed (2-3 times/year for Marigold, annuals)",
+      "Requires initial composted topsoil preparation",
+      "Outer 1ft strip is narrow — use compact species only (no tall roses/jasmine)",
+    ],
+  },
+];
+
+// ── Outer Flower Strip Species (compact, hardy — for the 1ft boundary-side strip) ──
+export interface OuterFlowerSpec {
+  name: string;
+  nameHindi: string;
+  season: string;
+  heightInches: number;
+  color: string;
+  whyHere: string;
+}
+
+export const OUTER_FLOWER_SPECIES: OuterFlowerSpec[] = [
+  {
+    name: "Marigold (Gainda)",
+    nameHindi: "गेंदा",
+    season: "Kharif + Rabi (most of year)",
+    heightInches: 10,
+    color: "#FFA000",
+    whyHere: "Bright orange/yellow, pest repellent, compact habit fits 1ft easily. The workhorse flower.",
+  },
+  {
+    name: "Crossandra",
+    nameHindi: "अबोली",
+    season: "Year-round in warm climate",
+    heightInches: 12,
+    color: "#FF7043",
+    whyHere: "Compact evergreen, continuous orange flowers, zero-maintenance once established.",
+  },
+  {
+    name: "Aloe Vera",
+    nameHindi: "ग्वारपाठा",
+    season: "Year-round (evergreen succulent)",
+    heightInches: 12,
+    color: "#66BB6A",
+    whyHere: "Medicinal, drought-proof, rosette shape fits tight spaces. Green accent between flowers.",
+  },
+  {
+    name: "Lemongrass",
+    nameHindi: "लेमनग्रास",
+    season: "Year-round (aromatic grass)",
+    heightInches: 12,
+    color: "#9CCC65",
+    whyHere: "Fragrant when brushed, insect repellent, clumping habit stays within 1ft. Aromatic walk.",
+  },
+  {
+    name: "Portulaca (9 o'clock)",
+    nameHindi: "नौबजे का फूल",
+    season: "Summer + Monsoon",
+    heightInches: 6,
+    color: "#E91E63",
+    whyHere: "Ground-hugging, multi-color carpet, thrives in heat and poor soil. Perfect 1ft ground cover.",
+  },
+];
+
+// ── Road Construction Steps ──
+export const ROAD_CONSTRUCTION_STEPS: string[] = [
+  "Mark road alignment using survey pegs and string line. Mark the 1ft outer flower strip and 3ft inner flower bed boundaries.",
+  "Grade the road bed: remove topsoil (save for flower beds on both sides), level to 2% cross-slope (center crown → edges) for drainage.",
+  "Lay sub-base: spread excavated soil from boundary trenches in 6-inch lifts. Compact each lift with water + hand roller or tractor passes.",
+  "Spread 4-6 inch layer of purchased murum/laterite over the full road width. Water thoroughly and compact with 8-10 tonne roller or loaded tractor. Crown center 2 inches higher than edges.",
+  "Smooth-finish the top surface: drag a flat board or steel screed across the wet murum to create an even, comfortable walking surface. No loose gravel — the goal is a hard, smooth plane.",
+  "Prepare flower beds on BOTH sides: fill the 1ft outer strip and 3ft inner bed with composted topsoil (saved from road grading + compost from farm).",
+  "Plant outer 1ft strip: Marigold + Crossandra alternating, with Aloe Vera + Lemongrass at every 5th position. Compact species only.",
+  "Plant inner 3ft bed: full seasonal mix — Marigold border, Rose + Jasmine center row, Tuberose + Chrysanthemum filler.",
+  "Plant coconut avenue trees at 25ft spacing on both sides of road (next to the flower strips).",
+  "Murum road is ready for vehicles immediately after compaction. Flowers establish within 3-4 weeks.",
+  "Seasonal maintenance: replace annuals (Marigold, Portulaca) every 3-4 months. Perennials (Rose, Jasmine, Crossandra, Aloe) are year-round. Re-compact murum before monsoon annually.",
+];
+
+// ── Road Cost Estimate ──
+export interface RoadCostItem {
+  id: string;
+  label: string;
+  areaSqFt: number;
+  ratePerSqFt: string;
+  totalEstimate: string;
+  notes: string;
+}
+
+export const ROAD_COST_ESTIMATE: RoadCostItem[] = [
+  {
+    id: "cost-murum-w",
+    label: "Murum — West Main Road (15ft × 778ft)",
+    areaSqFt: 11670,
+    ratePerSqFt: "₹15-25",
+    totalEstimate: "₹1.8-2.9 Lakh",
+    notes: "Full 15ft murum on the main entry road",
+  },
+  {
+    id: "cost-murum-nes",
+    label: "Murum — N/E/S Roads (12ft × 2,016ft total)",
+    areaSqFt: 24192,
+    ratePerSqFt: "₹15-25",
+    totalEstimate: "₹3.6-6.0 Lakh",
+    notes: "Full 12ft murum on N+E+S peripheral roads (619+778+619 ft)",
+  },
+  {
+    id: "cost-flower-outer",
+    label: "Outer Flower Strips (1ft × all 4 roads)",
+    areaSqFt: 2904,
+    ratePerSqFt: "₹5-10",
+    totalEstimate: "₹0.15-0.3 Lakh",
+    notes: "1ft flower strip on boundary side × perimeter. Marigold seedlings are very cheap.",
+  },
+  {
+    id: "cost-subbase",
+    label: "Sub-base — Trench excavation soil",
+    areaSqFt: 0,
+    ratePerSqFt: "FREE",
+    totalEstimate: "₹0 (already excavated)",
+    notes: "~26,000 cu ft of soil from boundary trenches reused as road sub-base",
+  },
+  {
+    id: "cost-labor",
+    label: "Labor (grading, compaction, planting)",
+    areaSqFt: 0,
+    ratePerSqFt: "—",
+    totalEstimate: "₹30,000-50,000",
+    notes: "JCB for grading (1 day), roller hire (1 day), 4-5 laborers for 3-5 days",
+  },
+];
+
+// Total peripheral road cost: ₹5.6-9.2 Lakh (murum + flower borders)
+export const ROAD_TOTAL_COST_RANGE = "₹5.6-9.2 Lakh";
+export const ROAD_TOTAL_AREA_SQFT = 35862; // total peripheral road area (murum)
