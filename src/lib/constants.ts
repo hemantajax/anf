@@ -9,6 +9,13 @@ import {
   Calculator,
   IndianRupee,
   Map,
+  BookOpen,
+  Route,
+  Radio,
+  BadgeIndianRupee,
+  TreeDeciduous,
+  Users,
+  CalendarHeart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,68 +24,130 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   description: string;
+  group: "planning" | "trust";
 }
 
 export const NAV_ITEMS: NavItem[] = [
+  // ---- Farm Planning ----
   {
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
     description: "Overview & quick stats",
+    group: "planning",
   },
   {
     title: "Master Plan",
     href: "/masterplan",
     icon: Map,
     description: "12-acre architectural layout",
+    group: "planning",
   },
   {
     title: "Farm Designer",
     href: "/designer",
     icon: PenTool,
     description: "Visual farm layout editor",
+    group: "planning",
   },
   {
     title: "Block Templates",
     href: "/templates",
     icon: Grid3X3,
     description: "Design reusable block layouts",
+    group: "planning",
   },
   {
     title: "Plant Density",
     href: "/density",
     icon: Calculator,
     description: "Plants per block, acre & farm",
+    group: "planning",
   },
   {
     title: "Income Projection",
     href: "/income",
     icon: IndianRupee,
     description: "10-year earning estimates",
+    group: "planning",
   },
   {
     title: "Plant Library",
     href: "/plants",
     icon: Trees,
     description: "Manage plant types & species",
+    group: "planning",
   },
   {
     title: "Zone Manager",
     href: "/zones",
     icon: MapPin,
     description: "Configure farm zones",
+    group: "planning",
   },
   {
     title: "Reports",
     href: "/reports",
     icon: BarChart3,
     description: "Calculations & projections",
+    group: "planning",
   },
   {
     title: "Settings",
     href: "/settings",
     icon: Settings,
     description: "App preferences",
+    group: "planning",
+  },
+  // ---- Customer Trust Platform ----
+  {
+    title: "Our Story",
+    href: "/story",
+    icon: BookOpen,
+    description: "Farm philosophy & ZBNF principles",
+    group: "trust",
+  },
+  {
+    title: "Crop Journey",
+    href: "/journey",
+    icon: Route,
+    description: "Seed-to-plate traceability",
+    group: "trust",
+  },
+  {
+    title: "Live Farm",
+    href: "/live",
+    icon: Radio,
+    description: "Real-time farm window",
+    group: "trust",
+  },
+  {
+    title: "Price Transparency",
+    href: "/pricing",
+    icon: BadgeIndianRupee,
+    description: "Honest pricing & mandi comparison",
+    group: "trust",
+  },
+  {
+    title: "Adopt a Tree",
+    href: "/adopt",
+    icon: TreeDeciduous,
+    description: "Sponsor a tree, get its produce",
+    group: "trust",
+  },
+  {
+    title: "Customer Portal",
+    href: "/portal",
+    icon: Users,
+    description: "Orders, impact & referrals",
+    group: "trust",
+  },
+  {
+    title: "Farm Connect",
+    href: "/connect",
+    icon: CalendarHeart,
+    description: "Visits, events & farmer notes",
+    group: "trust",
   },
 ];
 

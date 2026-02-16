@@ -17,7 +17,10 @@ import {
   Compass,
   Info,
   Bike,
+  Grid3X3,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -38,6 +41,7 @@ import {
   WATER_FEATURES,
   ADDONS,
   NW_HUB_ROAD,
+  NW_HUB_NURSERY_ROAD,
   LIVE_FENCE_LAYERS,
   ZONE_STRATEGIES,
   FLOWER_SPECIES,
@@ -47,12 +51,14 @@ import {
   SLOPE_INFO,
   GATES,
   SW_HUB_ROAD,
+  SW_HUB_PROCESSING_ROAD,
   CYCLE_TOUR_ROUTES,
   getCoconutPositions,
   computeAreaBreakdown,
   type LayoutItem,
 } from "@/lib/masterplan-utils";
 import { InfraDetailSheet } from "./infra-detail-sheet";
+import { BoundaryDetailSheet } from "./boundary-detail-sheet";
 
 // ================================================================
 // SVG Master Plan Layout
@@ -60,13 +66,17 @@ import { InfraDetailSheet } from "./infra-detail-sheet";
 function MasterPlanSVG({
   showAddons,
   showCycleTour,
+  showOrchard,
   selectedInfra,
   onInfraClick,
+  onBoundaryClick,
 }: {
   showAddons: boolean;
   showCycleTour: boolean;
+  showOrchard: boolean;
   selectedInfra: string | null;
   onInfraClick: (id: string) => void;
+  onBoundaryClick: () => void;
 }) {
   const coconutTrees = useMemo(() => getCoconutPositions(), []);
   const [tooltip, setTooltip] = useState<{
@@ -100,45 +110,152 @@ function MasterPlanSVG({
       >
         <defs>
           {/* Grid pattern */}
-          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#e5e7eb" strokeWidth="0.3" />
+          <pattern
+            id="grid"
+            width="30"
+            height="30"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 30 0 L 0 0 0 30"
+              fill="none"
+              stroke="#e5e7eb"
+              strokeWidth="0.3"
+            />
           </pattern>
           {/* Hatch for buffer */}
-          <pattern id="bufferHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="6" stroke="#66BB6A" strokeWidth="1" opacity="0.4" />
+          <pattern
+            id="bufferHatch"
+            width="6"
+            height="6"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="6"
+              stroke="#66BB6A"
+              strokeWidth="1"
+              opacity="0.4"
+            />
           </pattern>
           {/* Flower pattern */}
-          <pattern id="flowerPat" width="4" height="4" patternUnits="userSpaceOnUse">
+          <pattern
+            id="flowerPat"
+            width="4"
+            height="4"
+            patternUnits="userSpaceOnUse"
+          >
             <circle cx="2" cy="2" r="1" fill="#EC4899" opacity="0.5" />
           </pattern>
           {/* Water waves */}
-          <pattern id="waterPat" width="10" height="6" patternUnits="userSpaceOnUse">
-            <path d="M0 3 Q2.5 0 5 3 Q7.5 6 10 3" fill="none" stroke="#0288D1" strokeWidth="0.5" opacity="0.4" />
+          <pattern
+            id="waterPat"
+            width="10"
+            height="6"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M0 3 Q2.5 0 5 3 Q7.5 6 10 3"
+              fill="none"
+              stroke="#0288D1"
+              strokeWidth="0.5"
+              opacity="0.4"
+            />
           </pattern>
           {/* Slope arrow marker */}
-          <marker id="arrowHead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+          <marker
+            id="arrowHead"
+            markerWidth="6"
+            markerHeight="4"
+            refX="5"
+            refY="2"
+            orient="auto"
+          >
             <polygon points="0 0, 6 2, 0 4" fill="#EF5350" />
           </marker>
           {/* ── Cycle icon symbol (bicycle silhouette) ── */}
           <symbol id="iconCycle" viewBox="0 0 24 24">
             {/* Wheels */}
-            <circle cx="5.5" cy="17" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-            <circle cx="18.5" cy="17" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <circle
+              cx="5.5"
+              cy="17"
+              r="3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <circle
+              cx="18.5"
+              cy="17"
+              r="3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
             {/* Frame */}
-            <polyline points="5.5,17 10,9 16,9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-            <polyline points="18.5,17 16,9 10,9 12,17" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <polyline
+              points="5.5,17 10,9 16,9"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+            <polyline
+              points="18.5,17 16,9 10,9 12,17"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
             {/* Handlebar */}
-            <line x1="16" y1="9" x2="18" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <line
+              x1="16"
+              y1="9"
+              x2="18"
+              y2="7"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
             {/* Seat */}
-            <line x1="9" y1="9" x2="11" y2="9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <line
+              x1="9"
+              y1="9"
+              x2="11"
+              y2="9"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </symbol>
           {/* ── Water wash icon symbol (droplets) ── */}
           <symbol id="iconWash" viewBox="0 0 24 24">
             {/* Main droplet */}
-            <path d="M12 2C12 2 6 10 6 14.5C6 18.1 8.7 21 12 21C15.3 21 18 18.1 18 14.5C18 10 12 2 12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <path
+              d="M12 2C12 2 6 10 6 14.5C6 18.1 8.7 21 12 21C15.3 21 18 18.1 18 14.5C18 10 12 2 12 2Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
             {/* Wave lines inside */}
-            <path d="M8.5 15 Q10.25 13.5 12 15 Q13.75 16.5 15.5 15" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.7" />
-            <path d="M9 17.5 Q10.5 16 12 17.5 Q13.5 19 15 17.5" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+            <path
+              d="M8.5 15 Q10.25 13.5 12 15 Q13.75 16.5 15.5 15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              opacity="0.7"
+            />
+            <path
+              d="M9 17.5 Q10.5 16 12 17.5 Q13.5 19 15 17.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              opacity="0.5"
+            />
           </symbol>
         </defs>
 
@@ -146,18 +263,77 @@ function MasterPlanSVG({
         <rect x="-50" y="-50" width="760" height="892" fill="#FAFAFA" />
         <rect x="0" y="0" width="660" height="792" fill="url(#grid)" />
 
-        {/* ── Buffer Zone (7ft band) ── */}
-        <rect x="0" y="0" width="660" height="792" fill="#A5D6A7" opacity="0.35" rx="2" />
-        <rect x="0" y="0" width="660" height="792" fill="url(#bufferHatch)" rx="2" />
+        {/* ── Buffer Zone (7ft band) — clickable for boundary detail ── */}
+        <rect
+          x="0"
+          y="0"
+          width="660"
+          height="792"
+          fill="#A5D6A7"
+          opacity="0.35"
+          rx="2"
+        />
+        <rect
+          x="0"
+          y="0"
+          width="660"
+          height="792"
+          fill="url(#bufferHatch)"
+          rx="2"
+        />
         <rect x="7" y="7" width="646" height="778" fill="white" rx="1" />
+        {/* Invisible clickable strips for each side of the buffer band */}
+        {[
+          { x: 0, y: 0, w: 7, h: 792 }, // West
+          { x: 0, y: 0, w: 660, h: 7 }, // North
+          { x: 653, y: 0, w: 7, h: 792 }, // East
+          { x: 0, y: 785, w: 660, h: 7 }, // South
+        ].map((side, i) => (
+          <rect
+            key={`buf-click-${i}`}
+            x={side.x}
+            y={side.y}
+            width={side.w}
+            height={side.h}
+            fill="transparent"
+            className="cursor-pointer"
+            onClick={onBoundaryClick}
+            onMouseMove={(e) => {
+              const svg = e.currentTarget.closest("svg");
+              if (!svg) return;
+              const pt = svg.createSVGPoint();
+              pt.x = e.clientX;
+              pt.y = e.clientY;
+              const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+              setTooltip({
+                text: "Live Fence Boundary — Click for cross-section detail (1ft gap + 3ft trench + 3ft bed + 1ft plants)",
+                x: svgP.x,
+                y: svgP.y - 10,
+              });
+            }}
+            onMouseLeave={() => setTooltip(null)}
+          />
+        ))}
 
         {/* ── Peripheral Roads ── */}
         {PERIPHERAL_ROADS.map((r) => (
           <g key={r.id}>
-            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} opacity="0.7" />
             <rect
-              x={r.x} y={r.y} width={r.w} height={r.h}
-              fill="transparent" stroke={r.stroke} strokeWidth="0.5"
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              fill={r.color}
+              opacity="0.7"
+            />
+            <rect
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              fill="transparent"
+              stroke={r.stroke}
+              strokeWidth="0.5"
               className="cursor-pointer"
               onMouseMove={(e) => handleHover(r, e)}
               onMouseLeave={() => setTooltip(null)}
@@ -165,13 +341,25 @@ function MasterPlanSVG({
             {/* Center line */}
             {r.h > r.w ? (
               <line
-                x1={r.x + r.w / 2} y1={r.y + 5} x2={r.x + r.w / 2} y2={r.y + r.h - 5}
-                stroke="#fff" strokeWidth="0.8" strokeDasharray="4 3" opacity="0.6"
+                x1={r.x + r.w / 2}
+                y1={r.y + 5}
+                x2={r.x + r.w / 2}
+                y2={r.y + r.h - 5}
+                stroke="#fff"
+                strokeWidth="0.8"
+                strokeDasharray="4 3"
+                opacity="0.6"
               />
             ) : (
               <line
-                x1={r.x + 5} y1={r.y + r.h / 2} x2={r.x + r.w - 5} y2={r.y + r.h / 2}
-                stroke="#fff" strokeWidth="0.8" strokeDasharray="4 3" opacity="0.6"
+                x1={r.x + 5}
+                y1={r.y + r.h / 2}
+                x2={r.x + r.w - 5}
+                y2={r.y + r.h / 2}
+                stroke="#fff"
+                strokeWidth="0.8"
+                strokeDasharray="4 3"
+                opacity="0.6"
               />
             )}
           </g>
@@ -180,61 +368,79 @@ function MasterPlanSVG({
         {/* ── Internal Roads ── */}
         {INTERNAL_ROADS.map((r) => (
           <g key={r.id}>
-            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} opacity="0.65" />
             <rect
-              x={r.x} y={r.y} width={r.w} height={r.h}
-              fill="transparent" stroke={r.stroke} strokeWidth="0.5"
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              fill={r.color}
+              opacity="0.65"
+            />
+            <rect
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              fill="transparent"
+              stroke={r.stroke}
+              strokeWidth="0.5"
               className="cursor-pointer"
               onMouseMove={(e) => handleHover(r, e)}
               onMouseLeave={() => setTooltip(null)}
             />
             {r.h > r.w ? (
               <line
-                x1={r.x + r.w / 2} y1={r.y + 5} x2={r.x + r.w / 2} y2={r.y + r.h - 5}
-                stroke="#fff" strokeWidth="0.6" strokeDasharray="3 3" opacity="0.5"
+                x1={r.x + r.w / 2}
+                y1={r.y + 5}
+                x2={r.x + r.w / 2}
+                y2={r.y + r.h - 5}
+                stroke="#fff"
+                strokeWidth="0.6"
+                strokeDasharray="3 3"
+                opacity="0.5"
               />
             ) : (
               <line
-                x1={r.x + 5} y1={r.y + r.h / 2} x2={r.x + r.w - 5} y2={r.y + r.h / 2}
-                stroke="#fff" strokeWidth="0.6" strokeDasharray="3 3" opacity="0.5"
+                x1={r.x + 5}
+                y1={r.y + r.h / 2}
+                x2={r.x + r.w - 5}
+                y2={r.y + r.h / 2}
+                stroke="#fff"
+                strokeWidth="0.6"
+                strokeDasharray="3 3"
+                opacity="0.5"
               />
             )}
           </g>
         ))}
 
-        {/* ── NW Hub Shared Road (10ft with 1ft gaps) ── */}
-        <g>
-          <rect
-            x={NW_HUB_ROAD.x} y={NW_HUB_ROAD.y}
-            width={NW_HUB_ROAD.w} height={NW_HUB_ROAD.h}
-            fill={NW_HUB_ROAD.color} opacity="0.55"
-          />
-          <rect
-            x={NW_HUB_ROAD.x} y={NW_HUB_ROAD.y}
-            width={NW_HUB_ROAD.w} height={NW_HUB_ROAD.h}
-            fill="transparent" stroke={NW_HUB_ROAD.stroke} strokeWidth="0.4"
-            className="cursor-pointer"
-            onMouseMove={(e) => handleHover(NW_HUB_ROAD, e)}
-            onMouseLeave={() => setTooltip(null)}
-          />
-          <line
-            x1={NW_HUB_ROAD.x + 3} y1={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
-            x2={NW_HUB_ROAD.x + NW_HUB_ROAD.w - 3} y2={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
-            stroke="#fff" strokeWidth="0.5" strokeDasharray="3 2" opacity="0.45"
-          />
-        </g>
-
         {/* ── Flower Panels ── */}
         {FLOWER_PANELS.map((f) => (
-          <rect key={f.id} x={f.x} y={f.y} width={f.w} height={f.h} fill="url(#flowerPat)" stroke={f.stroke} strokeWidth="0.3" />
+          <rect
+            key={f.id}
+            x={f.x}
+            y={f.y}
+            width={f.w}
+            height={f.h}
+            fill="url(#flowerPat)"
+            stroke={f.stroke}
+            strokeWidth="0.3"
+          />
         ))}
 
         {/* ── Zones ── */}
         {ZONES.map((z) => (
           <g key={z.id}>
             <rect
-              x={z.x} y={z.y} width={z.w} height={z.h}
-              fill={z.color} stroke={z.stroke} strokeWidth="1" opacity="0.65" rx="2"
+              x={z.x}
+              y={z.y}
+              width={z.w}
+              height={z.h}
+              fill={z.color}
+              stroke={z.stroke}
+              strokeWidth="1"
+              opacity="0.65"
+              rx="2"
               className="cursor-pointer"
               onMouseMove={(e) => handleHover(z, e)}
               onMouseLeave={() => setTooltip(null)}
@@ -275,6 +481,60 @@ function MasterPlanSVG({
           </g>
         ))}
 
+        {/* ── Orchard Placeholder Cards (rendered before infra so pond/etc draw on top) ── */}
+        {showOrchard &&
+          ZONES.flatMap((z) => {
+            const strategy = ZONE_STRATEGIES.find((s) => s.zoneId === z.id);
+            const gap = 10;
+            const areas: Record<string, { x: number; y: number; w: number; h: number; suffix?: string }[]> = {
+              "zone-a": [
+                { x: 25 + gap, y: 160 + gap, w: 301 - gap * 2, h: 228 - gap * 2, suffix: "South" },
+                { x: 195, y: 22 + gap, w: 131 - gap, h: 138 - gap * 2, suffix: "East" },
+              ],
+              "zone-b": [{ x: 338 + gap, y: 22 + gap, w: 300 - gap * 2, h: 368 - gap * 2 }],
+              "zone-c": [{ x: 25 + gap, y: 402 + gap, w: 301 - gap * 2, h: 160 - gap * 2 }],
+              "zone-d": [{ x: 338 + gap, y: 402 + gap, w: 300 - gap * 2, h: 368 - gap * 2 }],
+            };
+            const zoneAreas = areas[z.id] ?? [{ x: z.x + gap, y: z.y + gap, w: z.w - gap * 2, h: z.h - gap * 2 }];
+            return zoneAreas.map((area, idx) => {
+              const cardX = area.x;
+              const cardY = area.y;
+              const cardW = area.w;
+              const cardH = area.h;
+              const cx = cardX + cardW / 2;
+              const cy = cardY + cardH / 2;
+              const iconS = 14;
+              const iconX = cx - iconS / 2;
+              const iconY = cy - 24;
+              const label = area.suffix ? `${z.label} — Orchard (${area.suffix})` : `${z.label} — Orchard`;
+              return (
+                <a key={`orchard-${z.id}-${idx}`} href="/designer">
+                  <g className="cursor-pointer" opacity="0.96">
+                    <rect x={cardX + 1.5} y={cardY + 1.5} width={cardW} height={cardH} rx="4" fill="#000" opacity="0.06" />
+                    <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="4" fill="white" stroke={z.stroke} strokeWidth="1.2" strokeDasharray="4 2" />
+                    <rect x={iconX} y={iconY} width={iconS} height={iconS} rx="1.5" fill="none" stroke={z.stroke} strokeWidth="0.6" />
+                    <line x1={iconX + iconS / 3} y1={iconY} x2={iconX + iconS / 3} y2={iconY + iconS} stroke={z.stroke} strokeWidth="0.5" />
+                    <line x1={iconX + (iconS * 2) / 3} y1={iconY} x2={iconX + (iconS * 2) / 3} y2={iconY + iconS} stroke={z.stroke} strokeWidth="0.5" />
+                    <line x1={iconX} y1={iconY + iconS / 3} x2={iconX + iconS} y2={iconY + iconS / 3} stroke={z.stroke} strokeWidth="0.5" />
+                    <line x1={iconX} y1={iconY + (iconS * 2) / 3} x2={iconX + iconS} y2={iconY + (iconS * 2) / 3} stroke={z.stroke} strokeWidth="0.5" />
+                    <text x={cx} y={cy - 4} textAnchor="middle" fontSize="7" fontWeight="700" fill={z.stroke}>
+                      {label}
+                    </text>
+                    <text x={cx} y={cy + 6} textAnchor="middle" fontSize="5" fill="#666">
+                      {strategy?.palekarModel ?? "—"}
+                    </text>
+                    <text x={cx} y={cy + 14} textAnchor="middle" fontSize="4.5" fontFamily="monospace" fill="#999">
+                      {z.w}×{z.h} ft — ~{z.areaAcres} acres
+                    </text>
+                    <text x={cx} y={cy + 24} textAnchor="middle" fontSize="5.5" fontWeight="600" fill={z.stroke}>
+                      Open in Farm Designer →
+                    </text>
+                  </g>
+                </a>
+              );
+            });
+          })}
+
         {/* ── Infrastructure ── */}
         {INFRASTRUCTURE.map((item) => {
           const isSelected = selectedInfra === item.id;
@@ -285,7 +545,10 @@ function MasterPlanSVG({
           return (
             <g key={item.id}>
               <rect
-                x={item.x} y={item.y} width={item.w} height={item.h}
+                x={item.x}
+                y={item.y}
+                width={item.w}
+                height={item.h}
                 fill={item.color}
                 stroke={isSelected ? "#2563EB" : item.stroke}
                 strokeWidth={isSelected ? "2" : "0.8"}
@@ -297,9 +560,16 @@ function MasterPlanSVG({
               />
               {isSelected && (
                 <rect
-                  x={item.x - 2} y={item.y - 2}
-                  width={item.w + 4} height={item.h + 4}
-                  fill="none" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" rx="2" opacity="0.6"
+                  x={item.x - 2}
+                  y={item.y - 2}
+                  width={item.w + 4}
+                  height={item.h + 4}
+                  fill="none"
+                  stroke="#2563EB"
+                  strokeWidth="1"
+                  strokeDasharray="3 2"
+                  rx="2"
+                  opacity="0.6"
                 />
               )}
               {hasIcon ? (
@@ -318,7 +588,7 @@ function MasterPlanSVG({
                   x={item.x + item.w / 2}
                   y={item.y + item.h / 2 + 2}
                   textAnchor="middle"
-                  fontSize={Math.min(item.w / item.label.length * 1.5, 5.5)}
+                  fontSize={Math.min((item.w / item.label.length) * 1.5, 5.5)}
                   fontWeight="600"
                   fill="#333"
                   className="pointer-events-none"
@@ -334,13 +604,27 @@ function MasterPlanSVG({
         {WATER_FEATURES.map((w) => (
           <g key={w.id}>
             <rect
-              x={w.x} y={w.y} width={w.w} height={w.h}
-              fill={w.color} stroke={w.stroke} strokeWidth="0.8" rx="3" opacity="0.7"
+              x={w.x}
+              y={w.y}
+              width={w.w}
+              height={w.h}
+              fill={w.color}
+              stroke={w.stroke}
+              strokeWidth="0.8"
+              rx="3"
+              opacity="0.7"
               className="cursor-pointer"
               onMouseMove={(e) => handleHover(w, e)}
               onMouseLeave={() => setTooltip(null)}
             />
-            <rect x={w.x} y={w.y} width={w.w} height={w.h} fill="url(#waterPat)" rx="3" />
+            <rect
+              x={w.x}
+              y={w.y}
+              width={w.w}
+              height={w.h}
+              fill="url(#waterPat)"
+              rx="3"
+            />
             <text
               x={w.x + w.w / 2}
               y={w.y + w.h / 2 + 2}
@@ -361,7 +645,10 @@ function MasterPlanSVG({
             return (
               <g key={a.id}>
                 <rect
-                  x={a.x} y={a.y} width={a.w} height={a.h}
+                  x={a.x}
+                  y={a.y}
+                  width={a.w}
+                  height={a.h}
                   fill={a.color}
                   stroke={isSelected ? "#2563EB" : a.stroke}
                   strokeWidth={isSelected ? "2" : "0.8"}
@@ -373,16 +660,23 @@ function MasterPlanSVG({
                 />
                 {isSelected && (
                   <rect
-                    x={a.x - 2} y={a.y - 2}
-                    width={a.w + 4} height={a.h + 4}
-                    fill="none" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" rx="2" opacity="0.6"
+                    x={a.x - 2}
+                    y={a.y - 2}
+                    width={a.w + 4}
+                    height={a.h + 4}
+                    fill="none"
+                    stroke="#2563EB"
+                    strokeWidth="1"
+                    strokeDasharray="3 2"
+                    rx="2"
+                    opacity="0.6"
                   />
                 )}
                 <text
                   x={a.x + a.w / 2}
                   y={a.y + a.h / 2 + 2}
                   textAnchor="middle"
-                  fontSize={Math.min(a.w / a.label.length * 1.5, 5.5)}
+                  fontSize={Math.min((a.w / a.label.length) * 1.5, 5.5)}
                   fontWeight="600"
                   fill="#333"
                   className="pointer-events-none"
@@ -395,31 +689,80 @@ function MasterPlanSVG({
 
         {/* ── Coconut Trees on Roads ── */}
         {coconutTrees.map((t, i) => (
-          <circle key={i} cx={t.x} cy={t.y} r="1.8" fill="#8B6914" opacity="0.55" />
+          <circle
+            key={i}
+            cx={t.x}
+            cy={t.y}
+            r="1.8"
+            fill="#8B6914"
+            opacity="0.55"
+          />
         ))}
 
         {/* ── Gate / Entrance Markers ── */}
         {GATES.map((g) => {
           const sz = 2.5;
-          let x1: number, y1: number, x2: number, y2: number, tx: number, ty: number;
+          let x1: number,
+            y1: number,
+            x2: number,
+            y2: number,
+            tx: number,
+            ty: number;
           if (g.direction === "east") {
-            x1 = g.x; y1 = g.y; x2 = g.x; y2 = g.y + g.h;
-            tx = g.x + sz + 1; ty = g.y + g.h / 2;
+            x1 = g.x;
+            y1 = g.y;
+            x2 = g.x;
+            y2 = g.y + g.h;
+            tx = g.x + sz + 1;
+            ty = g.y + g.h / 2;
           } else if (g.direction === "west") {
-            x1 = g.x + g.w; y1 = g.y; x2 = g.x + g.w; y2 = g.y + g.h;
-            tx = g.x - 1; ty = g.y + g.h / 2;
+            x1 = g.x + g.w;
+            y1 = g.y;
+            x2 = g.x + g.w;
+            y2 = g.y + g.h;
+            tx = g.x - 1;
+            ty = g.y + g.h / 2;
           } else if (g.direction === "south") {
-            x1 = g.x; y1 = g.y; x2 = g.x + g.w; y2 = g.y;
-            tx = g.x + g.w / 2; ty = g.y + sz + 2;
+            x1 = g.x;
+            y1 = g.y;
+            x2 = g.x + g.w;
+            y2 = g.y;
+            tx = g.x + g.w / 2;
+            ty = g.y + sz + 2;
           } else {
-            x1 = g.x; y1 = g.y + g.h; x2 = g.x + g.w; y2 = g.y + g.h;
-            tx = g.x + g.w / 2; ty = g.y - 1;
+            x1 = g.x;
+            y1 = g.y + g.h;
+            x2 = g.x + g.w;
+            y2 = g.y + g.h;
+            tx = g.x + g.w / 2;
+            ty = g.y - 1;
           }
           return (
             <g key={g.id}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
-              <text x={tx} y={ty} textAnchor="middle" fontSize="4" fill="#E65100" dominantBaseline="central">
-                {g.direction === "east" ? "▸" : g.direction === "west" ? "◂" : g.direction === "south" ? "▾" : "▴"}
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="#E65100"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <text
+                x={tx}
+                y={ty}
+                textAnchor="middle"
+                fontSize="4"
+                fill="#E65100"
+                dominantBaseline="central"
+              >
+                {g.direction === "east"
+                  ? "▸"
+                  : g.direction === "west"
+                    ? "◂"
+                    : g.direction === "south"
+                      ? "▾"
+                      : "▴"}
               </text>
             </g>
           );
@@ -427,75 +770,239 @@ function MasterPlanSVG({
 
         {/* ── Gate Marker ── */}
         <g>
-          <rect x={GATE.x - 1} y={GATE.y - 4} width="16" height="8" fill="#F57C00" rx="1" opacity="0.9" />
-          <text x={GATE.x + 7} y={GATE.y + 1} textAnchor="middle" fontSize="4.5" fontWeight="700" fill="white">
+          <rect
+            x={GATE.x - 1}
+            y={GATE.y - 4}
+            width="16"
+            height="8"
+            fill="#F57C00"
+            rx="1"
+            opacity="0.9"
+          />
+          <text
+            x={GATE.x + 7}
+            y={GATE.y + 1}
+            textAnchor="middle"
+            fontSize="4.5"
+            fontWeight="700"
+            fill="white"
+          >
             GATE
           </text>
           {/* Gate opening indicator */}
-          <line x1={GATE.x + 2} y1={0} x2={GATE.x + 12} y2={0} stroke="#F57C00" strokeWidth="2.5" />
+          <line
+            x1={GATE.x + 2}
+            y1={0}
+            x2={GATE.x + 12}
+            y2={0}
+            stroke="#F57C00"
+            strokeWidth="2.5"
+          />
+        </g>
+
+        {/* ── NW Hub Shared Road (10ft with 2ft/3ft gaps) ── */}
+        <g>
+          <rect
+            x={NW_HUB_ROAD.x}
+            y={NW_HUB_ROAD.y}
+            width={NW_HUB_ROAD.w}
+            height={NW_HUB_ROAD.h}
+            fill={NW_HUB_ROAD.color}
+            opacity="0.55"
+          />
+          <rect
+            x={NW_HUB_ROAD.x}
+            y={NW_HUB_ROAD.y}
+            width={NW_HUB_ROAD.w}
+            height={NW_HUB_ROAD.h}
+            fill="transparent"
+            stroke={NW_HUB_ROAD.stroke}
+            strokeWidth="0.4"
+            className="cursor-pointer"
+            onMouseMove={(e) => handleHover(NW_HUB_ROAD, e)}
+            onMouseLeave={() => setTooltip(null)}
+          />
+          <line
+            x1={NW_HUB_ROAD.x + 3}
+            y1={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
+            x2={NW_HUB_ROAD.x + NW_HUB_ROAD.w - 3}
+            y2={NW_HUB_ROAD.y + NW_HUB_ROAD.h / 2}
+            stroke="#fff"
+            strokeWidth="0.5"
+            strokeDasharray="3 2"
+            opacity="0.45"
+          />
+        </g>
+
+        {/* ── NW Hub Nursery Road (10ft between Cattle and Nursery rows) ── */}
+        <g>
+          <rect
+            x={NW_HUB_NURSERY_ROAD.x}
+            y={NW_HUB_NURSERY_ROAD.y}
+            width={NW_HUB_NURSERY_ROAD.w}
+            height={NW_HUB_NURSERY_ROAD.h}
+            fill={NW_HUB_NURSERY_ROAD.color}
+            opacity="0.55"
+          />
+          <rect
+            x={NW_HUB_NURSERY_ROAD.x}
+            y={NW_HUB_NURSERY_ROAD.y}
+            width={NW_HUB_NURSERY_ROAD.w}
+            height={NW_HUB_NURSERY_ROAD.h}
+            fill="transparent"
+            stroke={NW_HUB_NURSERY_ROAD.stroke}
+            strokeWidth="0.4"
+            className="cursor-pointer"
+            onMouseMove={(e) => handleHover(NW_HUB_NURSERY_ROAD, e)}
+            onMouseLeave={() => setTooltip(null)}
+          />
+          <line
+            x1={NW_HUB_NURSERY_ROAD.x + 3}
+            y1={NW_HUB_NURSERY_ROAD.y + NW_HUB_NURSERY_ROAD.h / 2}
+            x2={NW_HUB_NURSERY_ROAD.x + NW_HUB_NURSERY_ROAD.w - 3}
+            y2={NW_HUB_NURSERY_ROAD.y + NW_HUB_NURSERY_ROAD.h / 2}
+            stroke="#fff"
+            strokeWidth="0.5"
+            strokeDasharray="3 2"
+            opacity="0.45"
+          />
         </g>
 
         {/* ── SW Hub Shared Road ── */}
         <g>
           <rect
-            x={SW_HUB_ROAD.x} y={SW_HUB_ROAD.y}
-            width={SW_HUB_ROAD.w} height={SW_HUB_ROAD.h}
-            fill={SW_HUB_ROAD.color} opacity="0.55"
+            x={SW_HUB_ROAD.x}
+            y={SW_HUB_ROAD.y}
+            width={SW_HUB_ROAD.w}
+            height={SW_HUB_ROAD.h}
+            fill={SW_HUB_ROAD.color}
+            opacity="0.55"
           />
           <rect
-            x={SW_HUB_ROAD.x} y={SW_HUB_ROAD.y}
-            width={SW_HUB_ROAD.w} height={SW_HUB_ROAD.h}
-            fill="transparent" stroke={SW_HUB_ROAD.stroke} strokeWidth="0.4"
+            x={SW_HUB_ROAD.x}
+            y={SW_HUB_ROAD.y}
+            width={SW_HUB_ROAD.w}
+            height={SW_HUB_ROAD.h}
+            fill="transparent"
+            stroke={SW_HUB_ROAD.stroke}
+            strokeWidth="0.4"
             className="cursor-pointer"
             onMouseMove={(e) => handleHover(SW_HUB_ROAD, e)}
             onMouseLeave={() => setTooltip(null)}
           />
           <line
-            x1={SW_HUB_ROAD.x + 3} y1={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
-            x2={SW_HUB_ROAD.x + SW_HUB_ROAD.w - 3} y2={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
-            stroke="#fff" strokeWidth="0.5" strokeDasharray="3 2" opacity="0.45"
+            x1={SW_HUB_ROAD.x + 3}
+            y1={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
+            x2={SW_HUB_ROAD.x + SW_HUB_ROAD.w - 3}
+            y2={SW_HUB_ROAD.y + SW_HUB_ROAD.h / 2}
+            stroke="#fff"
+            strokeWidth="0.5"
+            strokeDasharray="3 2"
+            opacity="0.45"
+          />
+        </g>
+
+        {/* ── SW Hub Processing Road (10ft between Kitchen Garden and Processing) ── */}
+        <g>
+          <rect
+            x={SW_HUB_PROCESSING_ROAD.x}
+            y={SW_HUB_PROCESSING_ROAD.y}
+            width={SW_HUB_PROCESSING_ROAD.w}
+            height={SW_HUB_PROCESSING_ROAD.h}
+            fill={SW_HUB_PROCESSING_ROAD.color}
+            opacity="0.55"
+          />
+          <rect
+            x={SW_HUB_PROCESSING_ROAD.x}
+            y={SW_HUB_PROCESSING_ROAD.y}
+            width={SW_HUB_PROCESSING_ROAD.w}
+            height={SW_HUB_PROCESSING_ROAD.h}
+            fill="transparent"
+            stroke={SW_HUB_PROCESSING_ROAD.stroke}
+            strokeWidth="0.4"
+            className="cursor-pointer"
+            onMouseMove={(e) => handleHover(SW_HUB_PROCESSING_ROAD, e)}
+            onMouseLeave={() => setTooltip(null)}
+          />
+          <line
+            x1={SW_HUB_PROCESSING_ROAD.x + 3}
+            y1={SW_HUB_PROCESSING_ROAD.y + SW_HUB_PROCESSING_ROAD.h / 2}
+            x2={SW_HUB_PROCESSING_ROAD.x + SW_HUB_PROCESSING_ROAD.w - 3}
+            y2={SW_HUB_PROCESSING_ROAD.y + SW_HUB_PROCESSING_ROAD.h / 2}
+            stroke="#fff"
+            strokeWidth="0.5"
+            strokeDasharray="3 2"
+            opacity="0.45"
           />
         </g>
 
         {/* ── Wash Bay Grey Water Drain (subtle dashed line + plant dots) ── */}
         <g>
           <line
-            x1={116} y1={46} x2={145} y2={46}
-            stroke="#0288D1" strokeWidth="0.8" strokeDasharray="2 1.5" opacity="0.5"
+            x1={116}
+            y1={46}
+            x2={145}
+            y2={46}
+            stroke="#0288D1"
+            strokeWidth="0.8"
+            strokeDasharray="2 1.5"
+            opacity="0.5"
           />
           <circle cx={130} cy={46} r="2" fill="#66BB6A" opacity="0.45" />
           <circle cx={140} cy={46} r="2" fill="#66BB6A" opacity="0.45" />
-          <polygon points="145,44.8 147.5,46 145,47.2" fill="#0288D1" opacity="0.4" />
+          <polygon
+            points="145,44.8 147.5,46 145,47.2"
+            fill="#0288D1"
+            opacity="0.4"
+          />
         </g>
 
         {/* ── Cycle Tour Routes (toggleable — legend explains colors) ── */}
-        {showCycleTour && CYCLE_TOUR_ROUTES.map((route) => {
-          const d = route.points
-            .map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`)
-            .join(" ");
-          return (
-            <path
-              key={route.id}
-              d={d}
-              fill="none"
-              stroke={route.color}
-              strokeWidth="2.5"
-              strokeDasharray="6 3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.55"
-            />
-          );
-        })}
+        {showCycleTour &&
+          CYCLE_TOUR_ROUTES.map((route) => {
+            const d = route.points
+              .map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`)
+              .join(" ");
+            return (
+              <path
+                key={route.id}
+                d={d}
+                fill="none"
+                stroke={route.color}
+                strokeWidth="2.5"
+                strokeDasharray="6 3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.55"
+              />
+            );
+          })}
 
         {/* ── Slope Indicator Arrow (no text — tooltip on hover covers it) ── */}
         <g>
-          <line x1="120" y1="-22" x2="540" y2="-22" stroke="#EF5350" strokeWidth="1.2" markerEnd="url(#arrowHead)" strokeDasharray="4 2" opacity="0.6" />
+          <line
+            x1="120"
+            y1="-22"
+            x2="540"
+            y2="-22"
+            stroke="#EF5350"
+            strokeWidth="1.2"
+            markerEnd="url(#arrowHead)"
+            strokeDasharray="4 2"
+            opacity="0.6"
+          />
         </g>
 
         {/* ── North Arrow / Compass ── */}
         <g transform="translate(625, -38)">
-          <circle cx="0" cy="0" r="12" fill="white" stroke="#455A64" strokeWidth="0.8" />
+          <circle
+            cx="0"
+            cy="0"
+            r="12"
+            fill="white"
+            stroke="#455A64"
+            strokeWidth="0.8"
+          />
           {/* North arrow (red) */}
           <polygon points="0,-8 2.5,1 -2.5,1" fill="#D32F2F" />
           {/* South arrow (dark) */}
@@ -503,25 +1010,80 @@ function MasterPlanSVG({
           {/* Center dot */}
           <circle cx="0" cy="0" r="1.2" fill="#455A64" />
           {/* Labels */}
-          <text x="0" y="-14" textAnchor="middle" fontSize="5" fontWeight="700" fill="#D32F2F">N</text>
-          <text x="0" y="18" textAnchor="middle" fontSize="4" fontWeight="600" fill="#78909C">S</text>
+          <text
+            x="0"
+            y="-14"
+            textAnchor="middle"
+            fontSize="5"
+            fontWeight="700"
+            fill="#D32F2F"
+          >
+            N
+          </text>
+          <text
+            x="0"
+            y="18"
+            textAnchor="middle"
+            fontSize="4"
+            fontWeight="600"
+            fill="#78909C"
+          >
+            S
+          </text>
         </g>
 
         {/* ── Dimension Labels (outside the farm) ── */}
         {/* Top: Width */}
-        <line x1="0" y1="-12" x2="660" y2="-12" stroke="#666" strokeWidth="0.5" />
+        <line
+          x1="0"
+          y1="-12"
+          x2="660"
+          y2="-12"
+          stroke="#666"
+          strokeWidth="0.5"
+        />
         <line x1="0" y1="-16" x2="0" y2="-8" stroke="#666" strokeWidth="0.5" />
-        <line x1="660" y1="-16" x2="660" y2="-8" stroke="#666" strokeWidth="0.5" />
-        <text x="330" y="-15" textAnchor="middle" fontSize="7" fontFamily="monospace" fill="#555" fontWeight="600">
+        <line
+          x1="660"
+          y1="-16"
+          x2="660"
+          y2="-8"
+          stroke="#666"
+          strokeWidth="0.5"
+        />
+        <text
+          x="330"
+          y="-15"
+          textAnchor="middle"
+          fontSize="7"
+          fontFamily="monospace"
+          fill="#555"
+          fontWeight="600"
+        >
           660 ft (W → E)
         </text>
 
         {/* Right: Height */}
-        <line x1="672" y1="0" x2="672" y2="792" stroke="#666" strokeWidth="0.5" />
+        <line
+          x1="672"
+          y1="0"
+          x2="672"
+          y2="792"
+          stroke="#666"
+          strokeWidth="0.5"
+        />
         <line x1="668" y1="0" x2="676" y2="0" stroke="#666" strokeWidth="0.5" />
-        <line x1="668" y1="792" x2="676" y2="792" stroke="#666" strokeWidth="0.5" />
+        <line
+          x1="668"
+          y1="792"
+          x2="676"
+          y2="792"
+          stroke="#666"
+          strokeWidth="0.5"
+        />
         <text
-          x="680" y="396"
+          x="680"
+          y="396"
           textAnchor="middle"
           fontSize="7"
           fontFamily="monospace"
@@ -538,16 +1100,38 @@ function MasterPlanSVG({
         <g transform="translate(10, 810)">
           <line x1="0" y1="0" x2="100" y2="0" stroke="#333" strokeWidth="1" />
           <line x1="0" y1="-3" x2="0" y2="3" stroke="#333" strokeWidth="0.8" />
-          <line x1="50" y1="-2" x2="50" y2="2" stroke="#333" strokeWidth="0.5" />
-          <line x1="100" y1="-3" x2="100" y2="3" stroke="#333" strokeWidth="0.8" />
-          <text x="0" y="9" fontSize="5" fill="#555">0</text>
-          <text x="50" y="9" fontSize="5" fill="#555" textAnchor="middle">50</text>
-          <text x="100" y="9" fontSize="5" fill="#555" textAnchor="middle">100 ft</text>
+          <line
+            x1="50"
+            y1="-2"
+            x2="50"
+            y2="2"
+            stroke="#333"
+            strokeWidth="0.5"
+          />
+          <line
+            x1="100"
+            y1="-3"
+            x2="100"
+            y2="3"
+            stroke="#333"
+            strokeWidth="0.8"
+          />
+          <text x="0" y="9" fontSize="5" fill="#555">
+            0
+          </text>
+          <text x="50" y="9" fontSize="5" fill="#555" textAnchor="middle">
+            50
+          </text>
+          <text x="100" y="9" fontSize="5" fill="#555" textAnchor="middle">
+            100 ft
+          </text>
         </g>
 
         {/* ── Legend ── */}
         <g transform="translate(350, 805)">
-          <text x="0" y="0" fontSize="5.5" fontWeight="700" fill="#333">Legend</text>
+          <text x="0" y="0" fontSize="5.5" fontWeight="700" fill="#333">
+            Legend
+          </text>
           {[
             { color: "#A5D6A7", label: "Buffer / Live Fence", dash: false },
             { color: "#B8B8D1", label: "Roads (15 ft / 12 ft)", dash: false },
@@ -556,19 +1140,51 @@ function MasterPlanSVG({
             { color: "#4FC3F7", label: "Water Features", dash: false },
             { color: "#FFCC80", label: "Infrastructure", dash: false },
             { color: "#E65100", label: "Gates / Entrances", dash: false },
-            ...(showCycleTour ? [
-              { color: "#4CAF50", label: "Quick Loop (~1 km)", dash: true },
-              { color: "#FF9800", label: "Perimeter (~0.9 km)", dash: true },
-              { color: "#9C27B0", label: "Grand Tour (~1.5 km)", dash: true },
-            ] : []),
+            ...(showCycleTour
+              ? [
+                  { color: "#4CAF50", label: "Quick Loop (~1 km)", dash: true },
+                  {
+                    color: "#FF9800",
+                    label: "Perimeter (~0.9 km)",
+                    dash: true,
+                  },
+                  {
+                    color: "#9C27B0",
+                    label: "Grand Tour (~1.5 km)",
+                    dash: true,
+                  },
+                ]
+              : []),
           ].map((item, i) => (
-            <g key={i} transform={`translate(${(i % 4) * 75}, ${Math.floor(i / 4) * 11 + 8})`}>
+            <g
+              key={i}
+              transform={`translate(${(i % 4) * 75}, ${Math.floor(i / 4) * 11 + 8})`}
+            >
               {item.dash ? (
-                <line x1="0" y1="-1" x2="6" y2="-1" stroke={item.color} strokeWidth="2" strokeDasharray="2 1" />
+                <line
+                  x1="0"
+                  y1="-1"
+                  x2="6"
+                  y2="-1"
+                  stroke={item.color}
+                  strokeWidth="2"
+                  strokeDasharray="2 1"
+                />
               ) : (
-                <rect x="0" y="-4" width="6" height="6" fill={item.color} rx="1" stroke="#999" strokeWidth="0.3" />
+                <rect
+                  x="0"
+                  y="-4"
+                  width="6"
+                  height="6"
+                  fill={item.color}
+                  rx="1"
+                  stroke="#999"
+                  strokeWidth="0.3"
+                />
               )}
-              <text x="9" y="1" fontSize="4.5" fill="#555">{item.label}</text>
+              <text x="9" y="1" fontSize="4.5" fill="#555">
+                {item.label}
+              </text>
             </g>
           ))}
         </g>
@@ -593,7 +1209,9 @@ function MasterPlanSVG({
               fill="white"
               fontWeight="500"
             >
-              {tooltip.text.length > 55 ? tooltip.text.slice(0, 55) + "…" : tooltip.text}
+              {tooltip.text.length > 55
+                ? tooltip.text.slice(0, 55) + "…"
+                : tooltip.text}
             </text>
           </g>
         )}
@@ -623,7 +1241,10 @@ function StatCard({
       <CardContent className="flex items-center gap-3 pt-0">
         <div
           className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${accent ?? "#4CAF50"}18`, color: accent ?? "#4CAF50" }}
+          style={{
+            backgroundColor: `${accent ?? "#4CAF50"}18`,
+            color: accent ?? "#4CAF50",
+          }}
         >
           <Icon className="size-4" />
         </div>
@@ -654,7 +1275,8 @@ function AreaBreakdownSection() {
           Area Utilization Breakdown
         </CardTitle>
         <CardDescription className="text-xs">
-          Total {FARM.acres} acres ({total.toLocaleString("en-IN")} sq ft) — {FARM.width} × {FARM.height} ft
+          Total {FARM.acres} acres ({total.toLocaleString("en-IN")} sq ft) —{" "}
+          {FARM.width} × {FARM.height} ft
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -674,10 +1296,18 @@ function AreaBreakdownSection() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
-                <th className="py-1.5 font-medium text-muted-foreground text-xs">Component</th>
-                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">Sq Ft</th>
-                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">Acres</th>
-                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">%</th>
+                <th className="py-1.5 font-medium text-muted-foreground text-xs">
+                  Component
+                </th>
+                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">
+                  Sq Ft
+                </th>
+                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">
+                  Acres
+                </th>
+                <th className="py-1.5 text-right font-medium text-muted-foreground text-xs">
+                  %
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -685,15 +1315,22 @@ function AreaBreakdownSection() {
                 <tr key={item.label} className="border-b border-border/40">
                   <td className="py-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="size-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <span
+                        className="size-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
                       <span className="text-xs">{item.label}</span>
                     </div>
                   </td>
                   <td className="py-1.5 text-right font-mono text-xs tabular-nums">
                     {item.sqFt.toLocaleString("en-IN")}
                   </td>
-                  <td className="py-1.5 text-right font-mono text-xs tabular-nums">{item.acres}</td>
-                  <td className="py-1.5 text-right font-mono text-xs tabular-nums">{item.percent}%</td>
+                  <td className="py-1.5 text-right font-mono text-xs tabular-nums">
+                    {item.acres}
+                  </td>
+                  <td className="py-1.5 text-right font-mono text-xs tabular-nums">
+                    {item.percent}%
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -716,13 +1353,21 @@ function ZoneStrategySection() {
           <Card key={zone.id} className="gap-2">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <span className="size-3.5 rounded-full shrink-0" style={{ backgroundColor: zone.stroke }} />
+                <span
+                  className="size-3.5 rounded-full shrink-0"
+                  style={{ backgroundColor: zone.stroke }}
+                />
                 <CardTitle className="text-sm">{zone.label}</CardTitle>
-                <Badge variant="outline" className="text-[10px] font-mono ml-auto">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] font-mono ml-auto"
+                >
                   ~{zone.areaAcres} acres
                 </Badge>
               </div>
-              <CardDescription className="text-xs">{zone.strategy}</CardDescription>
+              <CardDescription className="text-xs">
+                {zone.strategy}
+              </CardDescription>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
               <p className="text-xs text-muted-foreground">{zone.details}</p>
@@ -730,32 +1375,53 @@ function ZoneStrategySection() {
                 <>
                   <div className="text-xs">
                     <span className="font-medium">Palekar Model:</span>{" "}
-                    <Badge variant="secondary" className="text-[10px]">{strategy.palekarModel}</Badge>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {strategy.palekarModel}
+                    </Badge>
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-[11px] font-medium">Row Plan:</p>
                     {strategy.rowPlan.map((row, i) => (
-                      <p key={i} className="text-[10px] text-muted-foreground pl-2">• {row}</p>
+                      <p
+                        key={i}
+                        className="text-[10px] text-muted-foreground pl-2"
+                      >
+                        • {row}
+                      </p>
                     ))}
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    <p className="text-[11px] font-medium w-full">Intercrops:</p>
+                    <p className="text-[11px] font-medium w-full">
+                      Intercrops:
+                    </p>
                     {strategy.intercrops.map((ic) => (
-                      <Badge key={ic} variant="outline" className="text-[9px] px-1.5 py-0">{ic}</Badge>
+                      <Badge
+                        key={ic}
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0"
+                      >
+                        {ic}
+                      </Badge>
                     ))}
                   </div>
                   <div className="grid grid-cols-3 gap-1.5 text-[10px] mt-1">
                     <div className="rounded bg-muted/50 px-1.5 py-1">
                       <p className="text-muted-foreground">Yr 1</p>
-                      <p className="font-mono font-semibold text-green-600">{strategy.expectedIncome.year1}</p>
+                      <p className="font-mono font-semibold text-green-600">
+                        {strategy.expectedIncome.year1}
+                      </p>
                     </div>
                     <div className="rounded bg-muted/50 px-1.5 py-1">
                       <p className="text-muted-foreground">Yr 5</p>
-                      <p className="font-mono font-semibold text-green-600">{strategy.expectedIncome.year5}</p>
+                      <p className="font-mono font-semibold text-green-600">
+                        {strategy.expectedIncome.year5}
+                      </p>
                     </div>
                     <div className="rounded bg-muted/50 px-1.5 py-1">
                       <p className="text-muted-foreground">Yr 10</p>
-                      <p className="font-mono font-semibold text-green-600">{strategy.expectedIncome.year10}</p>
+                      <p className="font-mono font-semibold text-green-600">
+                        {strategy.expectedIncome.year10}
+                      </p>
                     </div>
                   </div>
                 </>
@@ -788,19 +1454,33 @@ function InfraSection() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b text-left">
-                <th className="py-1.5 pr-2 font-medium text-muted-foreground">Structure</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground">Size</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground">Purpose</th>
-                <th className="py-1.5 pl-2 font-medium text-muted-foreground hidden md:table-cell">Construction</th>
+                <th className="py-1.5 pr-2 font-medium text-muted-foreground">
+                  Structure
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground">
+                  Size
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground">
+                  Purpose
+                </th>
+                <th className="py-1.5 pl-2 font-medium text-muted-foreground hidden md:table-cell">
+                  Construction
+                </th>
               </tr>
             </thead>
             <tbody>
               {INFRA_RECOMMENDATIONS.map((item) => (
                 <tr key={item.name} className="border-b border-border/40">
                   <td className="py-1.5 pr-2 font-medium">{item.name}</td>
-                  <td className="py-1.5 px-2 font-mono tabular-nums whitespace-nowrap">{item.recommendedSize}</td>
-                  <td className="py-1.5 px-2 text-muted-foreground">{item.purpose}</td>
-                  <td className="py-1.5 pl-2 text-muted-foreground hidden md:table-cell">{item.construction}</td>
+                  <td className="py-1.5 px-2 font-mono tabular-nums whitespace-nowrap">
+                    {item.recommendedSize}
+                  </td>
+                  <td className="py-1.5 px-2 text-muted-foreground">
+                    {item.purpose}
+                  </td>
+                  <td className="py-1.5 pl-2 text-muted-foreground hidden md:table-cell">
+                    {item.construction}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -814,44 +1494,135 @@ function InfraSection() {
 // ================================================================
 // Live Fence Section
 // ================================================================
-function LiveFenceSection() {
+function LiveFenceSection({
+  onViewCrossSection,
+}: {
+  onViewCrossSection?: () => void;
+}) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Shield className="size-4 text-primary" />
-          Live Fence Boundary (7 ft Buffer Zone)
-        </CardTitle>
-        <CardDescription className="text-xs">
-          Multi-layer biological fence — wind protection, income, and biodiversity
-        </CardDescription>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Shield className="size-4 text-primary" />
+              Live Fence Boundary (7 ft Buffer Zone)
+            </CardTitle>
+            <CardDescription className="text-xs mt-1">
+              Multi-layer biological fence — wind protection, income, and
+              biodiversity
+            </CardDescription>
+          </div>
+          {onViewCrossSection && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs shrink-0"
+              onClick={onViewCrossSection}
+            >
+              <Layers className="size-3.5" />
+              View Cross-Section
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
+        {/* Trench & Berm summary */}
+        <div className="rounded-lg border border-dashed border-green-300 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-3 mb-3 space-y-1.5">
+          <p className="text-xs font-semibold text-green-800 dark:text-green-300 flex items-center gap-1.5">
+            <Shield className="size-3" />
+            Trench &amp; Berm System (per side)
+          </p>
+          <div className="flex flex-wrap gap-2 text-[10px]">
+            <Badge variant="secondary" className="font-mono">
+              1 ft outer gap
+            </Badge>
+            <span className="text-muted-foreground">+</span>
+            <Badge variant="secondary" className="font-mono">
+              3 ft trench (3 ft deep)
+            </Badge>
+            <span className="text-muted-foreground">+</span>
+            <Badge variant="secondary" className="font-mono">
+              3 ft raised bed
+            </Badge>
+            <span className="text-muted-foreground">+</span>
+            <Badge variant="secondary" className="font-mono">
+              1 ft dense plants @1.5 ft
+            </Badge>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            Total ~8 ft boundary zone with ~6 ft effective barrier (3 ft below +
+            3 ft above ground).{" "}
+            {onViewCrossSection && (
+              <button
+                onClick={onViewCrossSection}
+                className="text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                View detailed cross-section diagram
+              </button>
+            )}
+          </p>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {LIVE_FENCE_LAYERS.map((layer) => (
             <div key={layer.id} className="rounded-lg border p-2.5 space-y-1">
               <div className="flex items-center gap-2">
-                <span className="size-3 rounded-full shrink-0" style={{ backgroundColor: layer.color }} />
+                <span
+                  className="size-3 rounded-full shrink-0"
+                  style={{ backgroundColor: layer.color }}
+                />
                 <span className="text-sm font-medium">{layer.name}</span>
-                <Badge variant="outline" className="text-[9px] ml-auto font-mono">{layer.symbol}</Badge>
+                <Badge
+                  variant="outline"
+                  className="text-[9px] ml-auto font-mono"
+                >
+                  {layer.symbol}
+                </Badge>
               </div>
-              <p className="text-[10px] text-muted-foreground italic">{layer.species}</p>
+              <p className="text-[10px] text-muted-foreground italic">
+                {layer.species}
+              </p>
               {layer.spacingFt > 0 && (
-                <p className="text-[10px] font-mono">Spacing: {layer.spacingFt} ft</p>
+                <p className="text-[10px] font-mono">
+                  Spacing: {layer.spacingFt} ft
+                </p>
               )}
-              <p className="text-[10px] text-muted-foreground">{layer.purpose}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {layer.purpose}
+              </p>
             </div>
           ))}
         </div>
         <Separator className="my-3" />
         <div className="text-xs text-muted-foreground space-y-1">
-          <p className="font-medium text-foreground">Fence Planting Order (outside → inside):</p>
-          <p>1. <strong>Outer row:</strong> Coconut (25ft) + Black Pepper climber on trunks</p>
-          <p>2. <strong>Second row:</strong> Teak (15ft) — timber asset + windbreak</p>
-          <p>3. <strong>Third row:</strong> Bamboo clusters at corners + every 50ft</p>
-          <p>4. <strong>Fourth row:</strong> Subabul/Gliricidia (6ft) — dense nitrogen-fixing hedge</p>
-          <p>5. <strong>Inner row:</strong> Moringa (10ft) + Bay Leaf (8ft) + Curry Leaf (5ft) alternating</p>
-          <p className="mt-2 italic">Ground cover: Pineapple, Lemongrass, Vetiver along fence base for soil binding</p>
+          <p className="font-medium text-foreground">
+            Fence Planting Order (outside → inside):
+          </p>
+          <p>
+            1. <strong>Outer row:</strong> Coconut (25ft) + Black Pepper climber
+            on trunks
+          </p>
+          <p>
+            2. <strong>Second row:</strong> Teak (15ft) — timber asset +
+            windbreak
+          </p>
+          <p>
+            3. <strong>Third row:</strong> Bamboo clusters at corners + every
+            50ft
+          </p>
+          <p>
+            4. <strong>Fourth row:</strong> Subabul/Gliricidia (6ft) — dense
+            nitrogen-fixing hedge
+          </p>
+          <p>
+            5. <strong>Inner row:</strong> Moringa (10ft) + Bay Leaf (8ft) +
+            Curry Leaf (5ft) alternating
+          </p>
+          <p className="mt-2 italic">
+            Ground cover: Pineapple, Lemongrass, Vetiver along fence base for
+            soil binding
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -877,7 +1648,10 @@ function FlowerSection() {
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
           {FLOWER_SPECIES.map((f) => (
             <div key={f.name} className="flex items-center gap-1.5 text-xs">
-              <span className="size-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
+              <span
+                className="size-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: f.color }}
+              />
               <div>
                 <p className="font-medium text-[11px]">{f.name}</p>
                 <p className="text-[9px] text-muted-foreground">{f.season}</p>
@@ -910,30 +1684,56 @@ function AddonsSection() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b text-left">
-                <th className="py-1.5 pr-2 font-medium text-muted-foreground">Add-on</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground">Size</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground hidden sm:table-cell">Location</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground">Benefit</th>
-                <th className="py-1.5 px-2 font-medium text-muted-foreground text-center">Priority</th>
-                <th className="py-1.5 pl-2 font-medium text-muted-foreground text-right">Est. Cost</th>
+                <th className="py-1.5 pr-2 font-medium text-muted-foreground">
+                  Add-on
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground">
+                  Size
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground hidden sm:table-cell">
+                  Location
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground">
+                  Benefit
+                </th>
+                <th className="py-1.5 px-2 font-medium text-muted-foreground text-center">
+                  Priority
+                </th>
+                <th className="py-1.5 pl-2 font-medium text-muted-foreground text-right">
+                  Est. Cost
+                </th>
               </tr>
             </thead>
             <tbody>
               {ADDON_RECOMMENDATIONS.map((item) => (
                 <tr key={item.name} className="border-b border-border/40">
                   <td className="py-1.5 pr-2 font-medium">{item.name}</td>
-                  <td className="py-1.5 px-2 font-mono tabular-nums whitespace-nowrap">{item.size}</td>
-                  <td className="py-1.5 px-2 text-muted-foreground hidden sm:table-cell">{item.location}</td>
-                  <td className="py-1.5 px-2 text-muted-foreground">{item.benefit}</td>
+                  <td className="py-1.5 px-2 font-mono tabular-nums whitespace-nowrap">
+                    {item.size}
+                  </td>
+                  <td className="py-1.5 px-2 text-muted-foreground hidden sm:table-cell">
+                    {item.location}
+                  </td>
+                  <td className="py-1.5 px-2 text-muted-foreground">
+                    {item.benefit}
+                  </td>
                   <td className="py-1.5 px-2 text-center">
                     <Badge
-                      variant={item.priority === "High" ? "default" : item.priority === "Medium" ? "secondary" : "outline"}
+                      variant={
+                        item.priority === "High"
+                          ? "default"
+                          : item.priority === "Medium"
+                            ? "secondary"
+                            : "outline"
+                      }
                       className="text-[9px] px-1.5 py-0"
                     >
                       {item.priority}
                     </Badge>
                   </td>
-                  <td className="py-1.5 pl-2 text-right font-mono tabular-nums whitespace-nowrap">{item.estimatedCost}</td>
+                  <td className="py-1.5 pl-2 text-right font-mono tabular-nums whitespace-nowrap">
+                    {item.estimatedCost}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -975,22 +1775,58 @@ function SlopeSection() {
             <p className="font-semibold">{SLOPE_INFO.lowSide}</p>
           </div>
           <div className="rounded-md bg-muted/50 px-2.5 py-2 col-span-2">
-            <p className="text-muted-foreground text-[10px]">Drainage Strategy</p>
+            <p className="text-muted-foreground text-[10px]">
+              Drainage Strategy
+            </p>
             <p className="font-semibold">{SLOPE_INFO.drainageStrategy}</p>
           </div>
         </div>
         <Separator />
         <div className="space-y-1 text-muted-foreground">
-          <p className="font-medium text-foreground">Water Management Plan (Two-Bore + Swimming Pool System):</p>
-          <p>• <strong>Integrated Watch Tower</strong> (NE of SW Hub) — bore at base + 10,000L tank on 20ft platform + 360° observation deck. Best visibility of all zones.</p>
-          <p>• <strong>Swimming Pool</strong> (30×14 ft, ~9m lap length) east of tower — bore-fed, 3ft shallow → 5ft deep. Natural tree shed canopy (Jamun, Kadamba, Ashoka, Bakul — water-loving, evergreen, flowers Feb-Sep). Overflow east wall → straight trench into orchard. Zero water waste.</p>
-          <p>• <strong>Irrigation Bore Well</strong> at central intersection — reliable water table, solar pump pushes water UP to tower tank</p>
-          <p>• <strong>Gravity-Fed Irrigation</strong> — tank on 20ft tower (still in western high side) = strong gravity head, drip to all zones downhill</p>
-          <p>• <strong>Farm Pond (85×65 ft)</strong> at SE corner — collects runoff from all roads, near nala for overflow, fish culture</p>
-          <p>• <strong>Contour Trenches (3ft)</strong> run N-S between rows to slow E-ward water flow</p>
-          <p>• <strong>Percolation Pit (28×28 ft)</strong> on east side for groundwater recharge</p>
-          <p>• <strong>Rainwater Harvesting</strong> from all roads channeled via gentle gradient to pond</p>
-          <p>• <strong>Dense East Buffer</strong> — extra bamboo/vetiver along east nala for erosion control</p>
+          <p className="font-medium text-foreground">
+            Water Management Plan (Two-Bore + Swimming Pool System):
+          </p>
+          <p>
+            • <strong>Integrated Watch Tower</strong> (NE of SW Hub) — bore at
+            base + 10,000L tank on 20ft platform + 360° observation deck. Best
+            visibility of all zones.
+          </p>
+          <p>
+            • <strong>Swimming Pool</strong> (30×14 ft, ~9m lap length) east of
+            tower — bore-fed, 3ft shallow → 5ft deep. Natural tree shed canopy
+            (Jamun, Kadamba, Ashoka, Bakul — water-loving, evergreen, flowers
+            Feb-Sep). Overflow east wall → straight trench into orchard. Zero
+            water waste.
+          </p>
+          <p>
+            • <strong>Irrigation Bore Well</strong> at central intersection —
+            reliable water table, solar pump pushes water UP to tower tank
+          </p>
+          <p>
+            • <strong>Gravity-Fed Irrigation</strong> — tank on 20ft tower
+            (still in western high side) = strong gravity head, drip to all
+            zones downhill
+          </p>
+          <p>
+            • <strong>Farm Pond (85×65 ft)</strong> at SE corner — collects
+            runoff from all roads, near nala for overflow, fish culture
+          </p>
+          <p>
+            • <strong>Contour Trenches (3ft)</strong> run N-S between rows to
+            slow E-ward water flow
+          </p>
+          <p>
+            • <strong>Percolation Pit (28×28 ft)</strong> on east side for
+            groundwater recharge
+          </p>
+          <p>
+            • <strong>Rainwater Harvesting</strong> from all roads channeled via
+            gentle gradient to pond
+          </p>
+          <p>
+            • <strong>Dense East Buffer</strong> — extra bamboo/vetiver along
+            east nala for erosion control
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -1026,7 +1862,9 @@ function CoconutStats() {
           {[...PERIPHERAL_ROADS, ...INTERNAL_ROADS].map((road) => (
             <div key={road.id} className="rounded-md bg-muted/50 px-2.5 py-2">
               <p className="text-muted-foreground text-[10px]">{road.label}</p>
-              <p className="font-mono font-semibold">{byRoad.get(road.id) || 0} trees</p>
+              <p className="font-mono font-semibold">
+                {byRoad.get(road.id) || 0} trees
+              </p>
             </div>
           ))}
         </div>
@@ -1047,7 +1885,8 @@ function CycleTourSection() {
           Orchard Cycle Tour Routes
         </CardTitle>
         <CardDescription className="text-xs">
-          Pick up a cycle from the stand (east of parking) and ride the coconut avenues through all 4 zones
+          Pick up a cycle from the stand (east of parking) and ride the coconut
+          avenues through all 4 zones
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -1082,10 +1921,23 @@ function CycleTourSection() {
         <Separator />
         <div className="text-xs text-muted-foreground space-y-1">
           <p className="font-medium text-foreground">Ride Info</p>
-          <p>All routes start and end at the <strong>Cycle Stand</strong> (east of parking, NW Hub).</p>
-          <p>Roads are 12-15 ft wide with <strong>coconut avenues on both sides</strong> — shaded, scenic ride.</p>
-          <p>Cycles available: 6 adult, 3 child, 3 with front basket for fruit picking.</p>
-          <p>Toggle <strong>&quot;Show Cycle Tours&quot;</strong> button above the map to see routes overlaid on the layout.</p>
+          <p>
+            All routes start and end at the <strong>Cycle Stand</strong> (east
+            of parking, NW Hub).
+          </p>
+          <p>
+            Roads are 12-15 ft wide with{" "}
+            <strong>coconut avenues on both sides</strong> — shaded, scenic
+            ride.
+          </p>
+          <p>
+            Cycles available: 6 adult, 3 child, 3 with front basket for fruit
+            picking.
+          </p>
+          <p>
+            Toggle <strong>&quot;Show Cycle Tours&quot;</strong> button above
+            the map to see routes overlaid on the layout.
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -1098,8 +1950,11 @@ function CycleTourSection() {
 export function FarmMasterPlan() {
   const [showAddons, setShowAddons] = useState(true);
   const [showCycleTour, setShowCycleTour] = useState(false);
+  const [showOrchard, setShowOrchard] = useState(false);
   const [selectedInfra, setSelectedInfra] = useState<string | null>(null);
+  const [boundaryDetailOpen, setBoundaryDetailOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
+    orchard: true,
     cycleTour: true,
     zones: true,
     infra: true,
@@ -1138,6 +1993,15 @@ export function FarmMasterPlan() {
           >
             <Lightbulb className="size-3.5" />
             {showAddons ? "Hide" : "Show"} Add-ons
+          </Button>
+          <Button
+            variant={showOrchard ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() => setShowOrchard(!showOrchard)}
+          >
+            <Grid3X3 className="size-3.5" />
+            {showOrchard ? "Hide" : "Show"} Orchard
           </Button>
           <Button
             variant={showCycleTour ? "default" : "outline"}
@@ -1204,17 +2068,22 @@ export function FarmMasterPlan() {
         <div className="flex items-center gap-2 mb-3">
           <Compass className="size-4 text-primary" />
           <h2 className="text-lg font-semibold">Layout Plan</h2>
-          <Badge variant="outline" className="text-[10px] font-mono ml-2">1 unit = 1 ft</Badge>
+          <Badge variant="outline" className="text-[10px] font-mono ml-2">
+            1 unit = 1 ft
+          </Badge>
           <div className="flex items-center gap-1 ml-auto text-xs text-muted-foreground print:hidden">
             <Info className="size-3" />
-            Hover for details, click infrastructure for expanded view
+            Hover for details, click infrastructure or boundary for expanded
+            view
           </div>
         </div>
         <MasterPlanSVG
           showAddons={showAddons}
           showCycleTour={showCycleTour}
+          showOrchard={showOrchard}
           selectedInfra={selectedInfra}
           onInfraClick={(id) => setSelectedInfra(id)}
+          onBoundaryClick={() => setBoundaryDetailOpen(true)}
         />
       </section>
 
@@ -1226,16 +2095,121 @@ export function FarmMasterPlan() {
       <Separator />
 
       {/* ══════════════ Collapsible Sections ══════════════ */}
-      {([
-        { key: "cycleTour" as const, title: "Orchard Cycle Tour Routes", icon: Bike, component: CycleTourSection },
-        { key: "zones" as const, title: "Zone-wise Planting Strategy", icon: TreesIcon, component: ZoneStrategySection },
-        { key: "infra" as const, title: "Infrastructure Sizing Guide", icon: Home, component: InfraSection },
-        { key: "fence" as const, title: "Live Fence Boundary Details", icon: Shield, component: LiveFenceSection },
-        { key: "slope" as const, title: "Slope, Drainage & Water Management", icon: Droplets, component: SlopeSection },
-        { key: "flowers" as const, title: "Flower Panel Species", icon: Flower2, component: FlowerSection },
-        { key: "coconut" as const, title: "Coconut Avenue Statistics", icon: TreesIcon, component: CoconutStats },
-        { key: "addons" as const, title: "Recommended Add-ons", icon: Lightbulb, component: AddonsSection },
-      ]).map(({ key, title, icon: SectionIcon, component: Component }) => (
+      {[
+        {
+          key: "orchard" as const,
+          title: "Orchard Layout (per Zone)",
+          icon: Grid3X3,
+          render: () => (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {ZONES.map((zone) => {
+                const strategy = ZONE_STRATEGIES.find(
+                  (s) => s.zoneId === zone.id,
+                );
+                return (
+                  <Card
+                    key={zone.id}
+                    className="border-dashed border-2 gap-2"
+                    style={{ borderColor: zone.stroke }}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="size-3.5 rounded-full shrink-0"
+                          style={{ backgroundColor: zone.stroke }}
+                        />
+                        <CardTitle className="text-sm">
+                          {zone.label} — Orchard
+                        </CardTitle>
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-mono ml-auto"
+                        >
+                          {strategy?.palekarModel ?? "—"}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 space-y-3">
+                      <div className="rounded-lg bg-muted/40 border border-dashed p-4 text-center space-y-2">
+                        <Grid3X3
+                          className="size-8 mx-auto"
+                          style={{ color: zone.stroke }}
+                        />
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Orchard bed layout will be rendered here
+                        </p>
+                        <p className="text-[11px] text-muted-foreground/70">
+                          {zone.w}×{zone.h} ft available — ~{zone.areaAcres}{" "}
+                          acres
+                        </p>
+                      </div>
+                      <Link
+                        href="/designer"
+                        className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2 font-medium"
+                      >
+                        Open in Farm Designer
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ),
+        },
+        {
+          key: "cycleTour" as const,
+          title: "Orchard Cycle Tour Routes",
+          icon: Bike,
+          render: () => <CycleTourSection />,
+        },
+        {
+          key: "zones" as const,
+          title: "Zone-wise Planting Strategy",
+          icon: TreesIcon,
+          render: () => <ZoneStrategySection />,
+        },
+        {
+          key: "infra" as const,
+          title: "Infrastructure Sizing Guide",
+          icon: Home,
+          render: () => <InfraSection />,
+        },
+        {
+          key: "fence" as const,
+          title: "Live Fence Boundary Details",
+          icon: Shield,
+          render: () => (
+            <LiveFenceSection
+              onViewCrossSection={() => setBoundaryDetailOpen(true)}
+            />
+          ),
+        },
+        {
+          key: "slope" as const,
+          title: "Slope, Drainage & Water Management",
+          icon: Droplets,
+          render: () => <SlopeSection />,
+        },
+        {
+          key: "flowers" as const,
+          title: "Flower Panel Species",
+          icon: Flower2,
+          render: () => <FlowerSection />,
+        },
+        {
+          key: "coconut" as const,
+          title: "Coconut Avenue Statistics",
+          icon: TreesIcon,
+          render: () => <CoconutStats />,
+        },
+        {
+          key: "addons" as const,
+          title: "Recommended Add-ons",
+          icon: Lightbulb,
+          render: () => <AddonsSection />,
+        },
+      ].map(({ key, title, icon: SectionIcon, render }) => (
         <section key={key}>
           <button
             className="flex items-center gap-2 w-full text-left py-2 print:pointer-events-none"
@@ -1251,10 +2225,10 @@ export function FarmMasterPlan() {
               )}
             </span>
           </button>
-          {(expandedSections[key] || typeof window !== "undefined" && window.matchMedia?.("print")?.matches) && (
-            <div className="mt-2">
-              <Component />
-            </div>
+          {(expandedSections[key] ||
+            (typeof window !== "undefined" &&
+              window.matchMedia?.("print")?.matches)) && (
+            <div className="mt-2">{render()}</div>
           )}
           <Separator className="mt-4" />
         </section>
@@ -1262,10 +2236,12 @@ export function FarmMasterPlan() {
 
       {/* ══════════════ Disclaimer ══════════════ */}
       <p className="text-[10px] text-muted-foreground/60 text-center max-w-3xl mx-auto print:text-left">
-        Disclaimer: This master plan is a conceptual architectural layout for planning purposes. Actual dimensions,
-        soil conditions, water table depth, local regulations, and climate must be verified before construction.
-        All income estimates are conservative and based on Palekar Natural Farming (ZBNF) methodology.
-        Consult a local agricultural officer and civil engineer before implementation.
+        Disclaimer: This master plan is a conceptual architectural layout for
+        planning purposes. Actual dimensions, soil conditions, water table
+        depth, local regulations, and climate must be verified before
+        construction. All income estimates are conservative and based on Palekar
+        Natural Farming (ZBNF) methodology. Consult a local agricultural officer
+        and civil engineer before implementation.
       </p>
 
       {/* ══════════════ Infrastructure Detail Sheet ══════════════ */}
@@ -1275,6 +2251,12 @@ export function FarmMasterPlan() {
         onOpenChange={(open) => {
           if (!open) setSelectedInfra(null);
         }}
+      />
+
+      {/* ══════════════ Boundary Detail Sheet ══════════════ */}
+      <BoundaryDetailSheet
+        open={boundaryDetailOpen}
+        onOpenChange={setBoundaryDetailOpen}
       />
     </div>
   );
