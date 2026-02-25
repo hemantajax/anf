@@ -32,7 +32,7 @@ import {
   type AcreDensity,
   type MiddleBedType,
 } from "@/lib/density-utils";
-import type { PalekarModel } from "@/lib/orchard-utils";
+import { isBMSBed, isVineBed, type PalekarModel } from "@/lib/orchard-utils";
 
 // ---- Plant symbol dot ----
 function PlantDot({ fill, stroke }: { fill: string; stroke: string }) {
@@ -47,8 +47,10 @@ function PlantDot({ fill, stroke }: { fill: string; stroke: string }) {
 // ---- Bed breakdown card ----
 function BedCard({
   bed,
+  model = "24x24",
 }: {
   bed: BlockDensity["beds"][number];
+  model?: PalekarModel;
 }) {
   const [expanded, setExpanded] = useState(false);
   const plants = useMemo(() => getPlantDisplayList(bed.plants), [bed.plants]);
@@ -67,7 +69,7 @@ function BedCard({
           </Badge>
         </div>
         <CardDescription className="text-xs">
-          {bed.bedType === 1 || bed.bedType === 3
+          {isBMSBed(bed.bedType, model)
             ? "B/M/S center trees + ground cover"
             : bed.bedType === 2
               ? "Banana & Papaya edges + interior crops"
@@ -338,7 +340,7 @@ export function DensityCalculator() {
             <p className="text-xs text-muted-foreground -mt-2">
               {model === "24x24"
                 ? "K = 24ft (center Bed 1 → center Bed 3). Beds 1 & 3 carry B/M/S trees. Middle bed alternates."
-                : "K = 36ft (center Bed 1 → center Bed 3). All 4 beds in one module."}
+                : "K = 36ft (center Bed 1 → center Bed 4). All 4 beds in one module."}
             </p>
 
             {/* Bed cards */}
@@ -346,7 +348,7 @@ export function DensityCalculator() {
               block.bedCount === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"
             }`}>
               {block.beds.map((bed) => (
-                <BedCard key={bed.bedType} bed={bed} />
+                <BedCard key={bed.bedType} bed={bed} model={model} />
               ))}
             </div>
 

@@ -7,6 +7,8 @@ import {
   getBed2InteriorPlacements,
   getBed4Placements,
   PLANT_SYMBOLS,
+  isBMSBed,
+  isVineBed,
   type PalekarModel,
   type TreePlacement,
   MODEL_DEFAULTS,
@@ -114,9 +116,10 @@ function scaleCounts(map: PlantCountMap, factor: number): PlantCountMap {
 function getAllBedPlacements(
   bedType: number,
   bedLength: number,
-  treeSpacing: number
+  treeSpacing: number,
+  model: PalekarModel = "24x24"
 ): TreePlacement[] {
-  if (bedType === 1 || bedType === 3) {
+  if (isBMSBed(bedType, model)) {
     return [
       ...getCenterColumnTrees(BED_WIDTH_FT, bedLength, treeSpacing),
       ...getIntermediatePlacements(BED_WIDTH_FT, bedLength, treeSpacing),
@@ -138,9 +141,10 @@ function getAllBedPlacements(
 function computeBedDensity(
   bedType: number,
   bedLength: number,
-  treeSpacing: number
+  treeSpacing: number,
+  model: PalekarModel = "24x24"
 ): PlantCountMap {
-  return countPlacements(getAllBedPlacements(bedType, bedLength, treeSpacing));
+  return countPlacements(getAllBedPlacements(bedType, bedLength, treeSpacing, model));
 }
 
 // ---- Tiled bed density (for acre/farm scaling) ----
@@ -151,9 +155,10 @@ function computeBedDensity(
 function computeTiledBedDensity(
   bedType: number,
   bedLength: number,
-  treeSpacing: number
+  treeSpacing: number,
+  model: PalekarModel = "24x24"
 ): PlantCountMap {
-  const all = getAllBedPlacements(bedType, bedLength, treeSpacing);
+  const all = getAllBedPlacements(bedType, bedLength, treeSpacing, model);
   const unique = all.filter((p) => p.yOffsetFt < bedLength);
   return countPlacements(unique);
 }
@@ -164,7 +169,7 @@ function computeTiledBedDensity(
  * Compute plant counts for one STANDALONE K-module (for display).
  *
  * 24×24 → 3-bed module: Bed 1 | Middle (Bed 2 or 4) | Bed 3
- * 36×36 → 4-bed module: Bed 1 | Bed 2 | Bed 4 | Bed 3
+ * 36×36 → 4-bed module: Bed 1 | Bed 2 | Bed 3 | Bed 4
  */
 export function computeBlockDensity(
   model: PalekarModel,
@@ -176,7 +181,7 @@ export function computeBlockDensity(
   const bedCycle = getBedCycle(model, middleBed);
 
   const beds: BedDensity[] = bedCycle.map((bedType) => {
-    const plants = computeBedDensity(bedType, bedLength, treeSpacingFt);
+    const plants = computeBedDensity(bedType, bedLength, treeSpacingFt, model);
     return {
       bedType,
       label: `Bed ${bedType}`,
@@ -205,7 +210,7 @@ function getBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
   if (model === "24x24") {
     return [1, middleBed === "bed2" ? 2 : 4, 3];
   }
-  return MODEL_DEFAULTS[model].bedTypeCycle; // [1, 2, 4, 3]
+  return MODEL_DEFAULTS[model].bedTypeCycle; // [1, 2, 3, 4]
 }
 
 /**
@@ -215,14 +220,14 @@ function getBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
  *   24×24: Bed 1 | Middle | Bed 3 ← Bed 3 is shared → drop it
  *          Unique per module: [Bed 1, Middle]
  *
- *   36×36: Bed 1 | Bed 2 | Bed 4 | Bed 3 ← Bed 3 shared → drop it
- *          Unique per module: [Bed 1, Bed 2, Bed 4]
+ *   36×36: Bed 1 | Bed 2 | Bed 3 | Bed 4 ← Bed 4 shared → drop it
+ *          Unique per module: [Bed 1, Bed 2, Bed 3]
  */
 function getTiledBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
   if (model === "24x24") {
     return [1, middleBed === "bed2" ? 2 : 4]; // drop Bed 3
   }
-  return [1, 2, 4]; // drop Bed 3 (position 4)
+  return [1, 2, 3]; // drop Bed 4 (shared boundary)
 }
 
 // ---- Tiled module density (for acre/farm scaling) ----
@@ -249,7 +254,7 @@ function computeTiledModuleDensity(
   const tiledCycle = getTiledBedCycle(model, middleBed);
 
   const bedCounts = tiledCycle.map((bedType) =>
-    computeTiledBedDensity(bedType, bedLength, treeSpacingFt)
+    computeTiledBedDensity(bedType, bedLength, treeSpacingFt, model)
   );
 
   const plants = mergeCounts(...bedCounts);

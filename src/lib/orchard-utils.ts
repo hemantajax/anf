@@ -63,6 +63,7 @@ export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
   bedTypeCycle: [1, 2, 3, 4],
   kBedSpan: 3,
   treeSpacingFt: 6,
+  model: "24x24",
 };
 
 // ---- Canvas color palette (dark / light theme) ----
@@ -190,14 +191,16 @@ export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
   let pathIdx = 0;
 
   const cycle = config.bedTypeCycle;
+  const kSpan = config.kBedSpan;
 
   for (let col = 0; col < bedCount; col++) {
-    const bedTypeNum = cycle[col % cycle.length];
+    const bedTypeNum = bedTypeForColumn(col, cycle, kSpan);
 
     beds.push({
       index: col,
       row: 0,
       col,
+      bedType: bedTypeNum,
       label: `Bed ${bedTypeNum}`,
       x: currentX,
       y: innerY,
@@ -284,8 +287,44 @@ export const MODEL_DEFAULTS: Record<
   { bedLength: number; bedTypeCycle: number[]; kBedSpan: number; treeSpacingFt: number }
 > = {
   "24x24": { bedLength: 24, bedTypeCycle: [1, 2, 3, 4], kBedSpan: 3, treeSpacingFt: 6 },
-  "36x36": { bedLength: 36, bedTypeCycle: [1, 2, 4, 3], kBedSpan: 4, treeSpacingFt: 9 },
+  "36x36": { bedLength: 36, bedTypeCycle: [1, 2, 3, 4], kBedSpan: 4, treeSpacingFt: 9 },
 };
+
+/**
+ * For 24×24: Bed 1 & 3 are B/M/S (big tree) beds.
+ * For 36×36: Bed 1 & 4 are B/M/S — they bookend the K-module at 36ft apart.
+ */
+export function isBMSBed(bedType: number, model: PalekarModel = "24x24"): boolean {
+  if (model === "36x36") return bedType === 1 || bedType === 4;
+  return bedType === 1 || bedType === 3;
+}
+
+/**
+ * For 24×24: Bed 4 is the vine/pavilion bed.
+ * For 36×36: Bed 3 is the vine/pavilion bed (sits between the two middle beds).
+ */
+export function isVineBed(bedType: number, model: PalekarModel = "24x24"): boolean {
+  if (model === "36x36") return bedType === 3;
+  return bedType === 4;
+}
+
+/**
+ * Compute bed type for a given column index, handling shared boundary beds.
+ *
+ * 24×24 (kBedSpan < cycle.length): simple modulo repeat
+ *   [1,2,3,4, 1,2,3,4, ...]
+ *
+ * 36×36 (kBedSpan === cycle.length): Bed 4 of module N = Bed 1 of module N+1
+ *   [1,2,3,4, 2,3,4, 2,3,4, ...]
+ */
+export function bedTypeForColumn(col: number, cycle: number[], kBedSpan: number): number {
+  const len = cycle.length;
+  if (kBedSpan < len || col < len) {
+    return cycle[col % len];
+  }
+  const tail = len - 1; // 3 for a 4-bed cycle
+  return cycle[1 + ((col - len) % tail)];
+}
 
 export interface OrchardPreset {
   label: string;
@@ -861,5 +900,6 @@ export function configFromBedCount(
     bedTypeCycle: md.bedTypeCycle,
     kBedSpan: md.kBedSpan,
     treeSpacingFt: md.treeSpacingFt,
+    model,
   };
 }

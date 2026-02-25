@@ -13,8 +13,10 @@ import {
   getBed2InteriorPlacements,
   getBed4Placements,
   getCanvasColors,
+  isBMSBed,
+  isVineBed,
 } from "@/lib/orchard-utils";
-import type { PlantSymbolDef, CanvasColors } from "@/lib/orchard-utils";
+import type { PlantSymbolDef, CanvasColors, PalekarModel } from "@/lib/orchard-utils";
 import type { OrchardLayout, BedPosition, PathPosition } from "@/types/farm";
 
 // Canvas color context — avoids prop-drilling through every sub-component
@@ -239,17 +241,19 @@ const PlantSymbolRenderer = React.memo(function PlantSymbolRenderer({
 const BedTreePlacements = React.memo(function BedTreePlacements({
   bed,
   symbolVisibility,
-  bedTypeCycle,
   treeSpacingFt,
+  model,
 }: {
   bed: BedPosition;
   symbolVisibility: Record<string, boolean>;
-  bedTypeCycle: number[];
   treeSpacingFt: number;
+  model: PalekarModel;
 }) {
   const colors = useColors();
-  const bedType = bedTypeCycle[bed.index % bedTypeCycle.length];
+  const bedType = bed.bedType;
   const ts = treeSpacingFt;
+  const bms = isBMSBed(bedType, model);
+  const vine = isVineBed(bedType, model);
 
   // ── Bed 2: Banana & Papaya on edges ──
   const edgePlacements = useMemo(() => {
@@ -259,29 +263,29 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 1 & 3: center column B/M/S ──
+  // ── B/M/S beds: center column B/M/S ──
   const centerTrees = useMemo(() => {
-    if (bedType === 1 || bedType === 3) {
+    if (bms) {
       return getCenterColumnTrees(bed.width, bed.height, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType, ts]);
+  }, [bed.width, bed.height, bms, ts]);
 
-  // ── Bed 1 & 3: pigeon pea midpoints (center column) ──
+  // ── B/M/S beds: pigeon pea midpoints (center column) ──
   const intermediates = useMemo(() => {
-    if (bedType === 1 || bedType === 3) {
+    if (bms) {
       return getIntermediatePlacements(bed.width, bed.height, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType, ts]);
+  }, [bed.width, bed.height, bms, ts]);
 
-  // ── Bed 1 & 3: ground-cover crops on non-center lines ──
+  // ── B/M/S beds: ground-cover crops on non-center lines ──
   const groundCover = useMemo(() => {
-    if (bedType === 1 || bedType === 3) {
+    if (bms) {
       return getBed13GroundCoverPlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bedType, ts]);
+  }, [bed.width, bed.height, bms, ts]);
 
   // ── Bed 2: pigeon pea midpoints on BOTH edge columns ──
   const bed2Intermediates = useMemo(() => {
@@ -299,13 +303,13 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bedType, ts]);
 
-  // ── Bed 4: vine veg ★ + pavilion poles ⌂ ──
+  // ── Vine bed: vine veg ★ + pavilion poles ⌂ ──
   const bed4Placements = useMemo(() => {
-    if (bedType === 4) {
+    if (vine) {
       return getBed4Placements(bed.width, bed.height);
     }
     return [];
-  }, [bed.width, bed.height, bedType]);
+  }, [bed.width, bed.height, vine]);
 
   /** Render a list of placements, skipping symbols toggled off */
   const renderPlacements = (
@@ -366,16 +370,16 @@ const BedRenderer = React.memo(function BedRenderer({
   showGrid,
   symbolVisibility,
   baseBedLengthFt,
-  bedTypeCycle,
   treeSpacingFt,
+  model,
 }: {
   bed: BedPosition;
   gridSpacing: number;
   showGrid: boolean;
   symbolVisibility: Record<string, boolean>;
   baseBedLengthFt: number;
-  bedTypeCycle: number[];
   treeSpacingFt: number;
+  model: PalekarModel;
 }) {
   const cl = useColors();
   const x = bed.x * PX_PER_FT;
@@ -475,7 +479,7 @@ const BedRenderer = React.memo(function BedRenderer({
           }
         )}
 
-      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} bedTypeCycle={bedTypeCycle} treeSpacingFt={treeSpacingFt} />
+      <BedTreePlacements bed={bed} symbolVisibility={symbolVisibility} treeSpacingFt={treeSpacingFt} model={model} />
     </Group>
   );
 });
@@ -654,8 +658,8 @@ export const OrchardLayer = React.memo(function OrchardLayer({
               showGrid={showGrid}
               symbolVisibility={symbolVisibility}
               baseBedLengthFt={baseBedLengthFt}
-              bedTypeCycle={config.bedTypeCycle}
               treeSpacingFt={config.treeSpacingFt}
+              model={(config.model ?? "24x24") as PalekarModel}
             />
           ))}
 

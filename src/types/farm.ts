@@ -227,7 +227,7 @@ export interface OrchardConfig {
   /** Grid spacing for plant placement in feet (e.g. 1) */
   gridSpacingFt: number;
   /** Bed type cycle — maps column position to bed type number.
-   *  24×24: [1,2,3,4]  |  36×36: [1,2,4,3] */
+   *  24×24: [1,2,3,4]  |  36×36: [1,2,3,4] */
   bedTypeCycle: number[];
   /** Number of beds the K module spans (center-to-center).
    *  24×24: 3 (Bed1→Bed3)  |  36×36: 4 (Bed1→Bed4) */
@@ -235,6 +235,8 @@ export interface OrchardConfig {
   /** Spacing between B/M/S center-column trees in feet.
    *  24×24: 6ft  |  36×36: 9ft */
   treeSpacingFt: number;
+  /** Palekar model identifier */
+  model?: "24x24" | "36x36";
 }
 
 export interface BedPosition {
@@ -244,6 +246,8 @@ export interface BedPosition {
   row: number;
   /** Column index within the row (0-based) */
   col: number;
+  /** Bed type number (1–4) — determines planting pattern */
+  bedType: number;
   /** Bed label (e.g. "Bed 1") */
   label: string;
   /** X position in feet from left edge of orchard */
