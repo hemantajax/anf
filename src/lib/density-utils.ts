@@ -1,5 +1,6 @@
 import {
   getCenterColumnTrees,
+  getSmallTreeCenterColumn,
   getIntermediatePlacements,
   getBed13GroundCoverPlacements,
   getBed2EdgePlacements,
@@ -22,8 +23,8 @@ const GRID_SPACING_FT = 1.5;
 /** Per-plant count keyed by symbol ID */
 export type PlantCountMap = Record<string, number>;
 
-/** Middle bed choice for 24×24 (Bed 2 = BA/PA, Bed 4 = Vine/Veg) */
-export type MiddleBedType = "bed2" | "bed4";
+/** Middle bed choice for 24×24 (Bed 2 = BA/PA, Bed 4 = Vine/Veg, Bed 5 = S-Bed) */
+export type MiddleBedType = "bed2" | "bed4" | "bed5";
 
 /** Summary for a single bed */
 export interface BedDensity {
@@ -125,6 +126,12 @@ function getAllBedPlacements(
       ...getIntermediatePlacements(BED_WIDTH_FT, bedLength, treeSpacing),
       ...getBed13GroundCoverPlacements(BED_WIDTH_FT, bedLength, GRID_SPACING_FT, treeSpacing),
     ];
+  } else if (bedType === 5) {
+    return [
+      ...getSmallTreeCenterColumn(BED_WIDTH_FT, bedLength, treeSpacing),
+      ...getIntermediatePlacements(BED_WIDTH_FT, bedLength, treeSpacing),
+      ...getBed13GroundCoverPlacements(BED_WIDTH_FT, bedLength, GRID_SPACING_FT, treeSpacing),
+    ];
   } else if (bedType === 2) {
     return [
       ...getBed2EdgePlacements(BED_WIDTH_FT, bedLength, GRID_SPACING_FT, treeSpacing),
@@ -208,8 +215,10 @@ export function computeBlockDensity(
 
 function getBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
   if (model === "24x24") {
-    return [1, middleBed === "bed2" ? 2 : 4, 3];
+    const mid = middleBed === "bed5" ? 5 : middleBed === "bed2" ? 2 : 4;
+    return [1, mid, 3];
   }
+  if (middleBed === "bed5") return [1, 5, 3, 4];
   return MODEL_DEFAULTS[model].bedTypeCycle; // [1, 2, 3, 4]
 }
 
@@ -225,8 +234,10 @@ function getBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
  */
 function getTiledBedCycle(model: PalekarModel, middleBed: MiddleBedType): number[] {
   if (model === "24x24") {
-    return [1, middleBed === "bed2" ? 2 : 4]; // drop Bed 3
+    const mid = middleBed === "bed5" ? 5 : middleBed === "bed2" ? 2 : 4;
+    return [1, mid]; // drop Bed 3
   }
+  if (middleBed === "bed5") return [1, 5, 3]; // drop Bed 4 (shared boundary)
   return [1, 2, 3]; // drop Bed 4 (shared boundary)
 }
 

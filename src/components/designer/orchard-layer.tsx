@@ -6,6 +6,7 @@ import { PX_PER_FT } from "@/lib/designer-utils";
 import {
   PLANT_SYMBOLS,
   getCenterColumnTrees,
+  getSmallTreeCenterColumn,
   getIntermediatePlacements,
   getBed13GroundCoverPlacements,
   getBed2EdgePlacements,
@@ -271,21 +272,29 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
     return [];
   }, [bed.width, bed.height, bms, ts]);
 
-  // ── B/M/S beds: pigeon pea midpoints (center column) ──
+  // ── Bed 5 (S-Bed): center column all Small Trees ──
+  const sBedTrees = useMemo(() => {
+    if (bedType === 5) {
+      return getSmallTreeCenterColumn(bed.width, bed.height, ts);
+    }
+    return [];
+  }, [bed.width, bed.height, bedType, ts]);
+
+  // ── B/M/S beds & Bed 5: pigeon pea midpoints (center column) ──
   const intermediates = useMemo(() => {
-    if (bms) {
+    if (bms || bedType === 5) {
       return getIntermediatePlacements(bed.width, bed.height, ts);
     }
     return [];
-  }, [bed.width, bed.height, bms, ts]);
+  }, [bed.width, bed.height, bms, bedType, ts]);
 
-  // ── B/M/S beds: ground-cover crops on non-center lines ──
+  // ── B/M/S beds & Bed 5: ground-cover crops on non-center lines ──
   const groundCover = useMemo(() => {
-    if (bms) {
+    if (bms || bedType === 5) {
       return getBed13GroundCoverPlacements(bed.width, bed.height, 1.5, ts);
     }
     return [];
-  }, [bed.width, bed.height, bms, ts]);
+  }, [bed.width, bed.height, bms, bedType, ts]);
 
   // ── Bed 2: pigeon pea midpoints on BOTH edge columns ──
   const bed2Intermediates = useMemo(() => {
@@ -340,10 +349,13 @@ const BedTreePlacements = React.memo(function BedTreePlacements({
       {/* Center B/M/S (Bed 1 & 3 only) */}
       {renderPlacements(centerTrees, "ct", true)}
 
-      {/* Intermediate pigeon pea (Bed 1 & 3) */}
+      {/* S-Bed center column — all Small Trees (Bed 5) */}
+      {renderPlacements(sBedTrees, "sb", true)}
+
+      {/* Intermediate pigeon pea (Bed 1, 3 & 5) */}
       {renderPlacements(intermediates, "im")}
 
-      {/* Ground-cover crops (Bed 1 & 3) */}
+      {/* Ground-cover crops (Bed 1, 3 & 5) */}
       {renderPlacements(groundCover, "gc")}
 
       {/* Edge BA/PA (Bed 2) */}

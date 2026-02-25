@@ -1,3 +1,6 @@
+// ---- BA Bed Mode (controls Bed 2 → S-Bed replacement) ----
+export type BaBedMode = "standard" | "allSmall" | "alternateSmall";
+
 // ---- Size Category ----
 export type SizeCategory = "big" | "medium" | "small" | "bush";
 
@@ -237,6 +240,11 @@ export interface OrchardConfig {
   treeSpacingFt: number;
   /** Palekar model identifier */
   model?: "24x24" | "36x36";
+  /** BA bed replacement mode.
+   *  standard: all Bed 2 = BA/PA
+   *  allSmall: every Bed 2 → S-Bed (Small Tree center column)
+   *  alternateSmall: odd cycles S-Bed, even cycles BA */
+  baBedMode: BaBedMode;
 }
 
 export interface BedPosition {

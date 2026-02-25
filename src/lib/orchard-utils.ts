@@ -3,6 +3,7 @@ import type {
   OrchardLayout,
   BedPosition,
   PathPosition,
+  BaBedMode,
 } from "@/types/farm";
 
 /**
@@ -64,6 +65,7 @@ export const DEFAULT_ORCHARD_CONFIG: OrchardConfig = {
   kBedSpan: 3,
   treeSpacingFt: 6,
   model: "24x24",
+  baBedMode: "standard",
 };
 
 // ---- Canvas color palette (dark / light theme) ----
@@ -201,7 +203,7 @@ export function computeOrchardLayout(config: OrchardConfig): OrchardLayout {
       row: 0,
       col,
       bedType: bedTypeNum,
-      label: `Bed ${bedTypeNum}`,
+      label: bedTypeNum === 5 ? "S-Bed" : `Bed ${bedTypeNum}`,
       x: currentX,
       y: innerY,
       width: bedWidthFt,
@@ -615,6 +617,20 @@ export function getCenterColumnTrees(
   return placements;
 }
 
+/** Generate center column with ALL Small Trees (S) for Bed 5 (S-Bed). */
+export function getSmallTreeCenterColumn(
+  bedWidthFt: number,
+  bedHeightFt: number,
+  spacingFt = 6
+): TreePlacement[] {
+  const centerX = bedWidthFt / 2;
+  const placements: TreePlacement[] = [];
+  for (let y = 0; y <= bedHeightFt; y += spacingFt) {
+    placements.push({ symbolId: "small", yOffsetFt: y, xOffsetFt: centerX });
+  }
+  return placements;
+}
+
 /**
  * Generate 3ft intermediate placements for Bed 1 & Bed 3.
  * Pigeon Pea △ at midpoints between B/M/S trees on center column.
@@ -877,11 +893,41 @@ export function getBed4Placements(
   return placements;
 }
 
+/**
+ * Build the bedTypeCycle array based on model, bedCount, and baBedMode.
+ *
+ *  standard:        use the model's default cycle as-is
+ *  allSmall:        replace every Bed 2 with Bed 5 (S-Bed)
+ *  alternateSmall:  odd cycles → S-Bed, even cycles → BA (standard)
+ */
+export function computeBedTypeCycle(
+  model: PalekarModel,
+  bedCount: number,
+  baBedMode: BaBedMode
+): number[] {
+  const base = MODEL_DEFAULTS[model].bedTypeCycle;
+  if (baBedMode === "standard") return base;
+
+  const sBedCycle = base.map((b) => (b === 2 ? 5 : b));
+
+  if (baBedMode === "allSmall") return sBedCycle;
+
+  // alternateSmall: expand to full length — odd cycles get S-Bed, even keep BA
+  const cycleLen = base.length;
+  const totalCycles = Math.ceil(bedCount / cycleLen);
+  const full: number[] = [];
+  for (let i = 0; i < totalCycles; i++) {
+    full.push(...(i % 2 === 0 ? sBedCycle : base));
+  }
+  return full.slice(0, bedCount);
+}
+
 /** Build a full config from bed count + model type */
 export function configFromBedCount(
   bedCount: number,
   rowCount = 1,
   model: PalekarModel = "24x24",
+  baBedMode: BaBedMode = "standard",
   bedWidthFt = 9,
   pathWidthFt = 3,
   boundaryWidthFt = 1.5,
@@ -897,9 +943,10 @@ export function configFromBedCount(
     bedCount,
     rowCount,
     gridSpacingFt,
-    bedTypeCycle: md.bedTypeCycle,
+    bedTypeCycle: computeBedTypeCycle(model, bedCount, baBedMode),
     kBedSpan: md.kBedSpan,
     treeSpacingFt: md.treeSpacingFt,
     model,
+    baBedMode,
   };
 }

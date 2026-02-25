@@ -13,12 +13,13 @@ import {
   validateOrchardConfig,
   ORCHARD_PRESETS,
   configFromBedCount,
+  computeBedTypeCycle,
   calcCanvasWidth,
   calcCanvasHeight,
   MODEL_DEFAULTS,
 } from "@/lib/orchard-utils";
 import type { PalekarModel } from "@/lib/orchard-utils";
-import type { OrchardConfig } from "@/types/farm";
+import type { OrchardConfig, BaBedMode } from "@/types/farm";
 
 // ---- Orchard settings panel (shown when nothing selected) ----
 function OrchardSettings() {
@@ -52,10 +53,19 @@ function OrchardSettings() {
 
   /** Switch model type (24×24 ↔ 36×36) */
   const switchModel = (model: PalekarModel) => {
-    const md = MODEL_DEFAULTS[model];
     setOrchardConfig(
-      configFromBedCount(orchardConfig.bedCount, orchardConfig.rowCount, model)
+      configFromBedCount(orchardConfig.bedCount, orchardConfig.rowCount, model, orchardConfig.baBedMode)
     );
+  };
+
+  /** Switch BA bed mode (Standard / All S-Bed / Alternate) */
+  const switchBaBedMode = (mode: BaBedMode) => {
+    const newCycle = computeBedTypeCycle(currentModel, orchardConfig.bedCount, mode);
+    setOrchardConfig({
+      ...orchardConfig,
+      baBedMode: mode,
+      bedTypeCycle: newCycle,
+    });
   };
 
   return (
@@ -91,6 +101,37 @@ function OrchardSettings() {
 
         <Separator />
 
+        {/* BA Bed Mode selector */}
+        <div className="space-y-1.5">
+          <Label className="text-xs">BA Bed Mode</Label>
+          <div className="flex gap-1">
+            {([
+              { value: "standard" as BaBedMode, label: "Standard" },
+              { value: "allSmall" as BaBedMode, label: "All S-Bed" },
+              { value: "alternateSmall" as BaBedMode, label: "Alt S-Bed" },
+            ]).map((opt) => (
+              <Button
+                key={opt.value}
+                variant={orchardConfig.baBedMode === opt.value ? "default" : "outline"}
+                size="sm"
+                className="text-[10px] h-6 px-2 flex-1"
+                onClick={() => switchBaBedMode(opt.value)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {orchardConfig.baBedMode === "standard"
+              ? "Bed 2 = BA/PA (default Palekar)"
+              : orchardConfig.baBedMode === "allSmall"
+              ? "All Bed 2 → S-Bed (Small Tree center col)"
+              : "Odd cycles: S-Bed · Even cycles: BA"}
+          </p>
+        </div>
+
+        <Separator />
+
         {/* Presets filtered by current model */}
         <div className="space-y-1.5">
           <Label className="text-xs">Layout Preset</Label>
@@ -108,7 +149,7 @@ function OrchardSettings() {
                 className="text-[10px] h-6 px-2"
                 onClick={() =>
                   setOrchardConfig(
-                    configFromBedCount(preset.bedCount, orchardConfig.rowCount, preset.model)
+                    configFromBedCount(preset.bedCount, orchardConfig.rowCount, preset.model, orchardConfig.baBedMode)
                   )
                 }
               >
