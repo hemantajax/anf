@@ -171,12 +171,17 @@ export interface PlantPlacement {
 export interface BlockTemplate {
   id: string;
   name: string;
+  description?: string;
   widthFt: number;
   heightFt: number;
+  orchardConfig: OrchardConfig;
   plants: PlantPlacement[];
   trenches: { y: number; widthFt: number }[];
   beds: { y: number; heightFt: number; label: string }[];
   totalPlants: number;
+  createdAt: string;
+  updatedAt: string;
+  isDefault?: boolean;
 }
 
 // ---- Farm ----

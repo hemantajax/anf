@@ -201,7 +201,22 @@ export const ZONE_SUMMARY = [
 ];
 
 // ---- Full Zone defaults (used by zone-store) ----
-import type { Zone } from "@/types/farm";
+import type { Zone, BlockTemplate, OrchardConfig } from "@/types/farm";
+import {
+  configFromBedCount,
+  computeOrchardLayout,
+  getCenterColumnTrees,
+  getSmallTreeCenterColumn,
+  getIntermediatePlacements,
+  getBed13GroundCoverPlacements,
+  getBed2EdgePlacements,
+  getBed2IntermediatePlacements,
+  getBed2InteriorPlacements,
+  getBed4Placements,
+  isBMSBed,
+  isVineBed,
+  type PalekarModel,
+} from "@/lib/orchard-utils";
 
 export const BLOCK_TEMPLATE_OPTIONS = [
   { id: "standard-orchard", name: "Standard Orchard", size: "36×36 ft" },
@@ -209,6 +224,94 @@ export const BLOCK_TEMPLATE_OPTIONS = [
   { id: "banana-block", name: "Banana Block", size: "36×36 ft" },
   { id: "premium-block", name: "Premium Block", size: "36×36 ft" },
 ] as const;
+
+/** Count total plant placements for a given orchard config. */
+function countPlantsForConfig(cfg: OrchardConfig): number {
+  const layout = computeOrchardLayout(cfg);
+  const model = (cfg.model ?? "24x24") as PalekarModel;
+  let total = 0;
+  for (const bed of layout.beds) {
+    const bms = isBMSBed(bed.bedType, model);
+    const vine = isVineBed(bed.bedType, model);
+    if (bms) {
+      total += getCenterColumnTrees(bed.width, bed.height, cfg.treeSpacingFt).length;
+      total += getIntermediatePlacements(bed.width, bed.height, cfg.treeSpacingFt).length;
+      total += getBed13GroundCoverPlacements(bed.width, bed.height, 1.5, cfg.treeSpacingFt).length;
+    }
+    if (bed.bedType === 5) {
+      total += getSmallTreeCenterColumn(bed.width, bed.height, cfg.treeSpacingFt).length;
+      total += getIntermediatePlacements(bed.width, bed.height, cfg.treeSpacingFt).length;
+      total += getBed13GroundCoverPlacements(bed.width, bed.height, 1.5, cfg.treeSpacingFt).length;
+    }
+    if (bed.bedType === 2) {
+      total += getBed2EdgePlacements(bed.width, bed.height, 1.5, cfg.treeSpacingFt).length;
+      total += getBed2IntermediatePlacements(bed.width, bed.height, 1.5, cfg.treeSpacingFt).length;
+      total += getBed2InteriorPlacements(bed.width, bed.height, 1.5, cfg.treeSpacingFt).length;
+    }
+    if (vine) {
+      total += getBed4Placements(bed.width, bed.height).length;
+    }
+  }
+  return total;
+}
+
+/** Build a full BlockTemplate from basic parameters. */
+export function buildBlockTemplate(
+  id: string,
+  name: string,
+  description: string,
+  cfg: OrchardConfig,
+  isDefault = false,
+): BlockTemplate {
+  const layout = computeOrchardLayout(cfg);
+  const now = new Date().toISOString();
+  return {
+    id,
+    name,
+    description,
+    widthFt: cfg.widthFt,
+    heightFt: cfg.heightFt,
+    orchardConfig: cfg,
+    plants: [],
+    trenches: layout.paths.map((p) => ({ y: p.y, widthFt: p.width })),
+    beds: layout.beds.map((b) => ({ y: b.y, heightFt: b.height, label: b.label })),
+    totalPlants: countPlantsForConfig(cfg),
+    createdAt: now,
+    updatedAt: now,
+    isDefault,
+  };
+}
+
+export const DEFAULT_TEMPLATES: BlockTemplate[] = [
+  buildBlockTemplate(
+    "standard-orchard",
+    "Standard Orchard",
+    "Full Palekar 36×36 module with B/M/S trees, Banana/Papaya, and vine beds.",
+    configFromBedCount(4, 1, "36x36", "standard"),
+    true,
+  ),
+  buildBlockTemplate(
+    "compact-orchard",
+    "Compact Orchard",
+    "Compact 24×24 module — same bed cycle at smaller scale.",
+    configFromBedCount(4, 1, "24x24", "standard"),
+    true,
+  ),
+  buildBlockTemplate(
+    "banana-block",
+    "Banana Block",
+    "High-density banana layout — all Bed 2 replaced with S-Beds for maximum banana/papaya yield.",
+    configFromBedCount(4, 1, "36x36", "allSmall"),
+    true,
+  ),
+  buildBlockTemplate(
+    "premium-block",
+    "Premium Block",
+    "Premium asset trees (Mango, Jackfruit, Avocado) with standard bed layout.",
+    configFromBedCount(4, 1, "36x36", "standard"),
+    true,
+  ),
+];
 
 export const ZONE_COLOR_PRESETS = [
   { value: "#10b981", label: "Emerald" },

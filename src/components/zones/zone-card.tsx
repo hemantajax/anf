@@ -4,7 +4,7 @@ import { Pencil, Trash2, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BLOCK_TEMPLATE_OPTIONS } from "@/lib/constants";
+import { useTemplateStore } from "@/stores/template-store";
 import type { Zone } from "@/types/farm";
 
 interface ZoneCardProps {
@@ -13,15 +13,10 @@ interface ZoneCardProps {
   onDelete: (zone: Zone) => void;
 }
 
-function getTemplateName(templateId: string): string {
-  return (
-    BLOCK_TEMPLATE_OPTIONS.find((t) => t.id === templateId)?.name ??
-    "Unassigned"
-  );
-}
-
 export function ZoneCard({ zone, onEdit, onDelete }: ZoneCardProps) {
-  // Split strategy into label + description at the em-dash
+  const templates = useTemplateStore((s) => s.templates);
+  const templateName = templates.find((t) => t.id === zone.blockTemplateId)?.name ?? "Unassigned";
+
   const [label, ...rest] = zone.strategy.split("—");
   const description = rest.join("—").trim();
 
@@ -89,7 +84,7 @@ export function ZoneCard({ zone, onEdit, onDelete }: ZoneCardProps) {
             {zone.acres} acres
           </Badge>
           <Badge variant="outline" className="text-xs">
-            {getTemplateName(zone.blockTemplateId)}
+            {templateName}
           </Badge>
         </div>
       </CardContent>

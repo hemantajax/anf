@@ -1,25 +1,31 @@
 "use client";
 
-import { Grid3X3 } from "lucide-react";
-import { PagePlaceholder } from "@/components/page-placeholder";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const TemplateManager = dynamic(
+  () =>
+    import("@/components/templates/template-manager").then(
+      (m) => m.TemplateManager,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-4 md:p-6 space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-52" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[300px] rounded-xl" />
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 
 export default function TemplatesPage() {
-  return (
-    <PagePlaceholder
-      icon={Grid3X3}
-      title="Block Templates"
-      description="Design reusable block layouts (36×36, 24×24, or custom) with plants, trenches, and beds — then stamp them across your farm."
-      phase="Phase 3"
-      features={[
-        "Template Editor",
-        "36×36 Standard",
-        "24×24 Compact",
-        "Drag & Drop Plants",
-        "Trench Config",
-        "Bed Rows",
-        "Save / Duplicate",
-        "Preview",
-      ]}
-    />
-  );
+  return <TemplateManager />;
 }

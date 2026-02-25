@@ -22,10 +22,10 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
-  BLOCK_TEMPLATE_OPTIONS,
   ZONE_COLOR_PRESETS,
   DEFAULT_FARM,
 } from "@/lib/constants";
+import { useTemplateStore } from "@/stores/template-store";
 import type { Zone } from "@/types/farm";
 
 interface ZoneEditSheetProps {
@@ -36,18 +36,6 @@ interface ZoneEditSheetProps {
   onSave: (zone: Zone) => void;
 }
 
-function emptyZone(): Zone {
-  return {
-    id: nanoid(),
-    name: "",
-    color: ZONE_COLOR_PRESETS[0].value,
-    acres: 1,
-    strategy: "",
-    blockTemplateId: BLOCK_TEMPLATE_OPTIONS[0].id,
-    bounds: { x: 0, y: 0, width: 200, height: 200 },
-  };
-}
-
 export function ZoneEditSheet({
   open,
   onOpenChange,
@@ -55,7 +43,21 @@ export function ZoneEditSheet({
   existingZones,
   onSave,
 }: ZoneEditSheetProps) {
+  const templates = useTemplateStore((s) => s.templates);
   const isEditing = zone !== null;
+
+  function emptyZone(): Zone {
+    return {
+      id: nanoid(),
+      name: "",
+      color: ZONE_COLOR_PRESETS[0].value,
+      acres: 1,
+      strategy: "",
+      blockTemplateId: templates[0]?.id ?? "",
+      bounds: { x: 0, y: 0, width: 200, height: 200 },
+    };
+  }
+
   const [draft, setDraft] = useState<Zone>(emptyZone);
 
   // Reset draft when sheet opens / zone changes
@@ -187,7 +189,7 @@ export function ZoneEditSheet({
                 <SelectValue placeholder="Select template" />
               </SelectTrigger>
               <SelectContent>
-                {BLOCK_TEMPLATE_OPTIONS.map((t) => (
+                {templates.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
                     <span className="flex items-center gap-2">
                       {t.name}
@@ -195,7 +197,7 @@ export function ZoneEditSheet({
                         variant="outline"
                         className="text-[10px] ml-1 px-1.5 py-0"
                       >
-                        {t.size}
+                        {Math.round(t.widthFt)}×{Math.round(t.heightFt)} ft
                       </Badge>
                     </span>
                   </SelectItem>
